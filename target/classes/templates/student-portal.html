@@ -440,6 +440,16 @@
             if (!enrollments.includes(courseName)) {
                 enrollments.push(courseName);
                 localStorage.setItem('studentEnrollments', JSON.stringify(enrollments));
+
+                // Store enrollment date if first enrollment
+                if (!localStorage.getItem('studentEnrollmentDate')) {
+                    localStorage.setItem('studentEnrollmentDate', new Date().toISOString());
+                }
+
+                // Store enrollment date for this specific course
+                let courseEnrollmentDates = JSON.parse(localStorage.getItem('courseEnrollmentDates') || '{}');
+                courseEnrollmentDates[courseName] = new Date().toISOString();
+                localStorage.setItem('courseEnrollmentDates', JSON.stringify(courseEnrollmentDates));
             }
 
             // Update stats
@@ -532,130 +542,6 @@
             }
         }
 
-        function loadGrades() {
-            const enrollments = JSON.parse(localStorage.getItem('studentEnrollments') || '[]');
-            const gradesContent = document.getElementById('grades-content');
-            const printControls = document.getElementById('grades-controls');
-            const previewArea = document.getElementById('grade-sheet-preview');
-
-            if (enrollments.length > 0) {
-                printControls.style.display = 'block';
-                previewArea.style.display = 'block';
-                gradesContent.innerHTML = '<h4>Grade Sheet Preview</h4>';
-                const profileData = JSON.parse(localStorage.getItem('studentProfile') || '{}');
-                const studentInfo = {
-                    name: profileData.fullName || document.querySelector('span[th\:text]')?.textContent || 'Student Name',
-                    id: profileData.idNumber || 'ID Number',
-                    status: profileData.status || 'Active',
-                    program: profileData.program && profileData.program.toLowerCase().includes('master') ? 'Master' : 'Undergraduate'
-                };
-                const gradeRecords = enrollments.map(courseName => {
-                    const code = getCourseCode(courseName);
-                    const credit = getCourseCredit(courseName);
-                    const grade = getRandomGrade();
-                    const point = getGradePoint(grade);
-                    return { title: courseName, code, credit, grade, point };
-                });
-
-                previewArea.innerHTML = buildPrintAreaHtml(studentInfo, gradeRecords);
-            } else {
-                printControls.style.display = 'none';
-                previewArea.style.display = 'none';
-                gradesContent.innerHTML = '<p style="color: #999; font-style: italic;">No grades available yet. Enroll in courses to see your grades.</p>';
-                previewArea.innerHTML = '';
-            }
-        }
-
-        function buildGradeSheetSummary(studentInfo, gradeRecords) {
-            const summaryDiv = document.createElement('div');
-            summaryDiv.style.marginBottom = '16px';
-            summaryDiv.innerHTML = `
-                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
-                    <div>
-                        <strong>Name:</strong> ${studentInfo.name}<br>
-                        <strong>ID Number:</strong> ${studentInfo.id}<br>
-                        <strong>Status:</strong> ${studentInfo.status}<br>
-                        <strong>Program:</strong> ${studentInfo.program}
-                    </div>
-                    <div style="text-align: right; min-width: 210px;">
-                        <strong>Total Credit:</strong> ${gradeRecords.reduce((sum, item) => sum + item.credit, 0)}<br>
-                        <strong>Total Point:</strong> ${gradeRecords.reduce((sum, item) => sum + item.point, 0).toFixed(2)}<br>
-                        <strong>GPA:</strong> ${computeGPA(gradeRecords)}
-                    </div>
-                </div>
-            `;
-            summaryDiv.appendChild(buildGradesTable(gradeRecords));
-            return summaryDiv;
-        }
-
-        function buildGradesTable(gradeRecords) {
-            const table = document.createElement('table');
-            table.style.width = '100%';
-            table.style.borderCollapse = 'collapse';
-            table.innerHTML = `
-                <thead>
-                    <tr style="background: #f8f9fa;">
-                        <th style="padding: 10px; border: 1px solid #ddd; text-align: left;">Course Title</th>
-                        <th style="padding: 10px; border: 1px solid #ddd; text-align: left;">Course Code</th>
-                        <th style="padding: 10px; border: 1px solid #ddd; text-align: left;">Total Credit</th>
-                        <th style="padding: 10px; border: 1px solid #ddd; text-align: left;">Grade</th>
-                        <th style="padding: 10px; border: 1px solid #ddd; text-align: left;">Point</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    ${gradeRecords.map(record => `
-                        <tr>
-                            <td style="padding: 10px; border: 1px solid #ddd;">${record.title}</td>
-                            <td style="padding: 10px; border: 1px solid #ddd;">${record.code}</td>
-                            <td style="padding: 10px; border: 1px solid #ddd;">${record.credit}</td>
-                            <td style="padding: 10px; border: 1px solid #ddd;">${record.grade}</td>
-                            <td style="padding: 10px; border: 1px solid #ddd;">${record.point.toFixed(2)}</td>
-                        </tr>
-                    `).join('')}
-                </tbody>
-            `;
-            return table;
-        }
-
-        function buildPrintAreaHtml(studentInfo, gradeRecords) {
-            return `
-                <div style="font-family: Arial, sans-serif; color: #1b1b1b; padding: 24px;">
-                    <h2 style="margin-bottom: 12px;">Grade Sheet</h2>
-                    <div style="margin-bottom: 20px;">
-                        <div><strong>Name:</strong> ${studentInfo.name}</div>
-                        <div><strong>ID Number:</strong> ${studentInfo.id}</div>
-                        <div><strong>Status:</strong> ${studentInfo.status}</div>
-                        <div><strong>Program:</strong> ${studentInfo.program}</div>
-                        <div><strong>Total Credit:</strong> ${gradeRecords.reduce((sum, item) => sum + item.credit, 0)}</div>
-                        <div><strong>Total Point:</strong> ${gradeRecords.reduce((sum, item) => sum + item.point, 0).toFixed(2)}</div>
-                        <div><strong>GPA:</strong> ${computeGPA(gradeRecords)}</div>
-                    </div>
-                    <table style="width:100%; border-collapse: collapse;">
-                        <thead>
-                            <tr>
-                                <th style="padding: 10px; border: 1px solid #333; text-align: left;">Course Title</th>
-                                <th style="padding: 10px; border: 1px solid #333; text-align: left;">Course Code</th>
-                                <th style="padding: 10px; border: 1px solid #333; text-align: left;">Total Credit</th>
-                                <th style="padding: 10px; border: 1px solid #333; text-align: left;">Grade</th>
-                                <th style="padding: 10px; border: 1px solid #333; text-align: left;">Point</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            ${gradeRecords.map(record => `
-                                <tr>
-                                    <td style="padding: 10px; border: 1px solid #333;">${record.title}</td>
-                                    <td style="padding: 10px; border: 1px solid #333;">${record.code}</td>
-                                    <td style="padding: 10px; border: 1px solid #333;">${record.credit}</td>
-                                    <td style="padding: 10px; border: 1px solid #333;">${record.grade}</td>
-                                    <td style="padding: 10px; border: 1px solid #333;">${record.point.toFixed(2)}</td>
-                                </tr>
-                            `).join('')}
-                        </tbody>
-                    </table>
-                </div>
-            `;
-        }
-
         function computeGPA(records) {
             const totalCredits = records.reduce((sum, item) => sum + item.credit, 0);
             if (totalCredits === 0) return '0.00';
@@ -686,36 +572,6 @@
             return points[grade] || 0.0;
         }
 
-        function printGradeSheet() {
-            const previewArea = document.getElementById('grade-sheet-preview');
-            if (!previewArea.innerHTML.trim()) {
-                alert('Grade sheet is not ready yet. Please visit the Grades tab again.');
-                return;
-            }
-
-            const printWindow = window.open('', '_blank', 'width=900,height=700');
-            if (!printWindow) {
-                alert('Popup blocked. Please allow popups for this site to print the grade sheet.');
-                return;
-            }
-
-            printWindow.document.write(`<!doctype html><html><head><title>Grade Sheet</title>` +
-                `<style>body{font-family:Arial,sans-serif;color:#1b1b1b;margin:0;padding:24px;} ` +
-                `table{width:100%;border-collapse:collapse;} th,td{border:1px solid #333;padding:10px;text-align:left;} ` +
-                `th{background:#f8f9fa;} h2{margin-bottom:12px;} ` +
-                `@media print { button{display:none;}}` +
-                `</style></head><body>` + previewArea.innerHTML + `</body></html>`);
-            printWindow.document.close();
-            printWindow.focus();
-            printWindow.print();
-            printWindow.close();
-        }
-
-        function getRandomGrade() {
-            const grades = ['A', 'B+', 'B', 'C+', 'C', 'D', 'F'];
-            return grades[Math.floor(Math.random() * grades.length)];
-        }
-
         function getGradeStatus(grade) {
             if (['A', 'B+', 'B'].includes(grade)) return '<span style="color: #27ae60;">Pass</span>';
             if (['C+', 'C'].includes(grade)) return '<span style="color: #f39c12;">Pass</span>';
@@ -730,6 +586,7 @@
                 const reader = new FileReader();
                 reader.onload = function(e) {
                     document.getElementById('profileImg').src = e.target.result;
+                    document.getElementById('headerProfileImg').src = e.target.result;
                     localStorage.setItem('profilePicture', e.target.result);
                     alert('Profile picture uploaded successfully!');
                 };
@@ -761,6 +618,7 @@
             const savedPicture = localStorage.getItem('profilePicture');
             if (savedPicture) {
                 document.getElementById('profileImg').src = savedPicture;
+                document.getElementById('headerProfileImg').src = savedPicture;
             }
 
             // Load profile data
@@ -775,6 +633,290 @@
             document.getElementById('status').value = profileData.status || '';
             document.getElementById('yearOfStudy').value = profileData.yearOfStudy || '';
             document.getElementById('address').value = profileData.address || '';
+
+            // Update status indicator based on profile status
+            if (profileData.status && profileData.status !== 'Active') {
+                document.querySelector('.status-light').style.background = '#e74c3c';
+                document.querySelector('.status-text').textContent = '● ' + profileData.status;
+                document.querySelector('.status-text').style.color = '#e74c3c';
+            }
+        }
+
+        function showSemester(semesterId, event) {
+            // Hide all semester contents
+            const semesterContents = document.querySelectorAll('.semester-content');
+            semesterContents.forEach(content => content.classList.remove('active'));
+
+            // Remove active class from all semester tabs
+            const semesterTabs = document.querySelectorAll('.semester-tab');
+            semesterTabs.forEach(tab => tab.classList.remove('active'));
+
+            // Show selected semester content
+            document.getElementById(semesterId).classList.add('active');
+
+            // Add active class to clicked tab
+            if (event && event.target) {
+                event.target.classList.add('active');
+            }
+
+            // Load grades for this semester
+            loadSemesterGrades(semesterId);
+        }
+
+        function loadSemesterGrades(semesterId) {
+            const semesterDiv = document.getElementById(semesterId);
+            const gradesContent = semesterDiv.querySelector('.grades-content');
+            const printControls = semesterDiv.querySelector('.grades-controls');
+            const previewArea = semesterDiv.querySelector('.grade-sheet-preview');
+
+            // Get enrollment date and check if 4 months have passed
+            const enrollmentDate = localStorage.getItem('studentEnrollmentDate');
+            const now = new Date();
+            let monthsSinceEnrollment = 4; // Default to show grades
+
+            if (enrollmentDate) {
+                const enrollDate = new Date(enrollmentDate);
+                monthsSinceEnrollment = (now.getFullYear() - enrollDate.getFullYear()) * 12 +
+                    (now.getMonth() - enrollDate.getMonth());
+            }
+
+            // For Semester 1: show grades immediately
+            // For Semester 2: require 4 months
+            const isSemester1 = semesterId === 'semester1';
+            const canViewGrades = isSemester1 || monthsSinceEnrollment >= 4;
+
+            if (!canViewGrades) {
+                gradesContent.innerHTML = `<p style="color: #999; font-style: italic;">
+                    Grades will be available after 4 months from enrollment.
+                    <br>Time elapsed: ${monthsSinceEnrollment} month(s)
+                </p>`;
+                printControls.style.display = 'none';
+                previewArea.style.display = 'none';
+                return;
+            }
+
+            // Sync grades from lecturer portal
+            const lecturerGrades = syncGradesFromLecturerPortal();
+
+            if (lecturerGrades.length === 0) {
+                gradesContent.innerHTML = '<p style="color: #999; font-style: italic;">No grades available yet. Lecturer has not submitted grades.</p>';
+                printControls.style.display = 'none';
+                previewArea.style.display = 'none';
+                return;
+            }
+
+            // Display grades
+            printControls.style.display = 'block';
+            previewArea.style.display = 'block';
+
+            const profileData = JSON.parse(localStorage.getItem('studentProfile') || '{}');
+            const studentName = profileData.fullName || document.querySelector('span[th\\:text]')?.textContent || 'Student Name';
+            const studentId = profileData.idNumber || 'ID Number';
+
+            // Build grades table
+            let gradesHtml = `
+                <div class="semester-info">
+                    <h4>Semester ${isSemester1 ? '1' : '2'} - Grade Sheet</h4>
+                    <p><strong>Student:</strong> ${studentName} | <strong>ID:</strong> ${studentId}</p>
+                    <p><strong>Academic Year:</strong> ${now.getFullYear()}</p>
+                </div>
+                <table class="grade-table">
+                    <thead>
+                        <tr>
+                            <th>Course Title</th>
+                            <th>Course Code</th>
+                            <th>Credit Hours</th>
+                            <th>Grade</th>
+                            <th>Point</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            let totalCredits = 0;
+            let totalPoints = 0;
+
+            lecturerGrades.forEach(grade => {
+                const point = getGradePoint(grade.grade);
+                totalCredits += grade.credit;
+                totalPoints += point * grade.credit;
+
+                gradesHtml += `
+                    <tr>
+                        <td>${grade.courseName}</td>
+                        <td>${grade.courseCode}</td>
+                        <td>${grade.credit}</td>
+                        <td class="grade-${grade.grade.charAt(0)}">${grade.grade}</td>
+                        <td>${point.toFixed(2)}</td>
+                        <td>${getGradeStatus(grade.grade)}</td>
+                    </tr>
+                `;
+            });
+
+            const gpa = totalCredits > 0 ? (totalPoints / totalCredits).toFixed(2) : '0.00';
+
+            gradesHtml += `
+                    </tbody>
+                </table>
+                <div style="margin-top: 20px; padding: 15px; background: rgba(255,255,255,0.1); border-radius: 8px;">
+                    <p><strong>Total Credits:</strong> ${totalCredits}</p>
+                    <p><strong>GPA:</strong> ${gpa}</p>
+                </div>
+            `;
+
+            gradesContent.innerHTML = gradesHtml;
+
+            // Build preview for printing
+            previewArea.innerHTML = buildSemesterPrintHtml(semesterId, studentName, studentId, lecturerGrades, totalCredits, gpa, now.getFullYear());
+        }
+
+        function syncGradesFromLecturerPortal() {
+            // Get student's enrolled courses
+            const enrollments = JSON.parse(localStorage.getItem('studentEnrollments') || '[]');
+            const studentProfile = JSON.parse(localStorage.getItem('studentProfile') || '{}');
+            const studentId = studentProfile.idNumber || '';
+
+            // Get lecturer's grade data
+            const lecturerGrades = JSON.parse(localStorage.getItem('lecturerGrades') || 'null');
+            const lecturerEnrollments = JSON.parse(localStorage.getItem('lecturerEnrollments') || '[]');
+
+            // If lecturerGrades exists (new format), use it
+            if (lecturerGrades && Array.isArray(lecturerGrades)) {
+                return lecturerGrades.filter(g =>
+                    g.studentId === studentId ||
+                    enrollments.includes(g.courseName)
+                );
+            }
+
+            // Fallback: Try to extract grades from lecturerEnrollments
+            const matchedGrades = [];
+
+            lecturerEnrollments.forEach(enrollment => {
+                // Match by student ID if available, otherwise by course enrollment
+                const isMatch = enrollment.id === studentId ||
+                    enrollments.some(course => {
+                        const courseCode = getCourseCode(course);
+                        return enrollment.course === courseCode || enrollment.course === course;
+                    });
+
+                if (isMatch && enrollment.grade) {
+                    matchedGrades.push({
+                        courseName: enrollment.name || enrollment.course,
+                        courseCode: enrollment.course,
+                        credit: enrollment.credit || 3,
+                        grade: enrollment.grade,
+                        studentId: enrollment.id
+                    });
+                }
+            });
+
+            // If no lecturer grades found, check for stored student grades
+            if (matchedGrades.length === 0) {
+                const storedGrades = JSON.parse(localStorage.getItem('studentGrades') || '[]');
+                return storedGrades;
+            }
+
+            return matchedGrades;
+        }
+
+        function buildSemesterPrintHtml(semesterId, studentName, studentId, grades, totalCredits, gpa, year) {
+            const semesterNum = semesterId === 'semester1' ? '1' : '2';
+
+            let rows = '';
+            grades.forEach(grade => {
+                const point = getGradePoint(grade.grade);
+                rows += `
+                    <tr>
+                        <td style="padding: 10px; border: 1px solid #333;">${grade.courseName}</td>
+                        <td style="padding: 10px; border: 1px solid #333;">${grade.courseCode}</td>
+                        <td style="padding: 10px; border: 1px solid #333;">${grade.credit}</td>
+                        <td style="padding: 10px; border: 1px solid #333;">${grade.grade}</td>
+                        <td style="padding: 10px; border: 1px solid #333;">${point.toFixed(2)}</td>
+                    </tr>
+                `;
+            });
+
+            return `
+                <div style="font-family: Arial, sans-serif; color: #1b1b1b; padding: 24px;">
+                    <div style="text-align: center; margin-bottom: 20px;">
+                        <h2>African Methodist Episcopal Zion University</h2>
+                        <h3>Official Grade Sheet - Semester ${semesterNum}</h3>
+                    </div>
+                    <div style="margin-bottom: 20px;">
+                        <div><strong>Student Name:</strong> ${studentName}</div>
+                        <div><strong>Student ID:</strong> ${studentId}</div>
+                        <div><strong>Academic Year:</strong> ${year}</div>
+                        <div><strong>Semester:</strong> ${semesterNum}</div>
+                        <div><strong>Date Issued:</strong> ${new Date().toLocaleDateString()}</div>
+                    </div>
+                    <table style="width:100%; border-collapse: collapse;">
+                        <thead>
+                            <tr>
+                                <th style="padding: 10px; border: 1px solid #333; text-align: left; background: #f8f9fa;">Course Title</th>
+                                <th style="padding: 10px; border: 1px solid #333; text-align: left; background: #f8f9fa;">Course Code</th>
+                                <th style="padding: 10px; border: 1px solid #333; text-align: left; background: #f8f9fa;">Credit Hours</th>
+                                <th style="padding: 10px; border: 1px solid #333; text-align: left; background: #f8f9fa;">Grade</th>
+                                <th style="padding: 10px; border: 1px solid #333; text-align: left; background: #f8f9fa;">Point</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${rows}
+                        </tbody>
+                    </table>
+                    <div style="margin-top: 20px;">
+                        <div><strong>Total Credits:</strong> ${totalCredits}</div>
+                        <div><strong>GPA:</strong> ${gpa}</div>
+                    </div>
+                    <div style="margin-top: 40px; display: flex; justify-content: space-between;">
+                        <div>
+                            <div style="border-top: 1px solid #333; padding-top: 5px; width: 200px;">
+                                Lecturer Signature
+                            </div>
+                        </div>
+                        <div>
+                            <div style="border-top: 1px solid #333; padding-top: 5px; width: 200px;">
+                                Registrar Signature
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function printGradeSheet(semesterId) {
+            const semesterDiv = document.getElementById(semesterId);
+            const previewArea = semesterDiv.querySelector('.grade-sheet-preview');
+
+            if (!previewArea.innerHTML.trim()) {
+                alert('Grade sheet is not ready yet. Please select a semester with grades.');
+                return;
+            }
+
+            const printWindow = window.open('', '_blank', 'width=900,height=700');
+            if (!printWindow) {
+                alert('Popup blocked. Please allow popups for this site to print the grade sheet.');
+                return;
+            }
+
+            printWindow.document.write(`<!doctype html><html><head><title>Grade Sheet - Semester ${semesterId === 'semester1' ? '1' : '2'}</title>` +
+                `<style>body{font-family:Arial,sans-serif;color:#1b1b1b;margin:0;padding:24px;} ` +
+                `table{width:100%;border-collapse:collapse;} th,td{border:1px solid #333;padding:10px;text-align:left;} ` +
+                `th{background:#f8f9fa;} h2,h3{margin-bottom:12px;} ` +
+                `@media print { button{display:none;}}` +
+                `</style></head><body>` + previewArea.innerHTML + `</body></html>`);
+            printWindow.document.close();
+            printWindow.focus();
+            printWindow.print();
+            printWindow.close();
+        }
+
+        // Legacy function - replaced by loadSemesterGrades
+        function loadGrades() {
+            // This is now handled by semester-specific loading
+            if (document.getElementById('semester1').classList.contains('active')) {
+                loadSemesterGrades('semester1');
+            }
         }
     </script>
 </body>

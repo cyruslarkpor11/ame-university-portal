@@ -651,6 +651,33 @@
             if (student) {
                 student.grade = grade;
                 localStorage.setItem('lecturerEnrollments', JSON.stringify(enrolledStudents));
+
+                // Also save to lecturerGrades for student portal sync
+                let lecturerGrades = JSON.parse(localStorage.getItem('lecturerGrades') || '[]');
+
+                // Find if grade already exists for this student and course
+                const existingIndex = lecturerGrades.findIndex(g =>
+                    g.studentId === studentId && g.courseCode === student.course
+                );
+
+                const gradeRecord = {
+                    studentId: studentId,
+                    studentName: studentName,
+                    courseCode: student.course,
+                    courseName: student.name || student.course,
+                    credit: student.credit || 3,
+                    grade: grade,
+                    submittedDate: new Date().toISOString(),
+                    semester: 1 // Default to semester 1, can be enhanced later
+                };
+
+                if (existingIndex >= 0) {
+                    lecturerGrades[existingIndex] = gradeRecord;
+                } else {
+                    lecturerGrades.push(gradeRecord);
+                }
+
+                localStorage.setItem('lecturerGrades', JSON.stringify(lecturerGrades));
             }
 
             gradeSelect.disabled = true;

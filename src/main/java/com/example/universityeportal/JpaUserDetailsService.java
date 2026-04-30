@@ -1,6 +1,5 @@
 package com.example.universityeportal;
 
-import com.example.universityeportal.entity.Role;
 import com.example.universityeportal.repository.UserRepository;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;

@@ -31,15 +31,46 @@
     .setting-row label { cursor: pointer; }
     .footer-card { display: flex; flex-direction: column; gap: 16px; }
     .status { margin-top: 12px; color: #c6f6d5; }
+    /* Profile Header Styles */
+    .profile-header { display: flex; align-items: center; gap: 15px; }
+    .profile-header-img { width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 3px solid #48bb78; }
+    .status-indicator { position: relative; display: inline-block; }
+    .status-light { position: absolute; bottom: 5px; right: 5px; width: 18px; height: 18px; background: #2ecc71; border-radius: 50%; border: 3px solid #131722; box-shadow: 0 2px 5px rgba(0,0,0,0.3); animation: pulse 2s infinite; }
+    @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(46, 204, 113, 0.7); } 70% { box-shadow: 0 0 0 10px rgba(46, 204, 113, 0); } 100% { box-shadow: 0 0 0 0 rgba(46, 204, 113, 0); } }
+    .status-text { font-size: 12px; color: #2ecc71; font-weight: bold; margin-top: 5px; }
+    /* Semester Tabs */
+    .semester-tabs { display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 2px solid rgba(255,255,255,0.2); padding-bottom: 10px; }
+    .semester-tab { padding: 10px 20px; background: rgba(255,255,255,0.1); border: none; border-radius: 20px; color: white; cursor: pointer; transition: all 0.3s ease; font-weight: 500; }
+    .semester-tab:hover { background: rgba(255,255,255,0.2); }
+    .semester-tab.active { background: #3498db; color: white; }
+    .semester-content { display: none; }
+    .semester-content.active { display: block; }
+    .grade-table { width: 100%; border-collapse: collapse; background: rgba(255,255,255,0.95); color: #333; border-radius: 8px; overflow: hidden; }
+    .grade-table th { background: #3498db; color: white; padding: 12px; text-align: left; }
+    .grade-table td { padding: 12px; border-bottom: 1px solid #ddd; }
+    .semester-info { background: rgba(255,255,255,0.1); padding: 15px; border-radius: 8px; margin-bottom: 20px; }
+    .semester-info h4 { margin-bottom: 10px; color: #f1c40f; }
+    .grade-A { color: #27ae60; font-weight: bold; }
+    .grade-B { color: #3498db; font-weight: bold; }
+    .grade-C { color: #f39c12; font-weight: bold; }
+    .grade-D { color: #e67e22; font-weight: bold; }
+    .grade-F { color: #e74c3c; font-weight: bold; }
   </style>
 </head>
 <body>
   <div class="app-shell">
     <h1>Offline Student Portal</h1>
     <div class="card welcome-card">
-      <div>
-        <p>Welcome, <strong id="username">Student</strong>.</p>
-        <p>This offline portal shell gives you access to cached student tools while disconnected.</p>
+      <div class="profile-header">
+        <div class="status-indicator">
+          <img id="headerProfileImg" src="/Images/download 1.jpg" alt="Profile Picture" class="profile-header-img">
+          <span class="status-light"></span>
+        </div>
+        <div>
+          <p>Welcome, <strong id="username">Student</strong>.</p>
+          <p>This offline portal shell gives you access to cached student tools while disconnected.</p>
+          <p class="status-text">● Active Student</p>
+        </div>
       </div>
       <div class="top-actions">
         <button id="refreshBtn">Check Connection</button>
@@ -65,8 +96,29 @@
 
       <section id="gradeTab" class="tab-panel">
         <div class="card">
-          <h2>Grade Summary</h2>
-          <div class="grade-grid" id="gradeGrid"></div>
+          <h2>My Grades</h2>
+          <div class="semester-tabs">
+            <button class="semester-tab active" onclick="showSemester('semester1', event)">Semester 1</button>
+            <button class="semester-tab" onclick="showSemester('semester2', event)">Semester 2</button>
+          </div>
+          <div id="semester1" class="semester-content active">
+            <div class="grades-controls" style="margin-bottom: 18px; display: none;">
+              <button class="action-button" onclick="printGradeSheet('semester1')">Print Grade Sheet</button>
+            </div>
+            <div class="grades-content">
+              <p style="color: #999; font-style: italic;">Loading grades...</p>
+            </div>
+            <div class="grade-sheet-preview" style="margin-top: 24px; display:none;"></div>
+          </div>
+          <div id="semester2" class="semester-content">
+            <div class="grades-controls" style="margin-bottom: 18px; display: none;">
+              <button class="action-button" onclick="printGradeSheet('semester2')">Print Grade Sheet</button>
+            </div>
+            <div class="grades-content">
+              <p style="color: #999; font-style: italic;">Grades will be available after 4 months from enrollment.</p>
+            </div>
+            <div class="grade-sheet-preview" style="margin-top: 24px; display:none;"></div>
+          </div>
         </div>
       </section>
 
@@ -118,6 +170,22 @@
     }
 
     document.getElementById('username').textContent = offlineUser.username;
+
+    // Load profile picture and status
+    function loadProfileData() {
+      const savedPicture = localStorage.getItem('profilePicture');
+      if (savedPicture) {
+        document.getElementById('headerProfileImg').src = savedPicture;
+      }
+      const profileData = JSON.parse(localStorage.getItem('studentProfile') || '{}');
+      if (profileData.status && profileData.status !== 'Active') {
+        document.querySelector('.status-light').style.background = '#e74c3c';
+        document.querySelector('.status-text').textContent = '● ' + profileData.status;
+        document.querySelector('.status-text').style.color = '#e74c3c';
+      }
+    }
+
+    loadProfileData();
 
     const courses = [
       { code: 'CS101', title: 'Intro to Computer Science', status: 'Enrolled' },
@@ -171,15 +239,236 @@
       });
     }
 
-    function renderGrades() {
-      const grid = document.getElementById('gradeGrid');
-      grid.innerHTML = '';
-      gradeSummary.forEach(entry => {
-        const card = document.createElement('div');
-        card.className = 'grade-card';
-        card.innerHTML = `<h3>${entry.course}</h3><p><strong>Grade:</strong> ${entry.grade}</p><p>${entry.note}</p>`;
-        grid.appendChild(card);
+    function showSemester(semesterId, event) {
+      const semesterContents = document.querySelectorAll('.semester-content');
+      semesterContents.forEach(content => content.classList.remove('active'));
+      const semesterTabs = document.querySelectorAll('.semester-tab');
+      semesterTabs.forEach(tab => tab.classList.remove('active'));
+      document.getElementById(semesterId).classList.add('active');
+      if (event && event.target) {
+        event.target.classList.add('active');
+      }
+      loadSemesterGrades(semesterId);
+    }
+
+    function loadSemesterGrades(semesterId) {
+      const semesterDiv = document.getElementById(semesterId);
+      const gradesContent = semesterDiv.querySelector('.grades-content');
+      const printControls = semesterDiv.querySelector('.grades-controls');
+      const previewArea = semesterDiv.querySelector('.grade-sheet-preview');
+
+      const enrollmentDate = localStorage.getItem('studentEnrollmentDate');
+      const now = new Date();
+      let monthsSinceEnrollment = 4;
+      if (enrollmentDate) {
+        const enrollDate = new Date(enrollmentDate);
+        monthsSinceEnrollment = (now.getFullYear() - enrollDate.getFullYear()) * 12 +
+          (now.getMonth() - enrollDate.getMonth());
+      }
+
+      const isSemester1 = semesterId === 'semester1';
+      const canViewGrades = isSemester1 || monthsSinceEnrollment >= 4;
+
+      if (!canViewGrades) {
+        gradesContent.innerHTML = `<p style="color: #999; font-style: italic;">
+          Grades will be available after 4 months from enrollment.
+          <br>Time elapsed: ${monthsSinceEnrollment} month(s)
+        </p>`;
+        printControls.style.display = 'none';
+        previewArea.style.display = 'none';
+        return;
+      }
+
+      // Get grades from lecturer portal sync
+      const lecturerGrades = JSON.parse(localStorage.getItem('lecturerGrades') || '[]');
+      const studentProfile = JSON.parse(localStorage.getItem('studentProfile') || '{}');
+      const studentId = studentProfile.idNumber || offlineUser.username;
+      const studentName = studentProfile.fullName || offlineUser.username;
+
+      const myGrades = lecturerGrades.filter(g => g.studentId === studentId);
+
+      if (myGrades.length === 0) {
+        // Show offline grade summary as fallback
+        let gradesHtml = `
+          <div class="semester-info">
+            <h4>Semester ${isSemester1 ? '1' : '2'} - Grade Summary (Offline)</h4>
+            <p><strong>Student:</strong> ${studentName}</p>
+          </div>
+          <div class="grade-grid">
+        `;
+        gradeSummary.forEach(entry => {
+          gradesHtml += `
+            <div class="grade-card">
+              <h3>${entry.course}</h3>
+              <p><strong>Grade:</strong> ${entry.grade}</p>
+              <p>${entry.note}</p>
+            </div>
+          `;
+        });
+        gradesHtml += '</div>';
+        gradesContent.innerHTML = gradesHtml;
+        printControls.style.display = 'none';
+        previewArea.style.display = 'none';
+        return;
+      }
+
+      printControls.style.display = 'block';
+      previewArea.style.display = 'block';
+
+      let gradesHtml = `
+        <div class="semester-info">
+          <h4>Semester ${isSemester1 ? '1' : '2'} - Grade Sheet</h4>
+          <p><strong>Student:</strong> ${studentName} | <strong>ID:</strong> ${studentId}</p>
+          <p><strong>Academic Year:</strong> ${now.getFullYear()}</p>
+        </div>
+        <table class="grade-table">
+          <thead>
+            <tr>
+              <th>Course Title</th>
+              <th>Course Code</th>
+              <th>Credit Hours</th>
+              <th>Grade</th>
+              <th>Point</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+      `;
+
+      let totalCredits = 0;
+      let totalPoints = 0;
+
+      const gradePoints = { 'A': 4.0, 'B+': 3.5, 'B': 3.0, 'C+': 2.5, 'C': 2.0, 'D': 1.0, 'F': 0.0 };
+
+      myGrades.forEach(grade => {
+        const point = gradePoints[grade.grade] || 0.0;
+        totalCredits += grade.credit || 3;
+        totalPoints += point * (grade.credit || 3);
+
+        let statusText = '<span style="color: #27ae60;">Pass</span>';
+        if (['C+', 'C'].includes(grade.grade)) statusText = '<span style="color: #f39c12;">Pass</span>';
+        if (['D', 'F'].includes(grade.grade)) statusText = '<span style="color: #e74c3c;">Fail</span>';
+
+        gradesHtml += `
+          <tr>
+            <td>${grade.courseName}</td>
+            <td>${grade.courseCode}</td>
+            <td>${grade.credit || 3}</td>
+            <td class="grade-${grade.grade.charAt(0)}">${grade.grade}</td>
+            <td>${point.toFixed(2)}</td>
+            <td>${statusText}</td>
+          </tr>
+        `;
       });
+
+      const gpa = totalCredits > 0 ? (totalPoints / totalCredits).toFixed(2) : '0.00';
+
+      gradesHtml += `
+          </tbody>
+        </table>
+        <div style="margin-top: 20px; padding: 15px; background: rgba(255,255,255,0.1); border-radius: 8px;">
+          <p><strong>Total Credits:</strong> ${totalCredits}</p>
+          <p><strong>GPA:</strong> ${gpa}</p>
+        </div>
+      `;
+
+      gradesContent.innerHTML = gradesHtml;
+      previewArea.innerHTML = buildPrintHtml(semesterId, studentName, studentId, myGrades, totalCredits, gpa, now.getFullYear());
+    }
+
+    function buildPrintHtml(semesterId, studentName, studentId, grades, totalCredits, gpa, year) {
+      const semesterNum = semesterId === 'semester1' ? '1' : '2';
+      const gradePoints = { 'A': 4.0, 'B+': 3.5, 'B': 3.0, 'C+': 2.5, 'C': 2.0, 'D': 1.0, 'F': 0.0 };
+
+      let rows = '';
+      grades.forEach(grade => {
+        const point = gradePoints[grade.grade] || 0.0;
+        rows += `
+          <tr>
+            <td style="padding: 10px; border: 1px solid #333;">${grade.courseName}</td>
+            <td style="padding: 10px; border: 1px solid #333;">${grade.courseCode}</td>
+            <td style="padding: 10px; border: 1px solid #333;">${grade.credit || 3}</td>
+            <td style="padding: 10px; border: 1px solid #333;">${grade.grade}</td>
+            <td style="padding: 10px; border: 1px solid #333;">${point.toFixed(2)}</td>
+          </tr>
+        `;
+      });
+
+      return `
+        <div style="font-family: Arial, sans-serif; color: #1b1b1b; padding: 24px;">
+          <div style="text-align: center; margin-bottom: 20px;">
+            <h2>African Methodist Episcopal Zion University</h2>
+            <h3>Official Grade Sheet - Semester ${semesterNum}</h3>
+          </div>
+          <div style="margin-bottom: 20px;">
+            <div><strong>Student Name:</strong> ${studentName}</div>
+            <div><strong>Student ID:</strong> ${studentId}</div>
+            <div><strong>Academic Year:</strong> ${year}</div>
+            <div><strong>Semester:</strong> ${semesterNum}</div>
+            <div><strong>Date Issued:</strong> ${new Date().toLocaleDateString()}</div>
+          </div>
+          <table style="width:100%; border-collapse: collapse;">
+            <thead>
+              <tr>
+                <th style="padding: 10px; border: 1px solid #333; text-align: left; background: #f8f9fa;">Course Title</th>
+                <th style="padding: 10px; border: 1px solid #333; text-align: left; background: #f8f9fa;">Course Code</th>
+                <th style="padding: 10px; border: 1px solid #333; text-align: left; background: #f8f9fa;">Credit Hours</th>
+                <th style="padding: 10px; border: 1px solid #333; text-align: left; background: #f8f9fa;">Grade</th>
+                <th style="padding: 10px; border: 1px solid #333; text-align: left; background: #f8f9fa;">Point</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${rows}
+            </tbody>
+          </table>
+          <div style="margin-top: 20px;">
+            <div><strong>Total Credits:</strong> ${totalCredits}</div>
+            <div><strong>GPA:</strong> ${gpa}</div>
+          </div>
+          <div style="margin-top: 40px; display: flex; justify-content: space-between;">
+            <div>
+              <div style="border-top: 1px solid #333; padding-top: 5px; width: 200px;">Lecturer Signature</div>
+            </div>
+            <div>
+              <div style="border-top: 1px solid #333; padding-top: 5px; width: 200px;">Registrar Signature</div>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function printGradeSheet(semesterId) {
+      const semesterDiv = document.getElementById(semesterId);
+      const previewArea = semesterDiv.querySelector('.grade-sheet-preview');
+
+      if (!previewArea.innerHTML.trim()) {
+        alert('Grade sheet is not ready yet. Please select a semester with grades.');
+        return;
+      }
+
+      const printWindow = window.open('', '_blank', 'width=900,height=700');
+      if (!printWindow) {
+        alert('Popup blocked. Please allow popups for this site to print the grade sheet.');
+        return;
+      }
+
+      printWindow.document.write(`<!doctype html><html><head><title>Grade Sheet - Semester ${semesterId === 'semester1' ? '1' : '2'}</title>` +
+        `<style>body{font-family:Arial,sans-serif;color:#1b1b1b;margin:0;padding:24px;} ` +
+        `table{width:100%;border-collapse:collapse;} th,td{border:1px solid #333;padding:10px;text-align:left;} ` +
+        `th{background:#f8f9fa;} h2,h3{margin-bottom:12px;} ` +
+        `@media print { button{display:none;}}` +
+        `</style></head><body>` + previewArea.innerHTML + `</body></html>`);
+      printWindow.document.close();
+      printWindow.focus();
+      printWindow.print();
+      printWindow.close();
+    }
+
+    function renderGrades() {
+      // Load grades for the active semester
+      if (document.getElementById('semester1').classList.contains('active')) {
+        loadSemesterGrades('semester1');
+      }
     }
 
     function renderStudySheet() {
