@@ -1,0 +1,160 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Offline Portal - AME Zion University</title>
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(180deg, #121827 0%, #1d2a4f 100%);
+      color: #edf2f7;
+    }
+    .shell {
+      width: 100%;
+      max-width: 760px;
+      padding: 26px;
+      border-radius: 26px;
+      background: rgba(15, 23, 42, 0.92);
+      border: 1px solid rgba(255,255,255,0.08);
+      box-shadow: 0 28px 80px rgba(0, 0, 0, 0.25);
+    }
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    .title-group {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .logo {
+      width: 56px;
+      height: 56px;
+      border-radius: 16px;
+      display: grid;
+      place-items: center;
+      background: rgba(103, 126, 234, 0.18);
+      font-size: 1.9rem;
+    }
+    h1 {
+      margin: 0;
+      font-size: 2rem;
+      letter-spacing: -0.03em;
+    }
+    .subtitle {
+      margin: 4px 0 0;
+      color: #94a3b8;
+      font-size: 0.96rem;
+    }
+    .panel {
+      padding: 22px;
+      border-radius: 22px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      margin-bottom: 20px;
+    }
+    .panel p {
+      margin: 0 0 12px;
+      color: #cbd5e1;
+      line-height: 1.75;
+    }
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    .button, .link {
+      padding: 12px 20px;
+      border-radius: 999px;
+      border: none;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: #667eea;
+      color: white;
+      font-weight: 700;
+      transition: transform 0.2s ease, opacity 0.2s ease;
+    }
+    .button:hover, .link:hover {
+      transform: translateY(-2px);
+      opacity: 0.96;
+    }
+    .secondary {
+      background: rgba(255,255,255,0.08);
+      color: #e2e8f0;
+    }
+    .status {
+      color: #94a3b8;
+      font-size: 0.95rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <header>
+      <div class="title-group">
+        <div class="logo">🎓</div>
+        <div>
+          <h1>AME Zion University</h1>
+          <p class="subtitle">Offline portal shell — secure local access</p>
+        </div>
+      </div>
+      <div class="actions">
+        <button id="refreshButton" class="button">Check Connection</button>
+        <button id="logoutButton" class="button secondary">Logout</button>
+        <a id="returnLogin" class="link secondary" href="/login">Back to Login</a>
+      </div>
+    </header>
+    <div class="panel">
+      <p id="offlineMessage">Welcome to the offline portal shell. Your session is working locally while network access is unavailable.</p>
+      <p>Use the local portal while offline and reconnect soon to restore full campus portal functionality.</p>
+    </div>
+    <div class="panel">
+      <p><strong>Role:</strong> <span id="userRole">Loading...</span></p>
+      <p><strong>Username:</strong> <span id="userName">—</span></p>
+      <p class="status" id="statusText">Cached offline resources are available. Live features will return when online.</p>
+    </div>
+  </div>
+  <script>
+    const offlineUser = JSON.parse(localStorage.getItem('offlineUser') || 'null');
+    const userNameEl = document.getElementById('userName');
+    const userRoleEl = document.getElementById('userRole');
+    const statusText = document.getElementById('statusText');
+    const offlineMessage = document.getElementById('offlineMessage');
+
+    if (!offlineUser) {
+      window.location.href = '/login';
+    } else {
+      userNameEl.textContent = offlineUser.username;
+      userRoleEl.textContent = offlineUser.role;
+      offlineMessage.textContent = 'You are currently in offline mode. Local portal features are available but limited until you reconnect.';
+    }
+
+    document.getElementById('logoutButton').addEventListener('click', function() {
+      localStorage.removeItem('offlineUser');
+      window.location.href = '/login';
+    });
+
+    document.getElementById('refreshButton').addEventListener('click', function() {
+      if (navigator.onLine) {
+        statusText.textContent = 'Online connection detected. Reload to return to the live portal.';
+      } else {
+        statusText.textContent = 'Still offline. You can continue using the university offline portal.';
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,781 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#667eea">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="apple-touch-icon" href="/Images/Zion.png">
+    <title>Student Portal - African Methodist Episcopal Zion University</title>
+    <link rel="manifest" href="/manifest.json">
+    <link rel="icon" type="image/png" sizes="192x192" href="/Images/Zion.png">
+    <meta name="theme-color" content="#667eea">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+            background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('/Images/Image%201.jpg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            background-repeat: no-repeat;
+            color: white;
+        }
+        .navbar {
+            background: rgba(0, 0, 0, 0.65);
+            color: white;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.25);
+        }
+        .navbar h1 {
+            font-size: 24px;
+        }
+        .navbar a {
+            color: white;
+            text-decoration: none;
+            margin-left: 20px;
+            padding: 8px 12px;
+            border-radius: 5px;
+            transition: background 0.3s ease;
+        }
+        .navbar a:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .tabs {
+            background: rgba(255, 255, 255, 0.12);
+            border-radius: 8px 8px 0 0;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.25);
+            margin-bottom: 0;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+        .tab-buttons {
+            display: flex;
+            background: rgba(255, 255, 255, 0.12);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.14);
+        }
+        .tab-button {
+            flex: 1;
+            padding: 15px 20px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 500;
+            color: #f8f9fa;
+            transition: all 0.3s ease;
+            border-bottom: 3px solid transparent;
+        }
+        .tab-button:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: #ffffff;
+        }
+        .tab-button.active {
+            color: #ffffff;
+            border-bottom-color: #f1c40f;
+            background: rgba(255, 255, 255, 0.17);
+        }
+        .tab-content {
+            background: rgba(255, 255, 255, 0.18);
+            color: #f8f9fa;
+            padding: 30px;
+            border-radius: 0 0 8px 8px;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.25);
+            display: none;
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+        .header {
+            background: rgba(255, 255, 255, 0.18);
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.25);
+            margin-bottom: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+        }
+        .header h2 {
+            color: #f1c40f;
+            margin-bottom: 10px;
+        }
+        .section {
+            background: rgba(255, 255, 255, 0.16);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.2);
+            margin-bottom: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+        }
+        .section h3 {
+            color: #333;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+        }
+        .course-list {
+            list-style: none;
+        }
+        .course-item {
+            background: #f9f9f9;
+            padding: 15px;
+            margin: 10px 0;
+            border-left: 4px solid #3498db;
+            border-radius: 4px;
+        }
+        .course-item strong {
+            color: #333;
+            display: block;
+            margin-bottom: 5px;
+        }
+        .course-item p {
+            color: #666;
+            font-size: 14px;
+        }
+        .btn-enroll {
+            background: #2ecc71;
+            color: white;
+            padding: 8px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: background 0.3s ease;
+        }
+        .btn-enroll:hover {
+            background: #27ae60;
+        }
+        .quick-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .stat-card {
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .stat-card .number {
+            font-size: 32px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .profile-container {
+            display: flex;
+            gap: 30px;
+            align-items: flex-start;
+        }
+        .profile-picture-section {
+            text-align: center;
+            flex-shrink: 0;
+        }
+        .profile-details {
+            flex: 1;
+        }
+        .form-row {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 15px;
+        }
+        .form-group {
+            flex: 1;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #333;
+        }
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        .form-group textarea {
+            resize: vertical;
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <div style="display: flex; align-items: center; gap: 12px;">
+            <img src="/Images/Zion.png" alt="Zion logo" style="height:40px; width:auto; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.25);" />
+            <h1>📚 Student Portal - African Methodist Episcopal Zion University</h1>
+        </div>
+        <div>
+            <span th:text="${username}"></span>
+            <form th:action="@{/logout}" method="POST" style="display: inline;">
+                <button type="submit" style="background: rgba(255, 255, 255, 0.3); color: white; border: none; padding: 8px 12px; border-radius: 5px; cursor: pointer;">Logout</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="header">
+            <h2>Welcome, <span th:text="${username}"></span>! 👋</h2>
+            <p>Your student dashboard. View courses, enrollments, and grades here.</p>
+        </div>
+
+        <div class="tabs">
+            <div class="tab-buttons">
+                <button class="tab-button active" onclick="showTab('courses', event)">📖 Courses</button>
+                <button class="tab-button" onclick="showTab('enrollments', event)">📝 Enrollments</button>
+                <button class="tab-button" onclick="showTab('grades', event)">📊 Grades</button>
+                <button class="tab-button" onclick="showTab('profile', event)">👤 Profile</button>
+            </div>
+
+            <div id="courses" class="tab-content active">
+                <h3>Available Courses</h3>
+                <div class="quick-stats">
+                    <div class="stat-card">
+                        <div class="number">3</div>
+                        <div class="label">Available Courses</div>
+                    </div>
+                </div>
+                <ul class="course-list">
+                    <li class="course-item">
+                        <strong>Introduction to Programming</strong>
+                        <p>Basic programming concepts and fundamentals</p>
+                        <button class="btn-enroll" onclick="enrollCourse('Introduction to Programming', event)">Enroll</button>
+                    </li>
+                    <li class="course-item">
+                        <strong>Data Structures</strong>
+                        <p>Data structures and algorithms</p>
+                        <button class="btn-enroll" onclick="enrollCourse('Data Structures', event)">Enroll</button>
+                    </li>
+                    <li class="course-item">
+                        <strong>Database Systems</strong>
+                        <p>Relational database design and SQL</p>
+                        <button class="btn-enroll" onclick="enrollCourse('Database Systems', event)">Enroll</button>
+                    </li>
+                </ul>
+            </div>
+
+            <div id="enrollments" class="tab-content">
+                <h3>My Enrollments</h3>
+                <div id="enrolled-courses">
+                    <p style="color: #999; font-style: italic;">You are not enrolled in any courses yet.</p>
+                </div>
+            </div>
+
+            <div id="grades" class="tab-content">
+                <h3>My Grades</h3>
+                <div id="grades-controls" style="margin-bottom: 18px; display: none;">
+                    <button class="btn-enroll" style="background: #3498db;" onclick="printGradeSheet()">Print Grade Sheet</button>
+                </div>
+                <div id="grades-content">
+                    <p style="color: #999; font-style: italic;">No grades available yet.</p>
+                </div>
+                <div id="grade-sheet-preview" style="margin-top: 24px; display:none;"></div>
+            </div>
+
+            <div id="profile" class="tab-content">
+                <h3>My Profile</h3>
+                <div class="profile-container">
+                    <div class="profile-picture-section">
+                        <div class="profile-picture">
+                            <img id="profileImg" src="/Images/download 1.jpg" alt="Profile Picture" style="width: 150px; height: 150px; border-radius: 50%; object-fit: cover; border: 3px solid #3498db;">
+                        </div>
+                        <input type="file" id="profilePictureInput" accept="image/*" style="margin-top: 10px;">
+                        <button onclick="uploadProfilePicture()" class="btn-enroll" style="background: #3498db;">Upload Picture</button>
+                    </div>
+                    <div class="profile-details">
+                        <form id="profileForm">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Full Name:</label>
+                                    <input type="text" id="fullName" placeholder="Enter your full name">
+                                </div>
+                                <div class="form-group">
+                                    <label>ID Number:</label>
+                                    <input type="text" id="idNumber" placeholder="Enter your ID number">
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Email:</label>
+                                    <input type="email" id="email" placeholder="Enter your email">
+                                </div>
+                                <div class="form-group">
+                                    <label>Phone:</label>
+                                    <input type="tel" id="phone" placeholder="Enter your phone number">
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Department:</label>
+                                    <select id="department">
+                                        <option value="">Select Department</option>
+                                        <option value="Computer Science">Computer Science</option>
+                                        <option value="Business Administration">Business Administration</option>
+                                        <option value="Education">Education</option>
+                                        <option value="Engineering">Engineering</option>
+                                        <option value="Arts and Humanities">Arts and Humanities</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>Program:</label>
+                                    <select id="program">
+                                        <option value="">Select Program</option>
+                                        <option value="Bachelor of Science">Bachelor of Science</option>
+                                        <option value="Bachelor of Arts">Bachelor of Arts</option>
+                                        <option value="Master of Science">Master of Science</option>
+                                        <option value="Doctorate">Doctorate</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Status:</label>
+                                    <select id="status">
+                                        <option value="">Select Status</option>
+                                        <option value="Active">Active</option>
+                                        <option value="Inactive">Inactive</option>
+                                        <option value="Graduated">Graduated</option>
+                                        <option value="On Leave">On Leave</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>Year of Study:</label>
+                                    <select id="yearOfStudy">
+                                        <option value="">Select Year</option>
+                                        <option value="1">Year 1</option>
+                                        <option value="2">Year 2</option>
+                                        <option value="3">Year 3</option>
+                                        <option value="4">Year 4</option>
+                                        <option value="5">Year 5</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>Address:</label>
+                                <textarea id="address" placeholder="Enter your address" rows="3"></textarea>
+                            </div>
+                            <button type="button" onclick="saveProfile()" class="btn-enroll" style="background: #27ae60; margin-top: 20px;">Save Profile</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Load saved data on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            loadProfileData();
+            loadEnrollments();
+            loadGrades();
+        });
+
+        function showTab(tabName, event) {
+            // Hide all tab contents
+            const tabContents = document.querySelectorAll('.tab-content');
+            tabContents.forEach(content => content.classList.remove('active'));
+
+            // Remove active class from all tab buttons
+            const tabButtons = document.querySelectorAll('.tab-button');
+            tabButtons.forEach(button => button.classList.remove('active'));
+
+            // Show selected tab content
+            document.getElementById(tabName).classList.add('active');
+
+            // Add active class to clicked button
+            if (event && event.target) {
+                event.target.classList.add('active');
+            }
+
+            if (tabName === 'grades') {
+                loadGrades();
+            } else if (tabName === 'enrollments') {
+                loadEnrollments();
+            }
+        }
+
+        function enrollCourse(courseName, event) {
+            // Add course to enrollments
+            const enrolledCourses = document.getElementById('enrolled-courses');
+            const existingMessage = enrolledCourses.querySelector('p[style*="color: #999"]');
+            if (existingMessage) {
+                existingMessage.remove();
+            }
+
+            const courseItem = document.createElement('div');
+            courseItem.className = 'course-item';
+            courseItem.setAttribute('data-course', courseName);
+            courseItem.innerHTML = `
+                <strong>${courseName}</strong>
+                <p>Enrolled successfully</p>
+                <button class="btn-enroll" style="background: #e74c3c;" onclick="unenrollCourse('${courseName}', this)">Unenroll</button>
+            `;
+            enrolledCourses.appendChild(courseItem);
+
+            // Save to localStorage
+            let enrollments = JSON.parse(localStorage.getItem('studentEnrollments') || '[]');
+            if (!enrollments.includes(courseName)) {
+                enrollments.push(courseName);
+                localStorage.setItem('studentEnrollments', JSON.stringify(enrollments));
+            }
+
+            // Update stats
+            const enrolledStat = document.querySelector('.stat-card .label');
+            if (enrolledStat && enrolledStat.textContent === 'Available Courses') {
+                const numberElement = enrolledStat.previousElementSibling;
+                if (numberElement && numberElement.classList.contains('number')) {
+                    numberElement.textContent = parseInt(numberElement.textContent) - 1;
+                }
+            }
+
+            // Disable enroll button
+            event.target.disabled = true;
+            event.target.textContent = 'Enrolled';
+            event.target.style.background = '#27ae60';
+
+            if (document.getElementById('grades').classList.contains('active')) {
+                loadGrades();
+            }
+
+            // Show success message
+            alert(`Successfully enrolled in ${courseName}!`);
+        }
+
+        function unenrollCourse(courseName, button) {
+            // Remove course from enrollments
+            button.parentElement.remove();
+
+            // Remove from localStorage
+            let enrollments = JSON.parse(localStorage.getItem('studentEnrollments') || '[]');
+            enrollments = enrollments.filter(course => course !== courseName);
+            localStorage.setItem('studentEnrollments', JSON.stringify(enrollments));
+
+            // Check if no courses left
+            const enrolledCourses = document.getElementById('enrolled-courses');
+            if (enrolledCourses.children.length === 0) {
+                const message = document.createElement('p');
+                message.style.color = '#999';
+                message.style.fontStyle = 'italic';
+                message.textContent = 'You are not enrolled in any courses yet.';
+                enrolledCourses.appendChild(message);
+            }
+
+            if (document.getElementById('grades').classList.contains('active')) {
+                loadGrades();
+            }
+
+            // Re-enable enroll button
+            const enrollButtons = document.querySelectorAll('.btn-enroll');
+            enrollButtons.forEach(btn => {
+                if (btn.textContent === 'Enroll' && btn.onclick.toString().includes(courseName)) {
+                    btn.disabled = false;
+                    btn.textContent = 'Enroll';
+                    btn.style.background = '#2ecc71';
+                }
+            });
+
+            alert(`Successfully unenrolled from ${courseName}!`);
+        }
+
+        function loadEnrollments() {
+            const enrollments = JSON.parse(localStorage.getItem('studentEnrollments') || '[]');
+            const enrolledCourses = document.getElementById('enrolled-courses');
+
+            if (enrollments.length > 0) {
+                // Clear existing content
+                enrolledCourses.innerHTML = '';
+
+                enrollments.forEach(courseName => {
+                    const courseItem = document.createElement('div');
+                    courseItem.className = 'course-item';
+                    courseItem.setAttribute('data-course', courseName);
+                    courseItem.innerHTML = `
+                        <strong>${courseName}</strong>
+                        <p>Enrolled</p>
+                        <button class="btn-enroll" style="background: #e74c3c;" onclick="unenrollCourse('${courseName}', this)">Unenroll</button>
+                    `;
+                    enrolledCourses.appendChild(courseItem);
+
+                    // Disable enroll button in courses tab
+                    const enrollButtons = document.querySelectorAll('.btn-enroll');
+                    enrollButtons.forEach(btn => {
+                        if (btn.onclick && btn.onclick.toString().includes(courseName)) {
+                            btn.disabled = true;
+                            btn.textContent = 'Enrolled';
+                            btn.style.background = '#27ae60';
+                        }
+                    });
+                });
+            }
+        }
+
+        function loadGrades() {
+            const enrollments = JSON.parse(localStorage.getItem('studentEnrollments') || '[]');
+            const gradesContent = document.getElementById('grades-content');
+            const printControls = document.getElementById('grades-controls');
+            const previewArea = document.getElementById('grade-sheet-preview');
+
+            if (enrollments.length > 0) {
+                printControls.style.display = 'block';
+                previewArea.style.display = 'block';
+                gradesContent.innerHTML = '<h4>Grade Sheet Preview</h4>';
+                const profileData = JSON.parse(localStorage.getItem('studentProfile') || '{}');
+                const studentInfo = {
+                    name: profileData.fullName || document.querySelector('span[th\:text]')?.textContent || 'Student Name',
+                    id: profileData.idNumber || 'ID Number',
+                    status: profileData.status || 'Active',
+                    program: profileData.program && profileData.program.toLowerCase().includes('master') ? 'Master' : 'Undergraduate'
+                };
+                const gradeRecords = enrollments.map(courseName => {
+                    const code = getCourseCode(courseName);
+                    const credit = getCourseCredit(courseName);
+                    const grade = getRandomGrade();
+                    const point = getGradePoint(grade);
+                    return { title: courseName, code, credit, grade, point };
+                });
+
+                previewArea.innerHTML = buildPrintAreaHtml(studentInfo, gradeRecords);
+            } else {
+                printControls.style.display = 'none';
+                previewArea.style.display = 'none';
+                gradesContent.innerHTML = '<p style="color: #999; font-style: italic;">No grades available yet. Enroll in courses to see your grades.</p>';
+                previewArea.innerHTML = '';
+            }
+        }
+
+        function buildGradeSheetSummary(studentInfo, gradeRecords) {
+            const summaryDiv = document.createElement('div');
+            summaryDiv.style.marginBottom = '16px';
+            summaryDiv.innerHTML = `
+                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+                    <div>
+                        <strong>Name:</strong> ${studentInfo.name}<br>
+                        <strong>ID Number:</strong> ${studentInfo.id}<br>
+                        <strong>Status:</strong> ${studentInfo.status}<br>
+                        <strong>Program:</strong> ${studentInfo.program}
+                    </div>
+                    <div style="text-align: right; min-width: 210px;">
+                        <strong>Total Credit:</strong> ${gradeRecords.reduce((sum, item) => sum + item.credit, 0)}<br>
+                        <strong>Total Point:</strong> ${gradeRecords.reduce((sum, item) => sum + item.point, 0).toFixed(2)}<br>
+                        <strong>GPA:</strong> ${computeGPA(gradeRecords)}
+                    </div>
+                </div>
+            `;
+            summaryDiv.appendChild(buildGradesTable(gradeRecords));
+            return summaryDiv;
+        }
+
+        function buildGradesTable(gradeRecords) {
+            const table = document.createElement('table');
+            table.style.width = '100%';
+            table.style.borderCollapse = 'collapse';
+            table.innerHTML = `
+                <thead>
+                    <tr style="background: #f8f9fa;">
+                        <th style="padding: 10px; border: 1px solid #ddd; text-align: left;">Course Title</th>
+                        <th style="padding: 10px; border: 1px solid #ddd; text-align: left;">Course Code</th>
+                        <th style="padding: 10px; border: 1px solid #ddd; text-align: left;">Total Credit</th>
+                        <th style="padding: 10px; border: 1px solid #ddd; text-align: left;">Grade</th>
+                        <th style="padding: 10px; border: 1px solid #ddd; text-align: left;">Point</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${gradeRecords.map(record => `
+                        <tr>
+                            <td style="padding: 10px; border: 1px solid #ddd;">${record.title}</td>
+                            <td style="padding: 10px; border: 1px solid #ddd;">${record.code}</td>
+                            <td style="padding: 10px; border: 1px solid #ddd;">${record.credit}</td>
+                            <td style="padding: 10px; border: 1px solid #ddd;">${record.grade}</td>
+                            <td style="padding: 10px; border: 1px solid #ddd;">${record.point.toFixed(2)}</td>
+                        </tr>
+                    `).join('')}
+                </tbody>
+            `;
+            return table;
+        }
+
+        function buildPrintAreaHtml(studentInfo, gradeRecords) {
+            return `
+                <div style="font-family: Arial, sans-serif; color: #1b1b1b; padding: 24px;">
+                    <h2 style="margin-bottom: 12px;">Grade Sheet</h2>
+                    <div style="margin-bottom: 20px;">
+                        <div><strong>Name:</strong> ${studentInfo.name}</div>
+                        <div><strong>ID Number:</strong> ${studentInfo.id}</div>
+                        <div><strong>Status:</strong> ${studentInfo.status}</div>
+                        <div><strong>Program:</strong> ${studentInfo.program}</div>
+                        <div><strong>Total Credit:</strong> ${gradeRecords.reduce((sum, item) => sum + item.credit, 0)}</div>
+                        <div><strong>Total Point:</strong> ${gradeRecords.reduce((sum, item) => sum + item.point, 0).toFixed(2)}</div>
+                        <div><strong>GPA:</strong> ${computeGPA(gradeRecords)}</div>
+                    </div>
+                    <table style="width:100%; border-collapse: collapse;">
+                        <thead>
+                            <tr>
+                                <th style="padding: 10px; border: 1px solid #333; text-align: left;">Course Title</th>
+                                <th style="padding: 10px; border: 1px solid #333; text-align: left;">Course Code</th>
+                                <th style="padding: 10px; border: 1px solid #333; text-align: left;">Total Credit</th>
+                                <th style="padding: 10px; border: 1px solid #333; text-align: left;">Grade</th>
+                                <th style="padding: 10px; border: 1px solid #333; text-align: left;">Point</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${gradeRecords.map(record => `
+                                <tr>
+                                    <td style="padding: 10px; border: 1px solid #333;">${record.title}</td>
+                                    <td style="padding: 10px; border: 1px solid #333;">${record.code}</td>
+                                    <td style="padding: 10px; border: 1px solid #333;">${record.credit}</td>
+                                    <td style="padding: 10px; border: 1px solid #333;">${record.grade}</td>
+                                    <td style="padding: 10px; border: 1px solid #333;">${record.point.toFixed(2)}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+            `;
+        }
+
+        function computeGPA(records) {
+            const totalCredits = records.reduce((sum, item) => sum + item.credit, 0);
+            if (totalCredits === 0) return '0.00';
+            const totalGradePoints = records.reduce((sum, item) => sum + item.point * item.credit, 0);
+            return (totalGradePoints / totalCredits).toFixed(2);
+        }
+
+        function getCourseCode(courseName) {
+            const mapping = {
+                'Introduction to Programming': 'CS101',
+                'Data Structures': 'MATH204',
+                'Database Systems': 'DBS301'
+            };
+            return mapping[courseName] || courseName.slice(0, 3).toUpperCase() + '100';
+        }
+
+        function getCourseCredit(courseName) {
+            const credits = {
+                'Introduction to Programming': 3,
+                'Data Structures': 3,
+                'Database Systems': 3
+            };
+            return credits[courseName] || 3;
+        }
+
+        function getGradePoint(grade) {
+            const points = { 'A': 4.0, 'B+': 3.5, 'B': 3.0, 'C+': 2.5, 'C': 2.0, 'D': 1.0, 'F': 0.0 };
+            return points[grade] || 0.0;
+        }
+
+        function printGradeSheet() {
+            const previewArea = document.getElementById('grade-sheet-preview');
+            if (!previewArea.innerHTML.trim()) {
+                alert('Grade sheet is not ready yet. Please visit the Grades tab again.');
+                return;
+            }
+
+            const printWindow = window.open('', '_blank', 'width=900,height=700');
+            if (!printWindow) {
+                alert('Popup blocked. Please allow popups for this site to print the grade sheet.');
+                return;
+            }
+
+            printWindow.document.write(`<!doctype html><html><head><title>Grade Sheet</title>` +
+                `<style>body{font-family:Arial,sans-serif;color:#1b1b1b;margin:0;padding:24px;} ` +
+                `table{width:100%;border-collapse:collapse;} th,td{border:1px solid #333;padding:10px;text-align:left;} ` +
+                `th{background:#f8f9fa;} h2{margin-bottom:12px;} ` +
+                `@media print { button{display:none;}}` +
+                `</style></head><body>` + previewArea.innerHTML + `</body></html>`);
+            printWindow.document.close();
+            printWindow.focus();
+            printWindow.print();
+            printWindow.close();
+        }
+
+        function getRandomGrade() {
+            const grades = ['A', 'B+', 'B', 'C+', 'C', 'D', 'F'];
+            return grades[Math.floor(Math.random() * grades.length)];
+        }
+
+        function getGradeStatus(grade) {
+            if (['A', 'B+', 'B'].includes(grade)) return '<span style="color: #27ae60;">Pass</span>';
+            if (['C+', 'C'].includes(grade)) return '<span style="color: #f39c12;">Pass</span>';
+            return '<span style="color: #e74c3c;">Fail</span>';
+        }
+
+        function uploadProfilePicture() {
+            const fileInput = document.getElementById('profilePictureInput');
+            const file = fileInput.files[0];
+
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('profileImg').src = e.target.result;
+                    localStorage.setItem('profilePicture', e.target.result);
+                    alert('Profile picture uploaded successfully!');
+                };
+                reader.readAsDataURL(file);
+            } else {
+                alert('Please select a file first.');
+            }
+        }
+
+        function saveProfile() {
+            const profileData = {
+                fullName: document.getElementById('fullName').value,
+                idNumber: document.getElementById('idNumber').value,
+                email: document.getElementById('email').value,
+                phone: document.getElementById('phone').value,
+                department: document.getElementById('department').value,
+                program: document.getElementById('program').value,
+                status: document.getElementById('status').value,
+                yearOfStudy: document.getElementById('yearOfStudy').value,
+                address: document.getElementById('address').value
+            };
+
+            localStorage.setItem('studentProfile', JSON.stringify(profileData));
+            alert('Profile saved successfully!');
+        }
+
+        function loadProfileData() {
+            // Load profile picture
+            const savedPicture = localStorage.getItem('profilePicture');
+            if (savedPicture) {
+                document.getElementById('profileImg').src = savedPicture;
+            }
+
+            // Load profile data
+            const profileData = JSON.parse(localStorage.getItem('studentProfile') || '{}');
+
+            document.getElementById('fullName').value = profileData.fullName || '';
+            document.getElementById('idNumber').value = profileData.idNumber || '';
+            document.getElementById('email').value = profileData.email || '';
+            document.getElementById('phone').value = profileData.phone || '';
+            document.getElementById('department').value = profileData.department || '';
+            document.getElementById('program').value = profileData.program || '';
+            document.getElementById('status').value = profileData.status || '';
+            document.getElementById('yearOfStudy').value = profileData.yearOfStudy || '';
+            document.getElementById('address').value = profileData.address || '';
+        }
+    </script>
+</body>
+</html>

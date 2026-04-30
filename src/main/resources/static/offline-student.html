@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Offline Student Portal</title>
+  <style>
+    body { margin: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #131722; color: #f0f4ff; }
+    .app-shell { max-width: 960px; margin: 0 auto; padding: 24px; }
+    h1 { margin-bottom: 12px; color: #9ae6b4; }
+    .card { background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12); border-radius: 16px; padding: 20px; margin-bottom: 18px; }
+    .welcome-card { display: flex; justify-content: space-between; align-items: center; gap: 16px; }
+    .top-actions { display: flex; gap: 12px; flex-wrap: wrap; }
+    .nav { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 10px; }
+    .nav button, .nav a, .tab-button, .action-button { border: none; border-radius: 999px; background: #48bb78; color: white; padding: 12px 18px; cursor: pointer; text-decoration: none; transition: opacity 0.2s ease, transform 0.2s ease; }
+    .nav button:hover, .nav a:hover, .tab-button:hover, .action-button:hover { opacity: 0.94; transform: translateY(-1px); }
+    .tab-bar { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 18px; }
+    .tab-button { background: rgba(72, 187, 120, 0.22); color: #d8fde0; }
+    .tab-button.active { background: #48bb78; box-shadow: 0 8px 20px rgba(0, 0, 0, 0.18); }
+    .tab-content { min-height: 360px; }
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+    .section-list { list-style: none; padding: 0; margin: 0; display: grid; gap: 12px; }
+    .section-item { background: rgba(255,255,255,0.05); padding: 16px; border-radius: 14px; display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+    .section-item strong { display: block; margin-bottom: 6px; }
+    .grade-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 14px; margin-top: 14px; }
+    .grade-card { background: rgba(255,255,255,0.06); padding: 16px; border-radius: 14px; }
+    .grade-card h3 { margin-top: 0; margin-bottom: 10px; color: #c7f9cc; }
+    .action-button { margin-top: 14px; display: inline-block; }
+    .setting-row { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+    .setting-row label { cursor: pointer; }
+    .footer-card { display: flex; flex-direction: column; gap: 16px; }
+    .status { margin-top: 12px; color: #c6f6d5; }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <h1>Offline Student Portal</h1>
+    <div class="card welcome-card">
+      <div>
+        <p>Welcome, <strong id="username">Student</strong>.</p>
+        <p>This offline portal shell gives you access to cached student tools while disconnected.</p>
+      </div>
+      <div class="top-actions">
+        <button id="refreshBtn">Check Connection</button>
+        <button id="logoutBtn">Logout</button>
+      </div>
+    </div>
+
+    <div class="tab-bar">
+      <button class="tab-button active" data-tab="courseTab">Course</button>
+      <button class="tab-button" data-tab="gradeTab">Grade</button>
+      <button class="tab-button" data-tab="sheetTab">Sheet</button>
+      <button class="tab-button" data-tab="enrollmentTab">Enrollment</button>
+      <button class="tab-button" data-tab="settingsTab">Settings</button>
+    </div>
+
+    <div class="tab-content">
+      <section id="courseTab" class="tab-panel active">
+        <div class="card">
+          <h2>Courses</h2>
+          <ul class="section-list" id="courseList"></ul>
+        </div>
+      </section>
+
+      <section id="gradeTab" class="tab-panel">
+        <div class="card">
+          <h2>Grade Summary</h2>
+          <div class="grade-grid" id="gradeGrid"></div>
+        </div>
+      </section>
+
+      <section id="sheetTab" class="tab-panel">
+        <div class="card">
+          <h2>Study Sheet</h2>
+          <ul class="section-list" id="studySheet"></ul>
+          <button id="completeSheetBtn" class="action-button">Mark Study Sheet Complete</button>
+          <p class="status" id="sheetStatus">Use this sheet to track study progress offline.</p>
+        </div>
+      </section>
+
+      <section id="enrollmentTab" class="tab-panel">
+        <div class="card">
+          <h2>Enrollment</h2>
+          <p>Select a course to enroll while offline. Changes are saved locally and available when you reconnect.</p>
+          <ul class="section-list" id="enrollmentCourses"></ul>
+          <p class="status" id="enrollmentStatus"></p>
+        </div>
+      </section>
+
+      <section id="settingsTab" class="tab-panel">
+        <div class="card">
+          <h2>Settings</h2>
+          <div class="setting-row">
+            <label><input type="checkbox" id="darkModeToggle"> Dark mode</label>
+          </div>
+          <div class="setting-row">
+            <label><input type="checkbox" id="notificationsToggle"> Offline reminders</label>
+          </div>
+          <p class="status" id="settingsStatus">Settings are stored locally for this session.</p>
+        </div>
+      </section>
+    </div>
+
+    <div class="card footer-card">
+      <p class="status" id="statusText">Cached offline student portal. Live features require reconnecting.</p>
+      <div class="nav">
+        <a href="/offline-admin.html">Admin portal shell</a>
+        <a href="/offline-lecturer.html">Lecturer portal shell</a>
+        <a href="/login">Back to Login</a>
+      </div>
+    </div>
+  </div>
+  <script>
+    const offlineUser = JSON.parse(localStorage.getItem('offlineUser') || 'null');
+    if (!offlineUser || offlineUser.role !== 'STUDENT') {
+      window.location.href = '/login';
+    }
+
+    document.getElementById('username').textContent = offlineUser.username;
+
+    const courses = [
+      { code: 'CS101', title: 'Intro to Computer Science', status: 'Enrolled' },
+      { code: 'MATH204', title: 'Discrete Mathematics', status: 'Waitlist' },
+      { code: 'ENG150', title: 'Academic Writing', status: 'Enrolled' }
+    ];
+
+    const gradeSummary = [
+      { course: 'CS101', grade: 'A-', note: 'Strong performance' },
+      { course: 'MATH204', grade: 'B+', note: 'Review lecture notes' },
+      { course: 'ENG150', grade: 'A', note: 'Excellent essays' }
+    ];
+
+    const studySheetItems = [
+      'Review CS101 chapter 5',
+      'Practice math proofs for MATH204',
+      'Draft ENG150 essay introduction'
+    ];
+
+    const enrollmentCatalog = [
+      { code: 'HIST220', title: 'Modern World History' },
+      { code: 'PHYS110', title: 'Physics Fundamentals' },
+      { code: 'ART130', title: 'Creative Media Studies' }
+    ];
+
+    const savedEnrollment = JSON.parse(localStorage.getItem('offlineEnrollment') || '[]');
+    const savedSettings = JSON.parse(localStorage.getItem('offlineStudentSettings') || '{}');
+    const studyComplete = localStorage.getItem('offlineStudyComplete') === 'true';
+
+    function setActiveTab(tabId) {
+      document.querySelectorAll('.tab-button').forEach(button => {
+        button.classList.toggle('active', button.dataset.tab === tabId);
+      });
+      document.querySelectorAll('.tab-panel').forEach(panel => {
+        panel.classList.toggle('active', panel.id === tabId);
+      });
+    }
+
+    document.querySelectorAll('.tab-button').forEach(button => {
+      button.addEventListener('click', () => setActiveTab(button.dataset.tab));
+    });
+
+    function renderCourses() {
+      const list = document.getElementById('courseList');
+      list.innerHTML = '';
+      courses.forEach(course => {
+        const item = document.createElement('li');
+        item.className = 'section-item';
+        item.innerHTML = `<div><strong>${course.code}</strong><span>${course.title}</span></div><span>${course.status}</span>`;
+        list.appendChild(item);
+      });
+    }
+
+    function renderGrades() {
+      const grid = document.getElementById('gradeGrid');
+      grid.innerHTML = '';
+      gradeSummary.forEach(entry => {
+        const card = document.createElement('div');
+        card.className = 'grade-card';
+        card.innerHTML = `<h3>${entry.course}</h3><p><strong>Grade:</strong> ${entry.grade}</p><p>${entry.note}</p>`;
+        grid.appendChild(card);
+      });
+    }
+
+    function renderStudySheet() {
+      const sheet = document.getElementById('studySheet');
+      sheet.innerHTML = '';
+      studySheetItems.forEach(step => {
+        const item = document.createElement('li');
+        item.className = 'section-item';
+        item.textContent = step;
+        sheet.appendChild(item);
+      });
+      document.getElementById('sheetStatus').textContent = studyComplete ? 'Study sheet marked complete. Good job!' : 'Use this sheet to track study progress offline.';
+    }
+
+    function renderEnrollment() {
+      const list = document.getElementById('enrollmentCourses');
+      list.innerHTML = '';
+      enrollmentCatalog.forEach(course => {
+        const enrolled = savedEnrollment.includes(course.code);
+        const item = document.createElement('li');
+        item.className = 'section-item';
+        item.innerHTML = `
+          <div>
+            <strong>${course.code}</strong>
+            <span>${course.title}</span>
+          </div>
+          <button class="action-button" data-course="${course.code}" ${enrolled ? 'disabled' : ''}>
+            ${enrolled ? 'Enrolled' : 'Enroll'}
+          </button>
+        `;
+        list.appendChild(item);
+      });
+      document.getElementById('enrollmentStatus').textContent = savedEnrollment.length
+        ? `Enrolled in ${savedEnrollment.length} course(s) offline.`
+        : 'No offline enrollments yet.';
+      list.querySelectorAll('button[data-course]').forEach(button => {
+        button.addEventListener('click', () => {
+          const courseCode = button.dataset.course;
+          if (!savedEnrollment.includes(courseCode)) {
+            savedEnrollment.push(courseCode);
+            localStorage.setItem('offlineEnrollment', JSON.stringify(savedEnrollment));
+            renderEnrollment();
+          }
+        });
+      });
+    }
+
+    function applySettings() {
+      const darkMode = savedSettings.darkMode === true;
+      if (darkMode) {
+        document.body.style.background = '#0f131a';
+        document.body.style.color = '#e8f5ff';
+      }
+      document.getElementById('darkModeToggle').checked = darkMode;
+      document.getElementById('notificationsToggle').checked = savedSettings.notifications === true;
+      document.getElementById('settingsStatus').textContent = darkMode
+        ? 'Dark mode is enabled locally.'
+        : 'Dark mode is disabled.';
+    }
+
+    document.getElementById('completeSheetBtn').addEventListener('click', () => {
+      localStorage.setItem('offlineStudyComplete', 'true');
+      document.getElementById('sheetStatus').textContent = 'Study sheet marked complete. Nice work!';
+    });
+
+    document.getElementById('darkModeToggle').addEventListener('change', event => {
+      savedSettings.darkMode = event.target.checked;
+      localStorage.setItem('offlineStudentSettings', JSON.stringify(savedSettings));
+      applySettings();
+    });
+
+    document.getElementById('notificationsToggle').addEventListener('change', event => {
+      savedSettings.notifications = event.target.checked;
+      localStorage.setItem('offlineStudentSettings', JSON.stringify(savedSettings));
+      document.getElementById('settingsStatus').textContent = event.target.checked
+        ? 'Offline reminders enabled.'
+        : 'Offline reminders disabled.';
+    });
+
+    document.getElementById('logoutBtn').addEventListener('click', () => {
+      localStorage.removeItem('offlineUser');
+      window.location.href = '/login';
+    });
+
+    document.getElementById('refreshBtn').addEventListener('click', () => {
+      if (navigator.onLine) {
+        window.location.href = '/';
+      } else {
+        document.getElementById('statusText').textContent = 'Still offline. Offline student shell is active.';
+      }
+    });
+
+    renderCourses();
+    renderGrades();
+    renderStudySheet();
+    renderEnrollment();
+    applySettings();
+  </script>
+</body>
+</html>

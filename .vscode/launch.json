@@ -1,0 +1,14 @@
+{
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Spring Boot-UniversityEportalApplication<university-eportal>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "com.example.universityeportal.UniversityEportalApplication",
+            "projectName": "university-eportal",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
+        }
+    ]
+}

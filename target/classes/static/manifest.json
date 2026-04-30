@@ -1,0 +1,23 @@
+{
+  "short_name": "AME Portal",
+  "name": "AME Zion University E-Portal",
+  "description": "A standalone installable portal for administrators, lecturers, and students.",
+  "start_url": "/login",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "theme_color": "#667eea",
+  "background_color": "#1f2a45",
+  "icons": [
+    {
+      "src": "/Images/Zion.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/Images/Zion.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#667eea">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="apple-touch-icon" href="/Images/Zion.png">
+    <title>University E-Portal</title>
+    <link rel="manifest" href="/manifest.json">
+    <link rel="icon" type="image/png" sizes="192x192" href="/Images/Zion.png">
+    <meta name="theme-color" content="#667eea">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .container {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            padding: 40px;
+            text-align: center;
+            max-width: 500px;
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+        .welcome {
+            color: #667eea;
+            margin-bottom: 30px;
+            font-size: 18px;
+        }
+        .user-info {
+            background: #f5f5f5;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+        }
+        .user-info p {
+            color: #555;
+            margin: 10px 0;
+        }
+        .portal-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        .btn {
+            padding: 12px 20px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s ease;
+        }
+        .btn-student {
+            background: #3498db;
+            color: white;
+        }
+        .btn-student:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+        }
+        .btn-lecturer {
+            background: #2ecc71;
+            color: white;
+        }
+        .btn-lecturer:hover {
+            background: #27ae60;
+            transform: translateY(-2px);
+        }
+        .btn-admin {
+            background: #e74c3c;
+            color: white;
+        }
+        .btn-admin:hover {
+            background: #c0392b;
+            transform: translateY(-2px);
+        }
+        .logout-btn {
+            background: #95a5a6;
+            color: white;
+            margin-top: 20px;
+        }
+        .logout-btn:hover {
+            background: #7f8c8d;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎓 African Methodist Episcopal Zion University</h1>
+        <div class="welcome">Nimba Extension Campus</div>
+        
+        <div class="user-info">
+            <p><strong>Username:</strong> <span th:text="${username}"></span></p>
+            <p><strong>Role:</strong> <span th:text="${role}"></span></p>
+        </div>
+
+        <div class="portal-buttons">
+            <th:block th:if="${role == 'STUDENT'}">
+                <a href="/portal/student" class="btn btn-student">📚 Go to Student Portal</a>
+            </th:block>
+            <th:block th:if="${role == 'LECTURER'}">
+                <a href="/portal/lecturer" class="btn btn-lecturer">📖 Go to Lecturer Portal</a>
+            </th:block>
+            <th:block th:if="${role == 'ADMIN'}">
+                <a href="/portal/admin" class="btn btn-admin">⚙️ Go to Admin Portal</a>
+            </th:block>
+        </div>
+
+        <form th:action="@{/logout}" method="POST">
+            <button type="submit" class="btn logout-btn">🚪 Logout</button>
+        </form>
+    </div>
+</body>
+</html>
