@@ -197,28 +197,63 @@
             }
         }
 
+        // Check if user has changed their password from default
+        function hasChangedPassword(username) {
+            return localStorage.getItem('passwordChanged_' + username) === 'true' ||
+                   localStorage.getItem('userPassword_' + username) !== null;
+        }
+
+        // Handle offline login and default password check
         if (loginForm) {
             loginForm.addEventListener('submit', function(event) {
-                if (!navigator.onLine) {
-                    event.preventDefault();
-                    const username = document.getElementById('username').value.trim().toLowerCase();
-                    const password = document.getElementById('password').value;
-                    const user = offlineUsers[username];
+                const username = document.getElementById('username').value.trim().toLowerCase();
+                const password = document.getElementById('password').value;
+                const user = offlineUsers[username];
 
-                    if (user && password === user.password) {
-                        localStorage.setItem('offlineUser', JSON.stringify({ username: username, role: user.role }));
-                        const targetPage = user.role === 'ADMIN'
-                          ? '/offline-admin.html'
-                          : user.role === 'LECTURER'
-                          ? '/offline-lecturer.html'
-                          : '/offline-student.html';
-                        window.location.href = targetPage;
+                if (!navigator.onLine) {
+                    // Offline mode - handle locally
+                    event.preventDefault();
+                    
+                    if (!user || password !== user.password) {
+                        // Check custom password
+                        const customPass = localStorage.getItem('userPassword_' + username);
+                        if (!customPass || customPass !== password) {
+                            offlineError.style.display = 'block';
+                            offlineBanner.style.display = 'block';
+                            if (onlineError) onlineError.style.display = 'none';
+                            return;
+                        }
+                    }
+                    
+                    // Check if using default password - need to change
+                    if (user && password === user.password && !hasChangedPassword(username)) {
+                        // Save temp data and redirect to change password
+                        localStorage.setItem('tempUsername', username);
+                        localStorage.setItem('tempRole', user.role);
+                        localStorage.setItem('tempPassword', password);
+                        window.location.href = '/change-password?username=' + encodeURIComponent(username);
                         return;
                     }
-
-                    offlineError.style.display = 'block';
-                    offlineBanner.style.display = 'block';
-                    if (onlineError) onlineError.style.display = 'none';
+                    
+                    // Login successful
+                    localStorage.setItem('offlineUser', JSON.stringify({ username: username, role: user.role }));
+                    const targetPage = user.role === 'ADMIN'
+                      ? '/offline-admin.html'
+                      : user.role === 'LECTURER'
+                      ? '/offline-lecturer.html'
+                      : '/offline-student.html';
+                    window.location.href = targetPage;
+                } else {
+                    // Online mode - let Spring Security handle it, but check for default password
+                    if (user && password === user.password && !hasChangedPassword(username)) {
+                        event.preventDefault();
+                        // Save temp data and redirect to change password
+                        localStorage.setItem('tempUsername', username);
+                        localStorage.setItem('tempRole', user.role);
+                        localStorage.setItem('tempPassword', password);
+                        window.location.href = '/change-password?username=' + encodeURIComponent(username);
+                    }
+                    // Otherwise, let the form submit normally to Spring Security
                 }
             });
         }
