@@ -769,6 +769,31 @@
         // Run sync periodically
         setInterval(syncToOfflinePortal, 5000);
         syncToOfflinePortal(); // Run immediately
+
+        // Auto-logout after 5 minutes of inactivity (client-side backup for server session timeout)
+        (function setupAutoLogout() {
+            let inactivityTimer;
+            const INACTIVITY_TIMEOUT = 5 * 60 * 1000; // 5 minutes
+
+            function logout() {
+                alert('You have been logged out due to inactivity.');
+                window.location.href = '/logout';
+            }
+
+            function resetTimer() {
+                clearTimeout(inactivityTimer);
+                inactivityTimer = setTimeout(logout, INACTIVITY_TIMEOUT);
+            }
+
+            // Track user activity
+            const events = ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart', 'click'];
+            events.forEach(event => {
+                document.addEventListener(event, resetTimer, true);
+            });
+
+            resetTimer();
+            console.log('Auto-logout enabled: 5 minutes');
+        })();
     </script>
 </body>
 </html>

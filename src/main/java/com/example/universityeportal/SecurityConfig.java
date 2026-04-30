@@ -88,6 +88,13 @@ public class SecurityConfig {
                 .logoutSuccessUrl(LOGIN_PATH)
                 .permitAll()
             )
+            .sessionManagement(session -> session
+                .sessionConcurrency(concurrency -> concurrency
+                    .maximumSessions(1)
+                )
+                .invalidSessionUrl(LOGIN_PATH)
+                .sessionFixation().migrateSession()
+            )
             .httpBasic(Customizer.withDefaults())
             .csrf(csrf -> csrf.disable())
             .headers(headers -> headers.frameOptions(frame -> frame.disable()));
