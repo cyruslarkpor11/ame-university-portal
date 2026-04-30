@@ -165,10 +165,11 @@
         const loginBtn = document.getElementById('loginBtn');
         const loginForm = document.querySelector('form');
 
+        // Offline credentials (must match offline-login.html)
         const offlineUsers = {
-            admin: { password: 'admin', role: 'ADMIN' },
-            lecturer: { password: 'lecturer', role: 'LECTURER' },
-            student: { password: 'student', role: 'STUDENT' }
+            admin: { password: 'admin123', role: 'ADMIN' },
+            lecturer: { password: 'lecturer123', role: 'LECTURER' },
+            student: { password: 'student123', role: 'STUDENT' }
         };
 
         function updateOnlineStatus() {

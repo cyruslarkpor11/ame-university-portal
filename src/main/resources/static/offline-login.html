@@ -157,28 +157,39 @@
       margin-top: 10px;
       display: none;
     }
-    .quick-login {
+    .credentials-hint {
       margin-top: 15px;
-      padding-top: 15px;
-      border-top: 1px solid #e0e0e0;
+      padding: 15px;
+      background: #f8f9fa;
+      border-radius: 8px;
+      border-left: 3px solid #667eea;
     }
-    .quick-login p {
-      color: #666;
-      font-size: 12px;
+    .credentials-hint h4 {
+      color: #333;
+      font-size: 13px;
       margin-bottom: 10px;
     }
-    .quick-btn {
-      background: #f0f0f0;
-      border: none;
-      padding: 8px 15px;
-      border-radius: 20px;
+    .cred-row {
+      display: flex;
+      justify-content: space-between;
       font-size: 12px;
-      cursor: pointer;
-      margin: 0 3px;
-      transition: background 0.2s;
+      color: #666;
+      margin: 5px 0;
+      padding: 4px 0;
+      border-bottom: 1px dashed #ddd;
     }
-    .quick-btn:hover {
-      background: #e0e0e0;
+    .cred-row:last-child {
+      border-bottom: none;
+    }
+    .cred-role {
+      font-weight: 600;
+      color: #667eea;
+    }
+    .cred-pass {
+      font-family: monospace;
+      background: #e3f2fd;
+      padding: 2px 8px;
+      border-radius: 4px;
     }
   </style>
 </head>
@@ -213,18 +224,27 @@
       </div>
       <div class="form-group">
         <label>Password</label>
-        <input type="password" id="password" placeholder="Enter password (optional)">
+        <input type="password" id="password" placeholder="Enter password" required>
       </div>
     </div>
 
     <button class="btn-login" id="loginBtn" onclick="login()" disabled>Select a Role</button>
     <p id="error" class="error">Invalid credentials</p>
 
-    <div class="quick-login">
-      <p>Quick Login (No password required)</p>
-      <button class="quick-btn" onclick="quickLogin('admin')">Admin</button>
-      <button class="quick-btn" onclick="quickLogin('lecturer')">Lecturer</button>
-      <button class="quick-btn" onclick="quickLogin('student')">Student</button>
+    <div class="credentials-hint">
+      <h4>📋 Default Login Credentials</h4>
+      <div class="cred-row">
+        <span class="cred-role">Admin:</span>
+        <span>admin / <span class="cred-pass">admin123</span></span>
+      </div>
+      <div class="cred-row">
+        <span class="cred-role">Lecturer:</span>
+        <span>lecturer / <span class="cred-pass">lecturer123</span></span>
+      </div>
+      <div class="cred-row">
+        <span class="cred-role">Student:</span>
+        <span>student / <span class="cred-pass">student123</span></span>
+      </div>
     </div>
 
     <a href="/login" class="back-link">Back to Online Login</a>
@@ -234,10 +254,11 @@
     let selectedRole = null;
 
     // Pre-fill credentials when role selected
-    const defaultCredentials = {
-      'ADMIN': { username: 'admin', password: '' },
-      'LECTURER': { username: 'lecturer', password: '' },
-      'STUDENT': { username: 'student', password: '' }
+    // Valid credentials for offline login
+    const validCredentials = {
+      'admin': { password: 'admin123', role: 'ADMIN' },
+      'lecturer': { password: 'lecturer123', role: 'LECTURER' },
+      'student': { password: 'student123', role: 'STUDENT' }
     };
 
     function selectRole(role) {
@@ -250,10 +271,15 @@
       // Show credentials form
       document.getElementById('credentials').classList.add('active');
       
-      // Pre-fill username
-      const creds = defaultCredentials[role];
-      document.getElementById('username').value = creds.username;
-      document.getElementById('password').value = creds.password;
+      // Pre-fill username based on role
+      const roleUsernames = {
+        'ADMIN': 'admin',
+        'LECTURER': 'lecturer',
+        'STUDENT': 'student'
+      };
+      document.getElementById('username').value = roleUsernames[role];
+      document.getElementById('password').value = '';
+      document.getElementById('password').focus();
       
       // Enable login button
       const btn = document.getElementById('loginBtn');
@@ -261,20 +287,11 @@
       btn.textContent = 'Login as ' + role.charAt(0) + role.slice(1).toLowerCase();
     }
 
-    function quickLogin(username) {
-      const roleMap = {
-        'admin': 'ADMIN',
-        'lecturer': 'LECTURER',
-        'student': 'STUDENT'
-      };
-      
-      const role = roleMap[username];
-      if (role) {
-        document.getElementById('username').value = username;
-        document.getElementById('password').value = '';
-        selectedRole = role;
-        performLogin(username, role);
-      }
+    function validateCredentials(username, password) {
+      const user = validCredentials[username.toLowerCase()];
+      if (!user) return { valid: false, error: 'Invalid username' };
+      if (user.password !== password) return { valid: false, error: 'Invalid password' };
+      return { valid: true, role: user.role };
     }
 
     function login() {
@@ -286,12 +303,19 @@
         return;
       }
       
-      if (!selectedRole) {
-        showError('Please select a role');
+      if (!password) {
+        showError('Please enter a password');
         return;
       }
       
-      performLogin(username, selectedRole);
+      // Validate credentials
+      const validation = validateCredentials(username, password);
+      if (!validation.valid) {
+        showError(validation.error);
+        return;
+      }
+      
+      performLogin(username, validation.role);
     }
 
     function performLogin(username, role) {
