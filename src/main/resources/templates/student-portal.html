@@ -918,6 +918,39 @@
                 loadSemesterGrades('semester1');
             }
         }
+
+        // Sync online data to offline portal
+        function syncToOfflinePortal() {
+            // Save student profile for offline access
+            const profileData = JSON.parse(localStorage.getItem('studentProfile') || '{}');
+            if (profileData.fullName) {
+                // Ensure offlineUser exists
+                let offlineUser = JSON.parse(localStorage.getItem('offlineUser') || 'null');
+                if (!offlineUser) {
+                    offlineUser = { username: profileData.fullName || 'student', role: 'STUDENT' };
+                    localStorage.setItem('offlineUser', JSON.stringify(offlineUser));
+                }
+            }
+
+            // Ensure student user exists in adminUsers for offline admin access
+            let adminUsers = JSON.parse(localStorage.getItem('adminUsers') || '[]');
+            const studentExists = adminUsers.some(u => u.role === 'STUDENT');
+            if (!studentExists && profileData.fullName) {
+                adminUsers.push({
+                    username: profileData.fullName || 'student',
+                    email: profileData.email || 'student@example.com',
+                    role: 'STUDENT',
+                    assignedCourse: 'Data Structures',
+                    department: profileData.department || 'Computer Science',
+                    status: 'Active'
+                });
+                localStorage.setItem('adminUsers', JSON.stringify(adminUsers));
+            }
+        }
+
+        // Run sync periodically
+        setInterval(syncToOfflinePortal, 5000);
+        syncToOfflinePortal(); // Run immediately on load
     </script>
 </body>
 </html>

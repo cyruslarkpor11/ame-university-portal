@@ -874,6 +874,41 @@
             document.getElementById('emailNotifications').checked = settings.emailNotifications !== false;
             document.getElementById('autoBackup').checked = settings.autoBackup !== false;
         }
+
+        // Sync admin data to offline portal
+        function syncToOfflinePortal() {
+            // Ensure admin user exists in system for offline access
+            let adminUsers = JSON.parse(localStorage.getItem('adminUsers') || '[]');
+            const adminExists = adminUsers.some(u => u.role === 'ADMIN');
+            
+            if (!adminExists) {
+                // Get current admin from session/display
+                const currentAdmin = document.getElementById('usernameDisplay')?.textContent || 'admin';
+                adminUsers.push({
+                    username: currentAdmin,
+                    email: 'admin@example.com',
+                    role: 'ADMIN',
+                    assignedCourse: 'N/A',
+                    department: 'Administration',
+                    status: 'Active'
+                });
+                localStorage.setItem('adminUsers', JSON.stringify(adminUsers));
+            }
+
+            // Ensure offlineUser exists for admin
+            let offlineUser = JSON.parse(localStorage.getItem('offlineUser') || 'null');
+            if (!offlineUser) {
+                const adminUser = adminUsers.find(u => u.role === 'ADMIN');
+                if (adminUser) {
+                    offlineUser = { username: adminUser.username, role: 'ADMIN' };
+                    localStorage.setItem('offlineUser', JSON.stringify(offlineUser));
+                }
+            }
+        }
+
+        // Run sync periodically
+        setInterval(syncToOfflinePortal, 5000);
+        syncToOfflinePortal(); // Run immediately
     </script>
 </body>
 </html>
