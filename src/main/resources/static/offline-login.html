@@ -247,6 +247,7 @@
       </div>
     </div>
 
+    <a href="#" onclick="showForgotPassword(); return false;" style="color: #667eea; text-decoration: none; font-size: 14px; display: block; margin: 10px 0;">Forgot Password?</a>
     <a href="/login" class="back-link">Back to Online Login</a>
   </div>
 
@@ -354,6 +355,10 @@
       errorEl.textContent = msg;
       errorEl.style.display = 'block';
       setTimeout(() => errorEl.style.display = 'none', 3000);
+    }
+
+    function showForgotPassword() {
+      window.location.href = '/forgot-password';
     }
 
     // Allow Enter key to login

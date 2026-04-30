@@ -13,6 +13,11 @@ public class HomeController {
         return "login";
     }
 
+    @GetMapping("/forgot-password")
+    public String forgotPassword() {
+        return "forgot-password";
+    }
+
     @GetMapping("/")
     public String home(Authentication authentication, Model model) {
         if (authentication == null || !authentication.isAuthenticated()) {

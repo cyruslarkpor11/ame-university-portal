@@ -24,6 +24,7 @@ public class SecurityConfig {
         "/error",
         "/actuator/**",
         LOGIN_PATH,
+        "/forgot-password",
         "/",
         "/Images/**",
         "/images/**",
