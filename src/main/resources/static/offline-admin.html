@@ -342,26 +342,55 @@
 
   <script>
     // Check for offline user or create default if none exists (for Android/offline access)
-    let offlineUser = JSON.parse(localStorage.getItem('offlineUser') || 'null');
+    let offlineUser = null;
+    let storedUsers = [];
     
-    // If no offline user, check if we have any admin users stored (from online portal)
-    const storedUsers = JSON.parse(localStorage.getItem('adminUsers') || '[]');
-    const adminUser = storedUsers.find(u => u.role === 'ADMIN');
+    try {
+      offlineUser = JSON.parse(localStorage.getItem('offlineUser') || 'null');
+      storedUsers = JSON.parse(localStorage.getItem('adminUsers') || '[]');
+    } catch (e) {
+      console.error('localStorage error:', e);
+    }
+    
+    // If no stored users, create default ones
+    if (!storedUsers || storedUsers.length === 0) {
+      storedUsers = [
+        { username: 'admin', email: 'admin@example.com', role: 'ADMIN', assignedCourse: 'N/A', department: 'Administration', status: 'Active' },
+        { username: 'lecturer', email: 'lecturer@example.com', role: 'LECTURER', assignedCourse: 'Introduction to Programming', department: 'Computer Science', status: 'Active' },
+        { username: 'student', email: 'student@example.com', role: 'STUDENT', assignedCourse: 'Data Structures', department: 'Computer Science', status: 'Active' }
+      ];
+      try {
+        localStorage.setItem('adminUsers', JSON.stringify(storedUsers));
+      } catch (e) {
+        console.error('Failed to save default users:', e);
+      }
+    }
+    
+    // Find admin user
+    let adminUser = null;
+    for (let i = 0; i < storedUsers.length; i++) {
+      if (storedUsers[i].role === 'ADMIN') {
+        adminUser = storedUsers[i];
+        break;
+      }
+    }
     
     // Auto-login as admin for offline/Android access
     if (!offlineUser) {
-      if (adminUser) {
-        offlineUser = { username: adminUser.username, role: 'ADMIN' };
-      } else {
-        offlineUser = { username: 'admin', role: 'ADMIN' };
+      offlineUser = { username: adminUser ? adminUser.username : 'admin', role: 'ADMIN' };
+      try {
+        localStorage.setItem('offlineUser', JSON.stringify(offlineUser));
+      } catch (e) {
+        console.error('Failed to save offlineUser:', e);
       }
-      localStorage.setItem('offlineUser', JSON.stringify(offlineUser));
     }
     
+    // Only redirect if we truly can't determine the user
     if (!offlineUser || offlineUser.role !== 'ADMIN') {
       window.location.href = '/login';
+    } else {
+      document.getElementById('username').textContent = offlineUser.username;
     }
-    document.getElementById('username').textContent = offlineUser.username;
 
     let adminUsers = [];
     let courses = [];

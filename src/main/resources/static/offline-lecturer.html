@@ -463,27 +463,56 @@
 
   <script>
     // Check for offline user or create default if none exists (for Android/offline access)
-    let offlineUser = JSON.parse(localStorage.getItem('offlineUser') || 'null');
+    let offlineUser = null;
+    let storedUsers = [];
     
-    // Check if we have any lecturer users stored
-    const storedUsers = JSON.parse(localStorage.getItem('adminUsers') || '[]');
-    const lecturerUser = storedUsers.find(u => u.role === 'LECTURER');
+    try {
+      offlineUser = JSON.parse(localStorage.getItem('offlineUser') || 'null');
+      storedUsers = JSON.parse(localStorage.getItem('adminUsers') || '[]');
+    } catch (e) {
+      console.error('localStorage error:', e);
+    }
+    
+    // If no stored users, create default ones
+    if (!storedUsers || storedUsers.length === 0) {
+      storedUsers = [
+        { username: 'admin', email: 'admin@example.com', role: 'ADMIN', assignedCourse: 'N/A', department: 'Administration', status: 'Active' },
+        { username: 'lecturer', email: 'lecturer@example.com', role: 'LECTURER', assignedCourse: 'Introduction to Programming', department: 'Computer Science', status: 'Active' },
+        { username: 'student', email: 'student@example.com', role: 'STUDENT', assignedCourse: 'Data Structures', department: 'Computer Science', status: 'Active' }
+      ];
+      try {
+        localStorage.setItem('adminUsers', JSON.stringify(storedUsers));
+      } catch (e) {
+        console.error('Failed to save default users:', e);
+      }
+    }
+    
+    // Find lecturer user
+    let lecturerUser = null;
+    for (let i = 0; i < storedUsers.length; i++) {
+      if (storedUsers[i].role === 'LECTURER') {
+        lecturerUser = storedUsers[i];
+        break;
+      }
+    }
     
     // Auto-login as lecturer for offline/Android access
     if (!offlineUser) {
-      if (lecturerUser) {
-        offlineUser = { username: lecturerUser.username, role: 'LECTURER' };
-      } else {
-        offlineUser = { username: 'lecturer', role: 'LECTURER' };
+      offlineUser = { username: lecturerUser ? lecturerUser.username : 'lecturer', role: 'LECTURER' };
+      try {
+        localStorage.setItem('offlineUser', JSON.stringify(offlineUser));
+      } catch (e) {
+        console.error('Failed to save offlineUser:', e);
       }
-      localStorage.setItem('offlineUser', JSON.stringify(offlineUser));
     }
     
+    // Only redirect if we truly can't determine the user
     if (!offlineUser || offlineUser.role !== 'LECTURER') {
       window.location.href = '/login';
+    } else {
+      document.getElementById('username').textContent = offlineUser.username;
+      document.getElementById('welcomeName').textContent = offlineUser.username;
     }
-    document.getElementById('username').textContent = offlineUser.username;
-    document.getElementById('welcomeName').textContent = offlineUser.username;
 
     const defaultCourses = [
       { code: 'CS101', title: 'Introduction to Programming', credit: 3, time: '08:00 - 10:00', days: 'Mon, Wed', students: 2 },
