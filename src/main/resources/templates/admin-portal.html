@@ -431,6 +431,23 @@
                                 </select>
                             </div>
                         </div>
+                        
+                        <div style="background: #e3f2fd; padding: 15px; border-radius: 8px; margin: 15px 0; border-left: 4px solid #2196f3;">
+                            <p style="font-size: 13px; color: #555; margin: 0 0 10px 0;"><strong>🔐 Set Login Credentials:</strong></p>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="customPassword">Password (Optional)</label>
+                                    <input type="text" id="customPassword" placeholder="Leave blank to auto-generate">
+                                </div>
+                                <div class="form-group" style="display: flex; align-items: flex-end;">
+                                    <button type="button" onclick="generateAndFillPassword()" class="btn" style="background: #667eea; color: white; border: none; padding: 10px 15px; border-radius: 5px; cursor: pointer; font-size: 13px; height: fit-content;">
+                                        🎲 Auto-Generate
+                                    </button>
+                                </div>
+                            </div>
+                            <p style="font-size: 11px; color: #666; margin: 5px 0 0 0;">Leave password blank to auto-generate a secure 8-character password.</p>
+                        </div>
+                        
                         <div class="modal-actions">
                             <button type="button" class="btn btn-delete" onclick="closeUserModal()">Cancel</button>
                             <button type="submit" id="modalSubmitButton" class="btn btn-add" onclick="saveNewUser(); return false;">Create User</button>
@@ -711,6 +728,20 @@
             return password;
         }
 
+        function generateAndFillPassword() {
+            const password = generatePassword();
+            document.getElementById('customPassword').value = password;
+            // Visual feedback
+            const btn = event.target;
+            const originalText = btn.textContent;
+            btn.textContent = '✅ Generated!';
+            btn.style.background = '#4caf50';
+            setTimeout(() => {
+                btn.textContent = originalText;
+                btn.style.background = '#667eea';
+            }, 1500);
+        }
+
         function showCredentialsModal(username, password, role) {
             const modalHtml = `
                 <div id="credentialsModal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 2000;">
@@ -779,15 +810,23 @@
                     return;
                 }
                 
-                // Generate password for new user
-                const generatedPassword = generatePassword();
-                console.log('Generated password:', generatedPassword);
+                // Check for custom password
+                const customPassword = document.getElementById('customPassword').value.trim();
+                
+                // Use custom password if provided, otherwise auto-generate
+                const finalPassword = customPassword || generatePassword();
+                
+                if (customPassword) {
+                    console.log('Using custom password:', customPassword);
+                } else {
+                    console.log('Auto-generated password:', finalPassword);
+                }
                 
                 adminUsers.push({ username, email, role, assignedCourse: assignedCourse || 'N/A', department: department || 'General', status });
                 localStorage.setItem('adminUsers', JSON.stringify(adminUsers));
                 
-                // Save the generated password for the new user
-                localStorage.setItem('userPassword_' + username.toLowerCase(), generatedPassword);
+                // Save the password for the new user
+                localStorage.setItem('userPassword_' + username.toLowerCase(), finalPassword);
                 console.log('Saved password for user:', username);
                 
                 renderUserTable();
@@ -795,7 +834,7 @@
                 closeUserModal();
                 
                 // Show credentials modal
-                showCredentialsModal(username, generatedPassword, role);
+                showCredentialsModal(username, finalPassword, role);
             }
         }
 
