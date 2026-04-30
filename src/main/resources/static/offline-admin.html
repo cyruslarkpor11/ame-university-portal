@@ -341,18 +341,28 @@
   </div>
 
   <script>
-    // Check for offline user or create default if none exists (for Android/offline access)
+    // Check authentication - redirect to offline-login if not logged in
     let offlineUser = null;
-    let storedUsers = [];
     
     try {
       offlineUser = JSON.parse(localStorage.getItem('offlineUser') || 'null');
-      storedUsers = JSON.parse(localStorage.getItem('adminUsers') || '[]');
     } catch (e) {
       console.error('localStorage error:', e);
     }
     
-    // If no stored users, create default ones
+    // Redirect to unified offline login if not authenticated or wrong role
+    if (!offlineUser || offlineUser.role !== 'ADMIN') {
+      window.location.href = '/offline-login.html';
+    } else {
+      document.getElementById('username').textContent = offlineUser.username;
+    }
+    
+    // Ensure default users exist
+    let storedUsers = [];
+    try {
+      storedUsers = JSON.parse(localStorage.getItem('adminUsers') || '[]');
+    } catch (e) {}
+    
     if (!storedUsers || storedUsers.length === 0) {
       storedUsers = [
         { username: 'admin', email: 'admin@example.com', role: 'ADMIN', assignedCourse: 'N/A', department: 'Administration', status: 'Active' },
@@ -361,35 +371,7 @@
       ];
       try {
         localStorage.setItem('adminUsers', JSON.stringify(storedUsers));
-      } catch (e) {
-        console.error('Failed to save default users:', e);
-      }
-    }
-    
-    // Find admin user
-    let adminUser = null;
-    for (let i = 0; i < storedUsers.length; i++) {
-      if (storedUsers[i].role === 'ADMIN') {
-        adminUser = storedUsers[i];
-        break;
-      }
-    }
-    
-    // Auto-login as admin for offline/Android access
-    if (!offlineUser) {
-      offlineUser = { username: adminUser ? adminUser.username : 'admin', role: 'ADMIN' };
-      try {
-        localStorage.setItem('offlineUser', JSON.stringify(offlineUser));
-      } catch (e) {
-        console.error('Failed to save offlineUser:', e);
-      }
-    }
-    
-    // Only redirect if we truly can't determine the user
-    if (!offlineUser || offlineUser.role !== 'ADMIN') {
-      window.location.href = '/login';
-    } else {
-      document.getElementById('username').textContent = offlineUser.username;
+      } catch (e) {}
     }
 
     let adminUsers = [];

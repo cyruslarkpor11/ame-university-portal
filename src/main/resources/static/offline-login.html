@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AME Zion University - Offline Login</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+    .login-container {
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      padding: 40px;
+      width: 100%;
+      max-width: 400px;
+      text-align: center;
+    }
+    .logo {
+      width: 80px;
+      height: 80px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border-radius: 50%;
+      margin: 0 auto 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 32px;
+      font-weight: bold;
+    }
+    h1 {
+      color: #333;
+      font-size: 24px;
+      margin-bottom: 10px;
+    }
+    .subtitle {
+      color: #666;
+      margin-bottom: 30px;
+      font-size: 14px;
+    }
+    .role-selector {
+      display: grid;
+      gap: 12px;
+      margin-bottom: 25px;
+    }
+    .role-card {
+      border: 2px solid #e0e0e0;
+      border-radius: 12px;
+      padding: 20px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-align: left;
+    }
+    .role-card:hover {
+      border-color: #667eea;
+      background: #f8f9ff;
+      transform: translateY(-2px);
+    }
+    .role-card.active {
+      border-color: #667eea;
+      background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
+    }
+    .role-card .icon {
+      width: 50px;
+      height: 50px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      margin-bottom: 10px;
+    }
+    .role-admin .icon { background: #e3f2fd; }
+    .role-lecturer .icon { background: #e8f5e9; }
+    .role-student .icon { background: #fff3e0; }
+    .role-card h3 {
+      color: #333;
+      font-size: 16px;
+      margin-bottom: 5px;
+    }
+    .role-card p {
+      color: #666;
+      font-size: 12px;
+    }
+    .credentials {
+      display: none;
+      margin-bottom: 20px;
+      text-align: left;
+    }
+    .credentials.active {
+      display: block;
+    }
+    .form-group {
+      margin-bottom: 15px;
+    }
+    label {
+      display: block;
+      color: #555;
+      font-size: 13px;
+      font-weight: 500;
+      margin-bottom: 5px;
+    }
+    input[type="text"],
+    input[type="password"] {
+      width: 100%;
+      padding: 12px 15px;
+      border: 2px solid #e0e0e0;
+      border-radius: 10px;
+      font-size: 14px;
+      transition: border-color 0.3s;
+    }
+    input[type="text"]:focus,
+    input[type="password"]:focus {
+      outline: none;
+      border-color: #667eea;
+    }
+    .btn-login {
+      width: 100%;
+      padding: 15px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .btn-login:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+    }
+    .btn-login:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+      transform: none;
+    }
+    .back-link {
+      display: block;
+      margin-top: 20px;
+      color: #667eea;
+      text-decoration: none;
+      font-size: 14px;
+    }
+    .error {
+      color: #e74c3c;
+      font-size: 13px;
+      margin-top: 10px;
+      display: none;
+    }
+    .quick-login {
+      margin-top: 15px;
+      padding-top: 15px;
+      border-top: 1px solid #e0e0e0;
+    }
+    .quick-login p {
+      color: #666;
+      font-size: 12px;
+      margin-bottom: 10px;
+    }
+    .quick-btn {
+      background: #f0f0f0;
+      border: none;
+      padding: 8px 15px;
+      border-radius: 20px;
+      font-size: 12px;
+      cursor: pointer;
+      margin: 0 3px;
+      transition: background 0.2s;
+    }
+    .quick-btn:hover {
+      background: #e0e0e0;
+    }
+  </style>
+</head>
+<body>
+  <div class="login-container">
+    <div class="logo">🎓</div>
+    <h1>AME Zion University</h1>
+    <p class="subtitle">Select your portal to continue</p>
+
+    <div class="role-selector">
+      <div class="role-card role-admin" onclick="selectRole('ADMIN')">
+        <div class="icon">👑</div>
+        <h3>Administrator</h3>
+        <p>Manage users, courses, and system settings</p>
+      </div>
+      <div class="role-card role-lecturer" onclick="selectRole('LECTURER')">
+        <div class="icon">📚</div>
+        <h3>Lecturer</h3>
+        <p>Manage courses and grade students</p>
+      </div>
+      <div class="role-card role-student" onclick="selectRole('STUDENT')">
+        <div class="icon">🎓</div>
+        <h3>Student</h3>
+        <p>View courses, grades, and enrollment</p>
+      </div>
+    </div>
+
+    <div id="credentials" class="credentials">
+      <div class="form-group">
+        <label>Username</label>
+        <input type="text" id="username" placeholder="Enter username">
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" id="password" placeholder="Enter password (optional)">
+      </div>
+    </div>
+
+    <button class="btn-login" id="loginBtn" onclick="login()" disabled>Select a Role</button>
+    <p id="error" class="error">Invalid credentials</p>
+
+    <div class="quick-login">
+      <p>Quick Login (No password required)</p>
+      <button class="quick-btn" onclick="quickLogin('admin')">Admin</button>
+      <button class="quick-btn" onclick="quickLogin('lecturer')">Lecturer</button>
+      <button class="quick-btn" onclick="quickLogin('student')">Student</button>
+    </div>
+
+    <a href="/login" class="back-link">Back to Online Login</a>
+  </div>
+
+  <script>
+    let selectedRole = null;
+
+    // Pre-fill credentials when role selected
+    const defaultCredentials = {
+      'ADMIN': { username: 'admin', password: '' },
+      'LECTURER': { username: 'lecturer', password: '' },
+      'STUDENT': { username: 'student', password: '' }
+    };
+
+    function selectRole(role) {
+      selectedRole = role;
+      
+      // Update UI
+      document.querySelectorAll('.role-card').forEach(card => card.classList.remove('active'));
+      document.querySelector('.role-' + role.toLowerCase()).classList.add('active');
+      
+      // Show credentials form
+      document.getElementById('credentials').classList.add('active');
+      
+      // Pre-fill username
+      const creds = defaultCredentials[role];
+      document.getElementById('username').value = creds.username;
+      document.getElementById('password').value = creds.password;
+      
+      // Enable login button
+      const btn = document.getElementById('loginBtn');
+      btn.disabled = false;
+      btn.textContent = 'Login as ' + role.charAt(0) + role.slice(1).toLowerCase();
+    }
+
+    function quickLogin(username) {
+      const roleMap = {
+        'admin': 'ADMIN',
+        'lecturer': 'LECTURER',
+        'student': 'STUDENT'
+      };
+      
+      const role = roleMap[username];
+      if (role) {
+        document.getElementById('username').value = username;
+        document.getElementById('password').value = '';
+        selectedRole = role;
+        performLogin(username, role);
+      }
+    }
+
+    function login() {
+      const username = document.getElementById('username').value.trim();
+      const password = document.getElementById('password').value;
+      
+      if (!username) {
+        showError('Please enter a username');
+        return;
+      }
+      
+      if (!selectedRole) {
+        showError('Please select a role');
+        return;
+      }
+      
+      performLogin(username, selectedRole);
+    }
+
+    function performLogin(username, role) {
+      try {
+        // Save offline user
+        const offlineUser = { username: username, role: role };
+        localStorage.setItem('offlineUser', JSON.stringify(offlineUser));
+        
+        // Ensure default users exist in system
+        let storedUsers = JSON.parse(localStorage.getItem('adminUsers') || '[]');
+        if (!storedUsers || storedUsers.length === 0) {
+          storedUsers = [
+            { username: 'admin', email: 'admin@example.com', role: 'ADMIN', assignedCourse: 'N/A', department: 'Administration', status: 'Active' },
+            { username: 'lecturer', email: 'lecturer@example.com', role: 'LECTURER', assignedCourse: 'Introduction to Programming', department: 'Computer Science', status: 'Active' },
+            { username: 'student', email: 'student@example.com', role: 'STUDENT', assignedCourse: 'Data Structures', department: 'Computer Science', status: 'Active' }
+          ];
+          localStorage.setItem('adminUsers', JSON.stringify(storedUsers));
+        }
+        
+        // Redirect to appropriate portal
+        const redirectMap = {
+          'ADMIN': '/offline-admin.html',
+          'LECTURER': '/offline-lecturer.html',
+          'STUDENT': '/offline-student.html'
+        };
+        
+        window.location.href = redirectMap[role] || '/offline-student.html';
+      } catch (e) {
+        console.error('Login error:', e);
+        showError('Login failed. Please try again.');
+      }
+    }
+
+    function showError(msg) {
+      const errorEl = document.getElementById('error');
+      errorEl.textContent = msg;
+      errorEl.style.display = 'block';
+      setTimeout(() => errorEl.style.display = 'none', 3000);
+    }
+
+    // Allow Enter key to login
+    document.getElementById('password').addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') login();
+    });
+  </script>
+</body>
+</html>
