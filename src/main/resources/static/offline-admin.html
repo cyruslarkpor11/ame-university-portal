@@ -545,6 +545,8 @@
     }
 
     function saveNewUser() {
+      console.log('saveNewUser() called');
+      
       const username = document.getElementById('username').value.trim();
       const email = document.getElementById('email').value.trim();
       const role = document.getElementById('userRole').value;
@@ -552,9 +554,15 @@
       const department = document.getElementById('department').value.trim();
       const status = document.getElementById('status').value;
 
-      if (!username || !email || !role) { alert('Please complete all required fields.'); return; }
+      console.log('Form values:', { username, email, role, assignedCourse, department, status });
+
+      if (!username || !email || !role) { 
+        alert('Please complete all required fields.'); 
+        return; 
+      }
 
       const existingIndex = adminUsers.findIndex(u => u.username.toLowerCase() === username.toLowerCase());
+      console.log('Existing index:', existingIndex, 'editingUser:', editingUser);
 
       if (editingUser) {
         const originalIndex = adminUsers.findIndex(u => u.username === editingUser);
@@ -569,17 +577,28 @@
         updateStats();
         closeUserModal();
       } else {
-        if (existingIndex !== -1) { alert('A user with that username already exists.'); return; }
+        if (existingIndex !== -1) { 
+          alert('A user with that username already exists.'); 
+          return; 
+        }
         
         // Generate password for new user
         const generatedPassword = generatePassword();
+        console.log('Generated password:', generatedPassword);
         
         // Save user with password
-        adminUsers.push({ username, email, role, assignedCourse: assignedCourse || 'N/A', department: department || 'General', status });
+        const newUser = { username, email, role, assignedCourse: assignedCourse || 'N/A', department: department || 'General', status };
+        adminUsers.push(newUser);
+        console.log('New user added:', newUser);
+        console.log('Updated adminUsers:', adminUsers);
+        
+        // Save to localStorage
         localStorage.setItem('adminUsers', JSON.stringify(adminUsers));
+        console.log('Saved to localStorage');
         
         // Save the generated password for the new user
         localStorage.setItem('userPassword_' + username.toLowerCase(), generatedPassword);
+        console.log('Saved password for user:', username);
         
         renderUserTable();
         updateStats();
@@ -587,6 +606,7 @@
         
         // Show credentials modal
         showCredentialsModal(username, generatedPassword, role);
+        console.log('Credentials modal shown');
       }
     }
 
