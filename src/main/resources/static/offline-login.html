@@ -282,21 +282,46 @@
     }
 
     function validateCredentials(username, password) {
-      const user = validCredentials[username.toLowerCase()];
-      if (!user) return { valid: false, error: 'Invalid username' };
+      const usernameLower = username.toLowerCase();
       
-      // Check if user has a custom password stored
-      const customPass = localStorage.getItem('userPassword_' + username.toLowerCase());
-      if (customPass && customPass !== password) {
+      // First check hardcoded default users
+      const defaultUser = validCredentials[usernameLower];
+      
+      // Check if user has a custom password stored (from admin portal)
+      const customPass = localStorage.getItem('userPassword_' + usernameLower);
+      
+      if (defaultUser) {
+        // User exists in defaults
+        if (customPass) {
+          // Has custom password - validate against it
+          if (customPass !== password) {
+            return { valid: false, error: 'Invalid password' };
+          }
+        } else {
+          // No custom password - check default
+          if (defaultUser.password !== password) {
+            return { valid: false, error: 'Invalid password' };
+          }
+        }
+        return { valid: true, role: defaultUser.role };
+      }
+      
+      // Check admin-created users from localStorage
+      const adminUsers = JSON.parse(localStorage.getItem('adminUsers') || '[]');
+      const adminCreatedUser = adminUsers.find(u => u.username.toLowerCase() === usernameLower);
+      
+      if (adminCreatedUser) {
+        // User was created by admin
+        if (customPass && customPass === password) {
+          // Password matches stored custom password
+          return { valid: true, role: adminCreatedUser.role };
+        }
+        // No custom password set or doesn't match
         return { valid: false, error: 'Invalid password' };
       }
       
-      // Check default password
-      if (!customPass && user.password !== password) {
-        return { valid: false, error: 'Invalid password' };
-      }
-      
-      return { valid: true, role: user.role };
+      // User not found anywhere
+      return { valid: false, error: 'Invalid username' };
     }
     
     function isUsingDefaultPassword(username, password) {
