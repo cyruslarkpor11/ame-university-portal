@@ -462,7 +462,23 @@
   </div>
 
   <script>
-    const offlineUser = JSON.parse(localStorage.getItem('offlineUser') || 'null');
+    // Check for offline user or create default if none exists (for Android/offline access)
+    let offlineUser = JSON.parse(localStorage.getItem('offlineUser') || 'null');
+    
+    // Check if we have any lecturer users stored
+    const storedUsers = JSON.parse(localStorage.getItem('adminUsers') || '[]');
+    const lecturerUser = storedUsers.find(u => u.role === 'LECTURER');
+    
+    // Auto-login as lecturer for offline/Android access
+    if (!offlineUser) {
+      if (lecturerUser) {
+        offlineUser = { username: lecturerUser.username, role: 'LECTURER' };
+      } else {
+        offlineUser = { username: 'lecturer', role: 'LECTURER' };
+      }
+      localStorage.setItem('offlineUser', JSON.stringify(offlineUser));
+    }
+    
     if (!offlineUser || offlineUser.role !== 'LECTURER') {
       window.location.href = '/login';
     }

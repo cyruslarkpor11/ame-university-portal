@@ -341,7 +341,23 @@
   </div>
 
   <script>
-    const offlineUser = JSON.parse(localStorage.getItem('offlineUser') || 'null');
+    // Check for offline user or create default if none exists (for Android/offline access)
+    let offlineUser = JSON.parse(localStorage.getItem('offlineUser') || 'null');
+    
+    // If no offline user, check if we have any admin users stored (from online portal)
+    const storedUsers = JSON.parse(localStorage.getItem('adminUsers') || '[]');
+    const adminUser = storedUsers.find(u => u.role === 'ADMIN');
+    
+    // Auto-login as admin for offline/Android access
+    if (!offlineUser) {
+      if (adminUser) {
+        offlineUser = { username: adminUser.username, role: 'ADMIN' };
+      } else {
+        offlineUser = { username: 'admin', role: 'ADMIN' };
+      }
+      localStorage.setItem('offlineUser', JSON.stringify(offlineUser));
+    }
+    
     if (!offlineUser || offlineUser.role !== 'ADMIN') {
       window.location.href = '/login';
     }
