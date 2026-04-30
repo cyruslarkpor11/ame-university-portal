@@ -25,6 +25,7 @@ public class SecurityConfig {
         "/actuator/**",
         LOGIN_PATH,
         "/forgot-password",
+        "/change-password",
         "/",
         "/Images/**",
         "/images/**",
