@@ -496,6 +496,7 @@
           <td>
             <button type="button" class="btn btn-edit" onclick="editUser('${user.username}')">Edit</button>
             <button type="button" class="btn btn-reset" onclick="resetUserPassword('${user.username}')" style="background: #ff9800; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; margin-right: 5px;">Reset Password</button>
+            <button type="button" class="btn" onclick="sendUserCredentials('${user.username}')" style="background: #4caf50; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; margin-right: 5px;">📧 Send Credentials</button>
             <button type="button" class="btn btn-delete" onclick="deleteUser('${user.username}')">Delete</button>
           </td>
         `;
@@ -860,6 +861,40 @@ AME Zion University Admin Team`);
       
       // Show credentials modal
       showCredentialsModal(username, newPassword, user.role);
+    }
+
+    function sendUserCredentials(username) {
+      const user = adminUsers.find(u => u.username === username);
+      if (!user) {
+        alert('User not found.');
+        return;
+      }
+      
+      if (!user.email) {
+        alert('⚠️ This user does not have an email address.\n\nPlease edit the user and add an email first.');
+        return;
+      }
+      
+      // Get existing password or generate new one
+      let password = localStorage.getItem('userPassword_' + username.toLowerCase());
+      if (!password) {
+        // Generate new password if none exists
+        password = generatePassword();
+        localStorage.setItem('userPassword_' + username.toLowerCase(), password);
+        localStorage.removeItem('passwordChanged_' + username.toLowerCase());
+        alert(`⚠️ No existing password found. Generated new password for ${username}.`);
+      }
+      
+      // Show credentials modal with user's email pre-filled
+      showCredentialsModal(username, password, user.role, user.email);
+      
+      // Auto-trigger email after a short delay
+      setTimeout(() => {
+        const emailInput = document.getElementById('shareEmail');
+        if (emailInput) {
+          emailInput.value = user.email;
+        }
+      }, 100);
     }
 
     function addNewCourse() {
