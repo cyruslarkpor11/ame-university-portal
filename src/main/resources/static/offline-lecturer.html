@@ -3,61 +3,751 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Offline Lecturer Portal</title>
+  <meta name="theme-color" content="#2ecc71">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <link rel="manifest" href="/manifest.json">
+  <link rel="apple-touch-icon" href="/Images/Zion.png">
+  <title>Offline Lecturer Portal - African Methodist Episcopal Zion University</title>
   <style>
-    body { margin: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #142850; color: #f7fafc; }
-    .app-shell { max-width: 940px; margin: 0 auto; padding: 26px; }
-    h1 { margin-bottom: 12px; color: #90cdf4; }
-    .card { background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 20px; margin-bottom: 18px; }
-    .nav { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 18px; }
-    .nav button, .nav a { border: none; border-radius: 999px; background: #3182ce; color: white; padding: 12px 18px; cursor: pointer; text-decoration: none; }
-    .nav button:hover, .nav a:hover { opacity: 0.94; }
-    .list { display: grid; gap: 14px; }
-    .list-item { background: rgba(255,255,255,0.06); padding: 14px; border-radius: 12px; }
-    .status { margin-top: 12px; color: #d6e4ff; }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('/Images/Image 1.jpg');
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+      color: white;
+    }
+    .navbar {
+      background: #2ecc71;
+      color: white;
+      padding: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+    .navbar h1 { font-size: 24px; }
+    .navbar a {
+      color: white;
+      text-decoration: none;
+      margin-left: 20px;
+      padding: 8px 12px;
+      border-radius: 5px;
+      transition: background 0.3s ease;
+    }
+    .navbar a:hover { background: rgba(255, 255, 255, 0.2); }
+    .tabs {
+      background: white;
+      border-radius: 8px 8px 0 0;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      margin-bottom: 0;
+      overflow: hidden;
+    }
+    .tab-buttons {
+      display: flex;
+      background: #f8f9fa;
+      border-bottom: 1px solid #dee2e6;
+    }
+    .tab-button {
+      flex: 1;
+      padding: 15px 20px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: 500;
+      color: #6c757d;
+      transition: all 0.3s ease;
+      border-bottom: 3px solid transparent;
+    }
+    .tab-button:hover { background: #e9ecef; color: #495057; }
+    .tab-button.active { color: #2ecc71; border-bottom-color: #2ecc71; background: white; }
+    .tab-content {
+      background: rgba(255, 255, 255, 0.95);
+      color: #333;
+      padding: 30px;
+      border-radius: 0 0 8px 8px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      display: none;
+    }
+    .tab-content.active { display: block; }
+    .container {
+      max-width: 1000px;
+      margin: 30px auto;
+      padding: 0 20px;
+    }
+    .header {
+      background: white;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      margin-bottom: 30px;
+    }
+    .header h2 { color: #2ecc71; margin-bottom: 10px; }
+    .section {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      margin-bottom: 20px;
+    }
+    .section h3 { color: #333; margin-bottom: 15px; border-bottom: 2px solid #2ecc71; padding-bottom: 10px; }
+    .course-list { list-style: none; }
+    .course-item {
+      background: #f9f9f9;
+      padding: 15px;
+      margin: 10px 0;
+      border-left: 4px solid #2ecc71;
+      border-radius: 4px;
+    }
+    .course-item strong { color: #333; display: block; margin-bottom: 5px; }
+    .course-item p { color: #666; font-size: 14px; }
+    .btn-manage {
+      background: #2ecc71;
+      color: white;
+      padding: 8px 15px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      margin-top: 10px;
+      transition: background 0.3s ease;
+    }
+    .btn-manage:hover { background: #27ae60; }
+    .btn-add {
+      background: #3498db;
+      color: white;
+      padding: 12px 20px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      margin-bottom: 15px;
+      transition: background 0.3s ease;
+    }
+    .btn-add:hover { background: #2980b9; }
+    .btn-delete {
+      background: #e74c3c;
+      color: white;
+      padding: 8px 15px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+    .btn-delete:hover { background: #c0392b; }
+    .quick-stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+    .stat-card {
+      background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
+      color: white;
+      padding: 20px;
+      border-radius: 8px;
+      text-align: center;
+    }
+    .stat-card .number { font-size: 32px; font-weight: bold; margin-bottom: 5px; }
+    .stat-card .label { font-size: 14px; opacity: 0.9; }
+    .profile-container {
+      display: flex;
+      gap: 30px;
+      align-items: flex-start;
+      flex-wrap: wrap;
+    }
+    .profile-picture-section {
+      text-align: center;
+      flex-shrink: 0;
+    }
+    .profile-picture img {
+      width: 150px;
+      height: 150px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 3px solid #2ecc71;
+    }
+    .profile-details { flex: 1; min-width: 300px; }
+    .form-row {
+      display: flex;
+      gap: 20px;
+      margin-bottom: 15px;
+      flex-wrap: wrap;
+    }
+    .form-group {
+      flex: 1;
+      min-width: 200px;
+    }
+    .form-group label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
+      color: #333;
+    }
+    .form-group input, .form-group select, .form-group textarea {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 14px;
+    }
+    .form-group textarea { resize: vertical; }
+    table { width: 100%; border-collapse: collapse; }
+    th {
+      background: #2ecc71;
+      color: white;
+      padding: 12px;
+      text-align: left;
+    }
+    td {
+      padding: 12px;
+      border-bottom: 1px solid #e5e5e5;
+      color: #555;
+    }
+    tr:hover { background: #f9f9f9; }
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.65);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+    .modal-overlay.active { display: flex; }
+    .modal {
+      background: white;
+      color: #333;
+      width: min(720px, 95%);
+      border-radius: 12px;
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25);
+      padding: 28px;
+      position: relative;
+    }
+    .modal h3 { margin-bottom: 20px; color: #2ecc71; }
+    .modal-close {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      width: 36px;
+      height: 36px;
+      border: none;
+      background: #2ecc71;
+      color: white;
+      border-radius: 50%;
+      font-size: 18px;
+      cursor: pointer;
+    }
+    .modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+      margin-top: 20px;
+    }
+    .nav-offline {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 20px;
+    }
+    .nav-offline button, .nav-offline a {
+      border: none;
+      border-radius: 999px;
+      background: #3182ce;
+      color: white;
+      padding: 12px 18px;
+      cursor: pointer;
+      text-decoration: none;
+    }
+    .status-offline {
+      margin-top: 12px;
+      color: #666;
+      font-style: italic;
+    }
+    .grade-select {
+      padding: 8px;
+      min-width: 120px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+    }
   </style>
 </head>
 <body>
-  <div class="app-shell">
-    <h1>Offline Lecturer Portal</h1>
-    <div class="card">
-      <p>Welcome, <strong id="username">Lecturer</strong>.</p>
-      <p>This is the offline lecturer portal shell. Basic content is available when offline.</p>
+  <div class="navbar">
+    <div style="display: flex; align-items: center; gap: 12px;">
+      <img src="/Images/Zion.png" alt="Zion logo" style="height:40px; width:auto; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.25);" />
+      <h1>Offline Lecturer Portal</h1>
     </div>
-    <div class="nav">
-      <button id="refreshBtn">Check Connection</button>
-      <button id="logoutBtn">Logout</button>
-      <a href="/offline-admin.html">Admin portal shell</a>
-      <a href="/offline-student.html">Student portal shell</a>
-      <a href="/login">Back to Login</a>
-    </div>
-    <div class="card">
-      <h2>Lecture Tools (Offline)</h2>
-      <div class="list" id="lectureTasks"></div>
-      <p class="status" id="statusText">Cached offline lecturer portal. Live features require reconnecting.</p>
+    <div>
+      <span id="username">Lecturer</span>
+      <button id="logoutBtn" style="background: rgba(255, 255, 255, 0.3); color: white; border: none; padding: 8px 12px; border-radius: 5px; cursor: pointer; margin-left: 10px;">Logout</button>
     </div>
   </div>
+
+  <div class="container">
+    <div class="header">
+      <h2>Welcome, Dr. <span id="welcomeName">Lecturer</span>! 👨‍🏫 (Offline Mode)</h2>
+      <p>Manage your courses, grades, and student progress locally. Changes sync when reconnected.</p>
+      <p class="status-offline" id="statusText">Cached offline lecturer portal. Live features require reconnecting.</p>
+    </div>
+
+    <div class="tabs">
+      <div class="tab-buttons">
+        <button class="tab-button active" onclick="showTab(event, 'courses')">📚 Courses</button>
+        <button class="tab-button" onclick="showTab(event, 'students')">👥 Students</button>
+        <button class="tab-button" onclick="showTab(event, 'grades')">📊 Grades</button>
+        <button class="tab-button" onclick="showTab(event, 'profile')">👤 Profile</button>
+      </div>
+
+      <div id="courses" class="tab-content active">
+        <h3>My Courses</h3>
+        <div class="quick-stats">
+          <div class="stat-card">
+            <div class="number" id="courseCount">3</div>
+            <div class="label">Total Courses</div>
+          </div>
+        </div>
+        <button class="btn-add" onclick="openCourseModal()">+ Add New Course</button>
+        <div id="courseList" class="course-list"></div>
+      </div>
+
+      <div id="courseModal" class="modal-overlay">
+        <div class="modal">
+          <button class="modal-close" type="button" onclick="closeCourseModal()">×</button>
+          <h3>Add New Course</h3>
+          <form id="courseForm" onsubmit="event.preventDefault(); saveNewCourse();">
+            <div class="form-row">
+              <div class="form-group">
+                <label>Course Code</label>
+                <input type="text" id="courseCode" placeholder="Enter course code" required>
+              </div>
+              <div class="form-group">
+                <label>Course Title</label>
+                <input type="text" id="courseTitle" placeholder="Enter course title" required>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Credit Hours</label>
+                <input type="number" id="courseCredit" placeholder="e.g. 3" min="1" required>
+              </div>
+              <div class="form-group">
+                <label>Time</label>
+                <input type="text" id="courseTime" placeholder="e.g. 08:00 - 10:00" required>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Days</label>
+              <input type="text" id="courseDays" placeholder="e.g. Mon, Wed, Fri" required>
+            </div>
+            <div class="modal-actions">
+              <button type="button" class="btn-delete" onclick="closeCourseModal()">Cancel</button>
+              <button type="submit" class="btn-add">Save Course</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <div id="students" class="tab-content">
+        <h3>Student Management</h3>
+        <div class="section">
+          <label for="studentCourseFilter">Filter by course:</label>
+          <select id="studentCourseFilter" onchange="renderEnrolledStudents()" style="padding: 10px; margin: 10px 0; width: 100%; max-width: 400px;">
+            <option value="">All Courses</option>
+          </select>
+        </div>
+        <div class="section" id="students-content">
+          <table>
+            <thead>
+              <tr>
+                <th>Student</th>
+                <th>ID</th>
+                <th>Department</th>
+                <th>Status</th>
+                <th>Course</th>
+                <th>Date Enrolled</th>
+              </tr>
+            </thead>
+            <tbody id="studentsTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div id="grades" class="tab-content">
+        <h3>Grade Management</h3>
+        <div class="section">
+          <label for="gradeCourseSelect">Select course to grade:</label>
+          <select id="gradeCourseSelect" onchange="loadStudentsForGrading()" style="padding: 10px; margin: 10px 0; width: 100%; max-width: 400px;">
+            <option value="">Select Course</option>
+          </select>
+        </div>
+        <div id="grading-section" style="display: none;">
+          <div style="display:flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+            <h4>Grade Students</h4>
+          </div>
+          <div id="students-grading-list"></div>
+        </div>
+      </div>
+
+      <div id="profile" class="tab-content">
+        <h3>My Profile</h3>
+        <div class="profile-container">
+          <div class="profile-picture-section">
+            <div class="profile-picture">
+              <img id="lecturerProfileImg" src="/Images/download 2.jpg" alt="Profile Picture">
+            </div>
+            <input type="file" id="lecturerProfilePictureInput" accept="image/*" style="margin-top: 10px; width: 100%;">
+            <button onclick="uploadLecturerProfilePicture()" class="btn-manage" style="background: #2ecc71; width: 100%;">Upload Picture</button>
+          </div>
+          <div class="profile-details">
+            <form id="lecturerProfileForm">
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Full Name:</label>
+                  <input type="text" id="lecturerFullName" placeholder="Enter your full name">
+                </div>
+                <div class="form-group">
+                  <label>Employee ID:</label>
+                  <input type="text" id="lecturerId" placeholder="Enter your employee ID">
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Email:</label>
+                  <input type="email" id="lecturerEmail" placeholder="Enter your email">
+                </div>
+                <div class="form-group">
+                  <label>Phone:</label>
+                  <input type="tel" id="lecturerPhone" placeholder="Enter your phone number">
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Department:</label>
+                  <select id="lecturerDepartment">
+                    <option value="">Select Department</option>
+                    <option value="Computer Science">Computer Science</option>
+                    <option value="Business Administration">Business Administration</option>
+                    <option value="Education">Education</option>
+                    <option value="Engineering">Engineering</option>
+                    <option value="Arts and Humanities">Arts and Humanities</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label>Specialization:</label>
+                  <input type="text" id="lecturerSpecialization" placeholder="Enter your specialization">
+                </div>
+              </div>
+              <div class="form-group">
+                <label>Bio:</label>
+                <textarea id="lecturerBio" placeholder="Enter your bio" rows="3"></textarea>
+              </div>
+              <button type="button" onclick="saveLecturerProfile()" class="btn-manage" style="background: #27ae60; margin-top: 20px;">Save Profile</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="nav-offline">
+      <button id="refreshBtn">Check Connection</button>
+      <a href="/offline-admin.html">Admin Portal</a>
+      <a href="/offline-student.html">Student Portal</a>
+      <a href="/login">Back to Login</a>
+    </div>
+  </div>
+
   <script>
     const offlineUser = JSON.parse(localStorage.getItem('offlineUser') || 'null');
     if (!offlineUser || offlineUser.role !== 'LECTURER') {
       window.location.href = '/login';
     }
-
     document.getElementById('username').textContent = offlineUser.username;
+    document.getElementById('welcomeName').textContent = offlineUser.username;
 
-    const lectureTasks = [
-      'Review cached assignments',
-      'View student attendance snapshot',
-      'Prepare offline lesson notes',
-      'Update local lecture resources'
+    const defaultCourses = [
+      { code: 'CS101', title: 'Introduction to Programming', credit: 3, time: '08:00 - 10:00', days: 'Mon, Wed', students: 2 },
+      { code: 'MATH204', title: 'Data Structures', credit: 3, time: '10:30 - 12:30', days: 'Tue, Thu', students: 1 },
+      { code: 'DBS301', title: 'Database Systems', credit: 3, time: '13:00 - 15:00', days: 'Mon, Wed', students: 1 }
     ];
-    const tasksEl = document.getElementById('lectureTasks');
-    lectureTasks.forEach(task => {
-      const item = document.createElement('div');
-      item.className = 'list-item';
-      item.textContent = task;
-      tasksEl.appendChild(item);
-    });
+
+    const defaultEnrollments = [
+      { name: 'John Doe', id: 'STU001', department: 'Computer Science', status: 'Freshman I', course: 'CS101', enrolled: '2026-01-10', grade: 'A-' },
+      { name: 'Jane Smith', id: 'STU002', department: 'Engineering', status: 'Sophomore II', course: 'MATH204', enrolled: '2026-01-12', grade: 'B' },
+      { name: 'Bob Johnson', id: 'STU003', department: 'Business', status: 'Junior I', course: 'CS101', enrolled: '2026-01-14', grade: 'B+' }
+    ];
+
+    let lecturerCourses = JSON.parse(localStorage.getItem('lecturerCourses') || 'null') || defaultCourses;
+    let enrolledStudents = JSON.parse(localStorage.getItem('lecturerEnrollments') || 'null') || defaultEnrollments;
+
+    function initData() {
+      loadLecturerProfileData();
+      renderCourseList();
+      populateCourseSelectors();
+      renderEnrolledStudents();
+    }
+
+    function showTab(event, tabName) {
+      const tabContents = document.querySelectorAll('.tab-content');
+      tabContents.forEach(content => content.classList.remove('active'));
+      const tabButtons = document.querySelectorAll('.tab-button');
+      tabButtons.forEach(button => button.classList.remove('active'));
+      document.getElementById(tabName).classList.add('active');
+      event.currentTarget.classList.add('active');
+    }
+
+    function openCourseModal() {
+      document.getElementById('courseModal').classList.add('active');
+      document.getElementById('courseForm').reset();
+    }
+
+    function closeCourseModal() {
+      document.getElementById('courseModal').classList.remove('active');
+    }
+
+    function saveNewCourse() {
+      const code = document.getElementById('courseCode').value.trim();
+      const title = document.getElementById('courseTitle').value.trim();
+      const credit = parseInt(document.getElementById('courseCredit').value, 10);
+      const time = document.getElementById('courseTime').value.trim();
+      const days = document.getElementById('courseDays').value.trim();
+
+      if (!code || !title || !credit || !time || !days) {
+        alert('Please fill in all course fields.');
+        return;
+      }
+
+      lecturerCourses.push({ code, title, credit, time, days, students: 0 });
+      localStorage.setItem('lecturerCourses', JSON.stringify(lecturerCourses));
+      renderCourseList();
+      populateCourseSelectors();
+      closeCourseModal();
+      alert(`Course ${code} - ${title} added successfully.`);
+    }
+
+    function renderCourseList() {
+      const courseList = document.getElementById('courseList');
+      courseList.innerHTML = '';
+      lecturerCourses.forEach(course => {
+        const enrolledCount = enrolledStudents.filter(student => student.course === course.code).length;
+        const item = document.createElement('div');
+        item.className = 'course-item';
+        item.innerHTML = `
+          <strong>${course.title}</strong>
+          <p><strong>Code:</strong> ${course.code}</p>
+          <p><strong>Credit Hours:</strong> ${course.credit}</p>
+          <p><strong>Time:</strong> ${course.time}</p>
+          <p><strong>Days:</strong> ${course.days}</p>
+          <p><strong>Enrolled Students:</strong> ${enrolledCount}</p>
+          <button class="btn-manage" onclick="manageCourse('${course.code}')">View Details</button>
+        `;
+        courseList.appendChild(item);
+      });
+      document.getElementById('courseCount').textContent = lecturerCourses.length;
+    }
+
+    function populateCourseSelectors() {
+      const courseFilter = document.getElementById('studentCourseFilter');
+      const gradeSelect = document.getElementById('gradeCourseSelect');
+      courseFilter.innerHTML = '<option value="">All Courses</option>';
+      gradeSelect.innerHTML = '<option value="">Select Course</option>';
+      lecturerCourses.forEach(course => {
+        const label = `${course.code} - ${course.title}`;
+        courseFilter.insertAdjacentHTML('beforeend', `<option value="${course.code}">${label}</option>`);
+        gradeSelect.insertAdjacentHTML('beforeend', `<option value="${course.code}">${label}</option>`);
+      });
+    }
+
+    function manageCourse(courseCode) {
+      const course = lecturerCourses.find(item => item.code === courseCode);
+      const enrolledCount = enrolledStudents.filter(student => student.course === courseCode).length;
+      alert(`Course Details:\n\nCode: ${course.code}\nTitle: ${course.title}\nCredit Hours: ${course.credit}\nTime: ${course.time}\nDays: ${course.days}\nEnrolled Students: ${enrolledCount}`);
+    }
+
+    function renderEnrolledStudents() {
+      const filterCourse = document.getElementById('studentCourseFilter').value;
+      const tableBody = document.getElementById('studentsTableBody');
+      const filteredStudents = filterCourse ? enrolledStudents.filter(student => student.course === filterCourse) : enrolledStudents;
+      tableBody.innerHTML = '';
+
+      if (filteredStudents.length === 0) {
+        tableBody.innerHTML = '<tr><td colspan="6" style="padding: 18px; color: #999; text-align: center;">No enrolled students found.</td></tr>';
+        return;
+      }
+
+      filteredStudents.forEach(student => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${student.name}</td>
+          <td>${student.id}</td>
+          <td>${student.department}</td>
+          <td>${student.status}</td>
+          <td>${student.course}</td>
+          <td>${student.enrolled}</td>
+        `;
+        tableBody.appendChild(row);
+      });
+    }
+
+    function loadStudentsForGrading() {
+      const courseSelect = document.getElementById('gradeCourseSelect');
+      const gradingSection = document.getElementById('grading-section');
+      const studentsGradingList = document.getElementById('students-grading-list');
+      const selectedCourse = courseSelect.value;
+
+      if (!selectedCourse) {
+        gradingSection.style.display = 'none';
+        studentsGradingList.innerHTML = '';
+        return;
+      }
+
+      const students = enrolledStudents.filter(student => student.course === selectedCourse);
+      gradingSection.style.display = 'block';
+      studentsGradingList.innerHTML = '';
+
+      if (students.length === 0) {
+        studentsGradingList.innerHTML = '<p style="color: #999;">No students enrolled for this course.</p>';
+        return;
+      }
+
+      students.forEach(student => {
+        const gradeRow = document.createElement('div');
+        gradeRow.style.cssText = 'background: #f9f9f9; padding: 15px; margin: 10px 0; border-radius: 8px;';
+        gradeRow.innerHTML = `
+          <div style="display:flex; justify-content: space-between; flex-wrap: wrap; gap: 12px; align-items: center;">
+            <div>
+              <strong>${student.name}</strong><br>
+              <span style="color: #666;">ID: ${student.id}</span><br>
+              <span style="color: #666;">Department: ${student.department}</span><br>
+              <span style="color: #666;">Status: ${student.status}</span>
+            </div>
+            <div style="display:flex; gap: 10px; align-items: center;">
+              <select id="grade-${student.id}" class="grade-select">
+                <option value="">Select Grade</option>
+                <option value="A">A</option>
+                <option value="A-">A-</option>
+                <option value="B+">B+</option>
+                <option value="B">B</option>
+                <option value="B-">B-</option>
+                <option value="C+">C+</option>
+                <option value="C">C</option>
+                <option value="C-">C-</option>
+                <option value="D">D</option>
+                <option value="F">F</option>
+              </select>
+              <button onclick="submitGrade('${student.id}', '${student.name}')" class="btn-manage" style="background: #3498db;">Submit</button>
+            </div>
+          </div>
+        `;
+        studentsGradingList.appendChild(gradeRow);
+      });
+    }
+
+    function submitGrade(studentId, studentName) {
+      const gradeSelect = document.getElementById(`grade-${studentId}`);
+      const grade = gradeSelect.value;
+
+      if (!grade) {
+        alert('Please choose a grade before submitting.');
+        return;
+      }
+
+      const student = enrolledStudents.find(item => item.id === studentId);
+      if (student) {
+        student.grade = grade;
+        localStorage.setItem('lecturerEnrollments', JSON.stringify(enrolledStudents));
+
+        let lecturerGrades = JSON.parse(localStorage.getItem('lecturerGrades') || '[]');
+        const existingIndex = lecturerGrades.findIndex(g =>
+          g.studentId === studentId && g.courseCode === student.course
+        );
+
+        const gradeRecord = {
+          studentId: studentId,
+          studentName: studentName,
+          courseCode: student.course,
+          courseName: student.name || student.course,
+          credit: student.credit || 3,
+          grade: grade,
+          submittedDate: new Date().toISOString(),
+          semester: 1
+        };
+
+        if (existingIndex >= 0) {
+          lecturerGrades[existingIndex] = gradeRecord;
+        } else {
+          lecturerGrades.push(gradeRecord);
+        }
+
+        localStorage.setItem('lecturerGrades', JSON.stringify(lecturerGrades));
+      }
+
+      gradeSelect.disabled = true;
+      const button = gradeSelect.nextElementSibling;
+      if (button) {
+        button.disabled = true;
+        button.textContent = 'Submitted';
+        button.style.background = '#27ae60';
+      }
+
+      alert(`Grade ${grade} submitted for ${studentName}.`);
+    }
+
+    function uploadLecturerProfilePicture() {
+      const fileInput = document.getElementById('lecturerProfilePictureInput');
+      const file = fileInput.files[0];
+
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          document.getElementById('lecturerProfileImg').src = e.target.result;
+          localStorage.setItem('lecturerProfilePicture', e.target.result);
+          alert('Profile picture uploaded successfully!');
+        };
+        reader.readAsDataURL(file);
+      } else {
+        alert('Please select a file first.');
+      }
+    }
+
+    function saveLecturerProfile() {
+      const profileData = {
+        fullName: document.getElementById('lecturerFullName').value,
+        lecturerId: document.getElementById('lecturerId').value,
+        email: document.getElementById('lecturerEmail').value,
+        phone: document.getElementById('lecturerPhone').value,
+        department: document.getElementById('lecturerDepartment').value,
+        specialization: document.getElementById('lecturerSpecialization').value,
+        bio: document.getElementById('lecturerBio').value
+      };
+
+      localStorage.setItem('lecturerProfile', JSON.stringify(profileData));
+      alert('Profile saved successfully!');
+    }
+
+    function loadLecturerProfileData() {
+      const savedPicture = localStorage.getItem('lecturerProfilePicture');
+      if (savedPicture) {
+        document.getElementById('lecturerProfileImg').src = savedPicture;
+      }
+
+      const profileData = JSON.parse(localStorage.getItem('lecturerProfile') || '{}');
+      document.getElementById('lecturerFullName').value = profileData.fullName || '';
+      document.getElementById('lecturerId').value = profileData.lecturerId || '';
+      document.getElementById('lecturerEmail').value = profileData.email || '';
+      document.getElementById('lecturerPhone').value = profileData.phone || '';
+      document.getElementById('lecturerDepartment').value = profileData.department || '';
+      document.getElementById('lecturerSpecialization').value = profileData.specialization || '';
+      document.getElementById('lecturerBio').value = profileData.bio || '';
+
+      if (profileData.fullName) {
+        document.getElementById('welcomeName').textContent = profileData.fullName;
+      }
+    }
 
     document.getElementById('logoutBtn').addEventListener('click', () => {
       localStorage.removeItem('offlineUser');
@@ -69,6 +759,54 @@
         window.location.href = '/';
       } else {
         document.getElementById('statusText').textContent = 'Still offline. Offline lecturer shell is active.';
+      }
+    });
+
+    initData();
+
+    // Real-time sync from online portal - check every 2 seconds
+    let lastCourses = '';
+    let lastEnrollments = '';
+    let lastProfile = '';
+
+    function syncFromOnlinePortal() {
+      // Sync courses
+      const currentCourses = localStorage.getItem('lecturerCourses') || '[]';
+      if (currentCourses !== lastCourses) {
+        lastCourses = currentCourses;
+        lecturerCourses = JSON.parse(currentCourses);
+        renderCourseList();
+        populateCourseSelectors();
+      }
+
+      // Sync enrollments
+      const currentEnrollments = localStorage.getItem('lecturerEnrollments') || '[]';
+      if (currentEnrollments !== lastEnrollments) {
+        lastEnrollments = currentEnrollments;
+        enrolledStudents = JSON.parse(currentEnrollments);
+        renderEnrolledStudents();
+        // Refresh grading list if visible
+        const selectedCourse = document.getElementById('gradeCourseSelect').value;
+        if (selectedCourse) {
+          loadStudentsForGrading();
+        }
+      }
+
+      // Sync profile
+      const currentProfile = localStorage.getItem('lecturerProfile');
+      if (currentProfile && currentProfile !== lastProfile) {
+        lastProfile = currentProfile;
+        loadLecturerProfileData();
+      }
+    }
+
+    // Start sync polling
+    setInterval(syncFromOnlinePortal, 2000);
+
+    // Also sync on visibility change
+    document.addEventListener('visibilitychange', () => {
+      if (!document.hidden) {
+        syncFromOnlinePortal();
       }
     });
   </script>

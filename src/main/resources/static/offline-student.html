@@ -92,6 +92,12 @@
           <h2>Courses</h2>
           <ul class="section-list" id="courseList"></ul>
         </div>
+        <div class="card">
+          <h2>Available Courses</h2>
+          <div style="display: grid; gap: 14px; margin-top: 14px;" id="availableCourses">
+            <!-- Available courses will be rendered here -->
+          </div>
+        </div>
       </section>
 
       <section id="gradeTab" class="tab-panel">
@@ -228,6 +234,12 @@
       button.addEventListener('click', () => setActiveTab(button.dataset.tab));
     });
 
+    const availableCourses = [
+      { code: 'CS101', title: 'Introduction to Programming', description: 'Basic programming concepts and fundamentals', credit: 3 },
+      { code: 'MATH204', title: 'Data Structures', description: 'Data structures and algorithms', credit: 3 },
+      { code: 'DBS301', title: 'Database Systems', description: 'Relational database design and SQL', credit: 3 }
+    ];
+
     function renderCourses() {
       const list = document.getElementById('courseList');
       list.innerHTML = '';
@@ -237,6 +249,64 @@
         item.innerHTML = `<div><strong>${course.code}</strong><span>${course.title}</span></div><span>${course.status}</span>`;
         list.appendChild(item);
       });
+
+      // Render available courses
+      renderAvailableCourses();
+    }
+
+    function renderAvailableCourses() {
+      const container = document.getElementById('availableCourses');
+      container.innerHTML = '';
+
+      const myEnrollments = JSON.parse(localStorage.getItem('studentEnrollments') || '[]');
+
+      availableCourses.forEach(course => {
+        const isEnrolled = myEnrollments.some(e => e === course.title);
+        const div = document.createElement('div');
+        div.style.cssText = 'background: rgba(255,255,255,0.05); padding: 16px; border-radius: 14px; border-left: 4px solid #48bb78;';
+        div.innerHTML = `
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 12px;">
+            <div>
+              <strong style="display: block; margin-bottom: 6px; font-size: 16px;">${course.title}</strong>
+              <span style="color: #999; font-size: 14px;">${course.description}</span>
+              <div style="margin-top: 8px; color: #48bb78; font-size: 13px;">
+                <span>Code: ${course.code}</span> | <span>Credits: ${course.credit}</span>
+              </div>
+            </div>
+            <button class="action-button" 
+              onclick="enrollAvailableCourse('${course.title}', this)"
+              ${isEnrolled ? 'disabled style="background: #27ae60; opacity: 0.8;"' : 'style="background: #48bb78;"'}
+              data-course="${course.title}">
+              ${isEnrolled ? 'Enrolled' : 'Enroll'}
+            </button>
+          </div>
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    function enrollAvailableCourse(courseName, btn) {
+      let enrollments = JSON.parse(localStorage.getItem('studentEnrollments') || '[]');
+      if (!enrollments.includes(courseName)) {
+        enrollments.push(courseName);
+        localStorage.setItem('studentEnrollments', JSON.stringify(enrollments));
+        
+        // Store enrollment date for 4-month grade logic
+        if (!localStorage.getItem('studentEnrollmentDate')) {
+          localStorage.setItem('studentEnrollmentDate', new Date().toISOString());
+        }
+
+        // Update button state immediately
+        btn.disabled = true;
+        btn.textContent = 'Enrolled';
+        btn.style.background = '#27ae60';
+        btn.style.opacity = '0.8';
+        
+        alert(`Successfully enrolled in ${courseName}!`);
+        
+        // Refresh all course displays
+        renderCourses();
+      }
     }
 
     function showSemester(semesterId, event) {
@@ -566,6 +636,48 @@
     renderStudySheet();
     renderEnrollment();
     applySettings();
+
+    // Real-time sync from online portal - check every 2 seconds
+    let lastLecturerGrades = '';
+    let lastStudentProfile = '';
+    let lastProfilePicture = '';
+
+    function syncFromOnlinePortal() {
+      // Sync grades from lecturer portal
+      const currentGrades = localStorage.getItem('lecturerGrades') || '[]';
+      if (currentGrades !== lastLecturerGrades) {
+        lastLecturerGrades = currentGrades;
+        // Refresh grades display if on grades tab
+        const activeSemester = document.querySelector('.semester-content.active');
+        if (activeSemester && activeSemester.id) {
+          loadSemesterGrades(activeSemester.id);
+        }
+      }
+
+      // Sync profile picture
+      const currentPicture = localStorage.getItem('profilePicture');
+      if (currentPicture && currentPicture !== lastProfilePicture) {
+        lastProfilePicture = currentPicture;
+        document.getElementById('headerProfileImg').src = currentPicture;
+      }
+
+      // Sync profile data
+      const currentProfile = localStorage.getItem('studentProfile');
+      if (currentProfile && currentProfile !== lastStudentProfile) {
+        lastStudentProfile = currentProfile;
+        loadProfileData();
+      }
+    }
+
+    // Start sync polling
+    setInterval(syncFromOnlinePortal, 2000);
+
+    // Also sync on visibility change (when user switches tabs)
+    document.addEventListener('visibilitychange', () => {
+      if (!document.hidden) {
+        syncFromOnlinePortal();
+      }
+    });
   </script>
 </body>
 </html>
