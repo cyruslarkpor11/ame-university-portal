@@ -288,12 +288,19 @@
                       : '/offline-student.html';
                     window.location.href = targetPage;
                 } else {
-                    // Online mode - let Spring Security handle it, but check for default password
-                    if (validation.valid && validation.user) {
-                        const defaultPass = offlineUsers[username] ? offlineUsers[username].password : null;
-                        if (defaultPass && password === defaultPass && !hasChangedPassword(username)) {
+                    // Online mode - let Spring Security handle it, but check for password change requirement
+                    if (validation.valid) {
+                        const passwordChanged = localStorage.getItem('passwordChanged_' + username) === 'true';
+                        const hasCustomPassword = localStorage.getItem('userPassword_' + username) !== null;
+                        const isDefaultUser = offlineUsers[username] !== undefined;
+                        const defaultPass = isDefaultUser ? offlineUsers[username].password : null;
+                        
+                        // Force password change for:
+                        // 1. Default users using default password
+                        // 2. Admin-created users who haven't changed their password yet
+                        if ((isDefaultUser && defaultPass && password === defaultPass && !passwordChanged) || 
+                            (!isDefaultUser && hasCustomPassword && !passwordChanged)) {
                             event.preventDefault();
-                            // Save temp data and redirect to change password
                             localStorage.setItem('tempUsername', username);
                             localStorage.setItem('tempRole', validation.role);
                             localStorage.setItem('tempPassword', password);

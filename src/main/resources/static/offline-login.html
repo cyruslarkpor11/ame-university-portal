@@ -343,16 +343,29 @@
         return;
       }
       
+      // Debug
+      console.log('Login attempt:', username, password);
+      
       // Validate credentials
       const validation = validateCredentials(username, password);
+      console.log('Validation result:', validation);
+      
       if (!validation.valid) {
         showError(validation.error);
         return;
       }
       
-      // Check if using default password - force change on first login
-      if (isUsingDefaultPassword(username, password)) {
-        // Save user temporarily for change password flow
+      // Check if password was changed - for admin-created users, force change on first login
+      const passwordChanged = localStorage.getItem('passwordChanged_' + username.toLowerCase()) === 'true';
+      const hasCustomPassword = localStorage.getItem('userPassword_' + username.toLowerCase()) !== null;
+      const isDefaultUser = validCredentials[username.toLowerCase()] !== undefined;
+      
+      // Force password change for:
+      // 1. Default users using default password
+      // 2. Admin-created users who haven't changed their password yet
+      if ((isDefaultUser && isUsingDefaultPassword(username, password)) || 
+          (!isDefaultUser && hasCustomPassword && !passwordChanged)) {
+        console.log('Redirecting to change password');
         localStorage.setItem('tempUsername', username);
         localStorage.setItem('tempRole', validation.role);
         localStorage.setItem('tempPassword', password);
