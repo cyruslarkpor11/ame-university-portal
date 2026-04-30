@@ -357,21 +357,42 @@
       document.getElementById('username').textContent = offlineUser.username;
     }
     
-    // Ensure default users exist
+    // RESET: Clear all users and set ONLY default admin
+    function resetToDefaultAdmin() {
+      // Clear all user passwords
+      const keysToRemove = [];
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key && (key.startsWith('userPassword_') || key.startsWith('passwordChanged_'))) {
+          keysToRemove.push(key);
+        }
+      }
+      keysToRemove.forEach(key => localStorage.removeItem(key));
+      
+      // Set ONLY default admin user
+      const defaultAdmin = [
+        { username: 'admin', email: 'admin@example.com', role: 'ADMIN', assignedCourse: 'N/A', department: 'Administration', status: 'Active' }
+      ];
+      
+      // Set admin password to admin123
+      localStorage.setItem('userPassword_admin', 'admin123');
+      localStorage.setItem('adminUsers', JSON.stringify(defaultAdmin));
+      
+      console.log('✅ Reset complete: Only admin/admin123 is now active');
+      return defaultAdmin;
+    }
+    
+    // Check if we need to reset (look for reset flag or just reset always for clean state)
     let storedUsers = [];
     try {
-      storedUsers = JSON.parse(localStorage.getItem('adminUsers') || '[]');
-    } catch (e) {}
-    
-    if (!storedUsers || storedUsers.length === 0) {
+      // Always reset on load for clean admin state
+      storedUsers = resetToDefaultAdmin();
+    } catch (e) {
+      console.error('Reset error:', e);
+      // Fallback
       storedUsers = [
-        { username: 'admin', email: 'admin@example.com', role: 'ADMIN', assignedCourse: 'N/A', department: 'Administration', status: 'Active' },
-        { username: 'lecturer', email: 'lecturer@example.com', role: 'LECTURER', assignedCourse: 'Introduction to Programming', department: 'Computer Science', status: 'Active' },
-        { username: 'student', email: 'student@example.com', role: 'STUDENT', assignedCourse: 'Data Structures', department: 'Computer Science', status: 'Active' }
+        { username: 'admin', email: 'admin@example.com', role: 'ADMIN', assignedCourse: 'N/A', department: 'Administration', status: 'Active' }
       ];
-      try {
-        localStorage.setItem('adminUsers', JSON.stringify(storedUsers));
-      } catch (e) {}
     }
 
     let adminUsers = [];
@@ -380,11 +401,16 @@
 
     function initData() {
       const savedUsers = JSON.parse(localStorage.getItem('adminUsers') || 'null');
-      adminUsers = savedUsers || [
-        { username: 'admin', email: 'admin@example.com', role: 'ADMIN', assignedCourse: 'N/A', department: 'Administration', status: 'Active' },
-        { username: 'lecturer', email: 'lecturer@example.com', role: 'LECTURER', assignedCourse: 'Introduction to Programming', department: 'Computer Science', status: 'Active' },
-        { username: 'student', email: 'student@example.com', role: 'STUDENT', assignedCourse: 'Data Structures', department: 'Computer Science', status: 'Active' }
-      ];
+      // Only load admin user, ignore any other users
+      if (savedUsers && savedUsers.length > 0) {
+        adminUsers = savedUsers.filter(u => u.role === 'ADMIN');
+        // If no admin found, create default
+        if (adminUsers.length === 0) {
+          adminUsers = [{ username: 'admin', email: 'admin@example.com', role: 'ADMIN', assignedCourse: 'N/A', department: 'Administration', status: 'Active' }];
+        }
+      } else {
+        adminUsers = [{ username: 'admin', email: 'admin@example.com', role: 'ADMIN', assignedCourse: 'N/A', department: 'Administration', status: 'Active' }];
+      }
 
       const savedCourses = JSON.parse(localStorage.getItem('adminCourses') || 'null');
       courses = savedCourses || [
