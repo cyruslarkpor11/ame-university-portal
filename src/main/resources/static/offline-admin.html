@@ -168,6 +168,7 @@
     <div class="tabs">
       <div class="tab-buttons">
         <button type="button" class="tab-button active" onclick="showTab('users', this)">👥 Users</button>
+        <button type="button" class="tab-button" onclick="showTab('credentials', this)">🔐 Credentials</button>
         <button type="button" class="tab-button" onclick="showTab('courses', this)">📚 Courses</button>
         <button type="button" class="tab-button" onclick="showTab('reports', this)">📊 Reports</button>
         <button type="button" class="tab-button" onclick="showTab('settings', this)">⚙️ Settings</button>
@@ -250,6 +251,53 @@
             </div>
           </form>
         </div>
+      </div>
+
+      <div id="credentials" class="tab-content">
+        <h3>🔐 Credential Management</h3>
+        <p style="color: #666; margin-bottom: 20px;">View all user credentials and help users who forgot their passwords. <strong>For Admin Use Only.</strong></p>
+        
+        <div class="dashboard-grid">
+          <div class="admin-card">
+            <div class="icon">🔑</div>
+            <h3>Total Credentials</h3>
+            <p id="totalCredentials">0</p>
+          </div>
+          <div class="admin-card">
+            <div class="icon">📧</div>
+            <h3>Email Sent</h3>
+            <p id="credentialsEmailSent">0</p>
+          </div>
+        </div>
+        
+        <div style="background: #fff3e0; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #ff9800;">
+          <p style="font-size: 13px; color: #666; margin: 0;">
+            <strong>⚠️ Security Notice:</strong> This section contains sensitive password information. 
+            Only share credentials through secure channels. Users must change their password on first login.
+          </p>
+        </div>
+        
+        <div style="margin-bottom: 15px;">
+          <button onclick="loadCredentialsTable()" class="btn btn-add" style="background: #2196f3;">🔄 Refresh Credentials</button>
+          <button onclick="exportCredentials()" class="btn btn-add" style="background: #4caf50;">📥 Export All</button>
+          <button onclick="clearAllCredentials()" class="btn btn-delete">🗑️ Clear History</button>
+        </div>
+        
+        <table>
+          <thead>
+            <tr>
+              <th>Username</th>
+              <th>Password</th>
+              <th>Role</th>
+              <th>Email</th>
+              <th>Created</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="credentialsTableBody">
+            <tr><td colspan="6" style="text-align: center; color: #999;">Click "Refresh Credentials" to load data</td></tr>
+          </tbody>
+        </table>
       </div>
 
       <div id="courses" class="tab-content">
@@ -520,28 +568,187 @@
       return password;
     }
 
-    function showCredentialsModal(username, password, role) {
+    function showCredentialsModal(username, password, role, email = '') {
+      const userData = adminUsers.find(u => u.username === username) || {};
+      const userEmail = email || userData.email || '';
+      
       const credentialsHtml = `
         <div id="credentialsModal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 2000;">
-          <div style="background: white; padding: 30px; border-radius: 15px; max-width: 400px; width: 90%; box-shadow: 0 10px 40px rgba(0,0,0,0.3);">
-            <h2 style="color: #667eea; margin-bottom: 20px; text-align: center;">🎉 User Created!</h2>
+          <div style="background: white; padding: 30px; border-radius: 15px; max-width: 450px; width: 90%; box-shadow: 0 10px 40px rgba(0,0,0,0.3); max-height: 90vh; overflow-y: auto;">
+            <h2 style="color: #667eea; margin-bottom: 20px; text-align: center;">🎉 User Account Created!</h2>
+            
             <div style="background: #e3f2fd; padding: 20px; border-radius: 10px; margin-bottom: 20px; border-left: 4px solid #2196f3;">
               <p style="margin: 0 0 10px 0; font-size: 14px; color: #555;"><strong>Username:</strong></p>
-              <p style="margin: 0 0 15px 0; font-size: 18px; font-family: monospace; background: #fff; padding: 8px; border-radius: 5px; color: #333;">${username}</p>
+              <p id="credUsername" style="margin: 0 0 15px 0; font-size: 18px; font-family: monospace; background: #fff; padding: 8px; border-radius: 5px; color: #333;">${username}</p>
               <p style="margin: 0 0 10px 0; font-size: 14px; color: #555;"><strong>Password:</strong></p>
-              <p style="margin: 0; font-size: 18px; font-family: monospace; background: #fff; padding: 8px; border-radius: 5px; color: #333;">${password}</p>
+              <p id="credPassword" style="margin: 0; font-size: 18px; font-family: monospace; background: #fff; padding: 8px; border-radius: 5px; color: #333;">${password}</p>
             </div>
-            <p style="font-size: 13px; color: #666; margin-bottom: 20px; text-align: center;">
-              Please share these credentials with the user.<br>
-              They will be prompted to change the password on first login.
-            </p>
+            
+            <div style="background: #fff3e0; padding: 15px; border-radius: 10px; margin-bottom: 20px; border-left: 4px solid #ff9800;">
+              <p style="font-size: 13px; color: #666; margin: 0;">
+                <strong>📧 Email Template:</strong><br>
+                User will be prompted to change password on first login.
+              </p>
+            </div>
+            
+            <div style="margin-bottom: 15px;">
+              <label style="display: block; font-size: 13px; color: #555; margin-bottom: 5px;">Share via Email (Optional):</label>
+              <input type="email" id="shareEmail" placeholder="user@example.com" value="${userEmail}" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; font-size: 14px; margin-bottom: 10px;">
+              <button onclick="sendCredentialsEmail('${username}', '${password}', '${role}')" style="width: 100%; padding: 10px; background: #4caf50; color: white; border: none; border-radius: 5px; font-size: 14px; cursor: pointer; margin-bottom: 10px;">
+                📧 Send Email with Credentials
+              </button>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px;">
+              <button onclick="copyCredentials('${username}', '${password}')" style="padding: 10px; background: #2196f3; color: white; border: none; border-radius: 5px; font-size: 13px; cursor: pointer;">
+                📋 Copy Credentials
+              </button>
+              <button onclick="printCredentials('${username}', '${password}', '${role}')" style="padding: 10px; background: #9c27b0; color: white; border: none; border-radius: 5px; font-size: 13px; cursor: pointer;">
+                🖨️ Print
+              </button>
+            </div>
+            
+            <div style="background: #f5f5f5; padding: 15px; border-radius: 8px; margin-bottom: 15px; font-size: 12px; color: #666;">
+              <strong>🔗 Password Reset Link:</strong><br>
+              <span style="font-family: monospace; font-size: 11px; word-break: break-all;">
+                ${window.location.origin}/change-password?username=${encodeURIComponent(username)}&token=${generateToken()}
+              </span>
+            </div>
+            
             <button onclick="document.getElementById('credentialsModal').remove();" style="width: 100%; padding: 12px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 8px; font-size: 16px; cursor: pointer;">
-              Got it, Close
+              ✓ Done, Close
             </button>
           </div>
         </div>
       `;
       document.body.insertAdjacentHTML('beforeend', credentialsHtml);
+      
+      // Save credentials to admin credential log
+      saveCredentialLog(username, password, userEmail, role);
+    }
+    
+    function generateToken() {
+      return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+    }
+    
+    function saveCredentialLog(username, password, email, role) {
+      const logs = JSON.parse(localStorage.getItem('adminCredentialLogs') || '[]');
+      logs.push({
+        username,
+        password,
+        email,
+        role,
+        createdAt: new Date().toISOString(),
+        createdBy: offlineUser?.username || 'admin'
+      });
+      localStorage.setItem('adminCredentialLogs', JSON.stringify(logs));
+    }
+    
+    function copyCredentials(username, password) {
+      const text = `AME Zion University Portal - Login Credentials
+
+Username: ${username}
+Password: ${password}
+Portal: ${window.location.origin}/login
+
+Please login and change your password immediately.
+
+Thank you,
+Admin Team`;
+      
+      navigator.clipboard.writeText(text).then(() => {
+        alert('✅ Credentials copied to clipboard!\n\nYou can now paste it in an email or message.');
+      }).catch(() => {
+        // Fallback for older browsers
+        const textarea = document.createElement('textarea');
+        textarea.value = text;
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textarea);
+        alert('✅ Credentials copied to clipboard!');
+      });
+    }
+    
+    function printCredentials(username, password, role) {
+      const printWindow = window.open('', '_blank');
+      printWindow.document.write(`
+        <html>
+        <head>
+          <title>Login Credentials - ${username}</title>
+          <style>
+            body { font-family: Arial, sans-serif; padding: 40px; background: #f5f5f5; }
+            .card { background: white; max-width: 400px; margin: 0 auto; padding: 30px; border-radius: 10px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
+            h2 { color: #667eea; text-align: center; margin-bottom: 20px; }
+            .field { margin: 15px 0; }
+            .label { font-size: 12px; color: #666; margin-bottom: 5px; }
+            .value { font-size: 20px; font-family: monospace; background: #f0f0f0; padding: 10px; border-radius: 5px; }
+            .footer { margin-top: 30px; font-size: 11px; color: #999; text-align: center; }
+          </style>
+        </head>
+        <body>
+          <div class="card">
+            <h2>🎓 AME Zion University</h2>
+            <div class="field">
+              <div class="label">Username</div>
+              <div class="value">${username}</div>
+            </div>
+            <div class="field">
+              <div class="label">Password</div>
+              <div class="value">${password}</div>
+            </div>
+            <div class="field">
+              <div class="label">Role</div>
+              <div class="value">${role}</div>
+            </div>
+            <div class="footer">
+              Please change your password after first login.<br>
+              Generated on ${new Date().toLocaleDateString()}
+            </div>
+          </div>
+          <script>window.print();<\/script>
+        </body>
+        </html>
+      `);
+      printWindow.document.close();
+    }
+    
+    function sendCredentialsEmail(username, password, role) {
+      const email = document.getElementById('shareEmail')?.value;
+      if (!email) {
+        alert('⚠️ Please enter an email address first.');
+        return;
+      }
+      
+      // In a real system, this would send an email via backend API
+      // For demo purposes, we simulate the email content
+      const subject = encodeURIComponent('Your AME Zion University Portal Credentials');
+      const body = encodeURIComponent(`Dear User,
+
+Your account has been created for the AME Zion University E-Portal.
+
+LOGIN DETAILS:
+Username: ${username}
+Password: ${password}
+Portal URL: ${window.location.origin}/login
+
+IMPORTANT:
+- You will be prompted to change your password on first login
+- Please keep these credentials secure
+- Do not share your password with anyone
+
+If you have any issues, please contact the admin.
+
+Best regards,
+AME Zion University Admin Team`);
+      
+      // Open default email client with pre-filled content
+      window.location.href = `mailto:${email}?subject=${subject}&body=${body}`;
+      
+      // Show confirmation
+      setTimeout(() => {
+        alert(`📧 Email client opened!\n\nTo: ${email}\nSubject: Your AME Zion University Portal Credentials\n\nPlease send the email to complete the process.`);
+      }, 500);
     }
 
     function saveNewUser() {
@@ -733,6 +940,67 @@
       document.getElementById('gradeScale').value = settings.gradeScale || '4.0';
       document.getElementById('emailNotifications').checked = settings.emailNotifications !== false;
       document.getElementById('autoBackup').checked = settings.autoBackup !== false;
+    }
+
+    // Credential Management Functions
+    function loadCredentialsTable() {
+      const logs = JSON.parse(localStorage.getItem('adminCredentialLogs') || '[]');
+      const tbody = document.getElementById('credentialsTableBody');
+      
+      // Update stats
+      document.getElementById('totalCredentials').textContent = logs.length;
+      
+      if (logs.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: #999;">No credentials found. Create a new user to see credentials here.</td></tr>';
+        return;
+      }
+      
+      tbody.innerHTML = logs.map(log => `
+        <tr>
+          <td><strong>${log.username}</strong></td>
+          <td><code style="background: #f0f0f0; padding: 4px 8px; border-radius: 4px; font-family: monospace;">${log.password}</code></td>
+          <td><span class="badge badge-${log.role.toLowerCase()}">${log.role}</span></td>
+          <td>${log.email || '-'}</td>
+          <td>${new Date(log.createdAt).toLocaleDateString()}</td>
+          <td>
+            <button onclick="copyCredentials('${log.username}', '${log.password}')" class="btn" style="background: #2196f3; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 12px;">📋 Copy</button>
+            <button onclick="showCredentialsModal('${log.username}', '${log.password}', '${log.role}', '${log.email}')" class="btn" style="background: #4caf50; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 12px;">📧 Email</button>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function exportCredentials() {
+      const logs = JSON.parse(localStorage.getItem('adminCredentialLogs') || '[]');
+      if (logs.length === 0) {
+        alert('No credentials to export.');
+        return;
+      }
+      
+      let csv = 'Username,Password,Role,Email,Created Date\n';
+      logs.forEach(log => {
+        csv += `"${log.username}","${log.password}","${log.role}","${log.email || ''}","${new Date(log.createdAt).toLocaleString()}"\n`;
+      });
+      
+      const blob = new Blob([csv], { type: 'text/csv' });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `credentials_export_${new Date().toISOString().split('T')[0]}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+      
+      alert(`✅ Exported ${logs.length} credentials to CSV file.`);
+    }
+
+    function clearAllCredentials() {
+      if (confirm('⚠️ Are you sure you want to clear all credential history?\n\nThis will remove the log but keep the actual user accounts.')) {
+        localStorage.removeItem('adminCredentialLogs');
+        loadCredentialsTable();
+        alert('✅ Credential history cleared.');
+      }
     }
 
     document.getElementById('logoutBtn').addEventListener('click', () => {
