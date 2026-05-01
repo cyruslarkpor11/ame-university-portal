@@ -241,6 +241,29 @@
             return { valid: false, error: 'Invalid username' };
         }
 
+        // Async function to validate credentials via API (for cross-device support)
+        async function validateCredentialsViaAPI(username, password) {
+            try {
+                const response = await fetch('/api/users/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ username, password })
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    return { valid: true, role: data.role, user: { username: data.username, role: data.role } };
+                }
+                
+                return { valid: false, error: 'Invalid credentials' };
+            } catch (error) {
+                console.error('API validation failed:', error);
+                return { valid: false, error: 'Network error' };
+            }
+        }
+
         // Handle offline login and default password check
         if (loginForm) {
             loginForm.addEventListener('submit', function(event) {

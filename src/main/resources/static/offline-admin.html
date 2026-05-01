@@ -463,18 +463,49 @@
     let adminUsers = [];
     let courses = [];
     let editingUser = null;
+    const API_BASE_URL = window.location.origin.includes('localhost') ? 'http://localhost:8080' : window.location.origin;
+
+    // Load users from backend API
+    async function loadUsersFromAPI() {
+      try {
+        const response = await fetch(`${API_BASE_URL}/api/users`);
+        if (response.ok) {
+          const users = await response.json();
+          // Map backend User to frontend format
+          adminUsers = users.map(u => ({
+            username: u.username,
+            email: u.email,
+            role: u.role,
+            assignedCourse: 'N/A',
+            department: 'General',
+            status: 'Active'
+          }));
+          renderUserTable();
+          updateStats();
+        }
+      } catch (error) {
+        console.error('Error loading users:', error);
+        // Fallback to localStorage if API fails
+        const savedUsers = JSON.parse(localStorage.getItem('adminUsers') || 'null');
+        if (savedUsers && savedUsers.length > 0) {
+          adminUsers = savedUsers;
+          renderUserTable();
+          updateStats();
+        }
+      }
+    }
 
     function initData() {
+      // Initialize default admin user via API if no users exist
+      loadUsersFromAPI();
+      
+      // Also initialize localStorage backup
       const savedUsers = JSON.parse(localStorage.getItem('adminUsers') || 'null');
-      // Only load admin user, ignore any other users
-      if (savedUsers && savedUsers.length > 0) {
-        adminUsers = savedUsers.filter(u => u.role === 'ADMIN');
-        // If no admin found, create default
-        if (adminUsers.length === 0) {
-          adminUsers = [{ username: 'admin', email: 'admin@example.com', role: 'ADMIN', assignedCourse: 'N/A', department: 'Administration', status: 'Active' }];
-        }
-      } else {
-        adminUsers = [{ username: 'admin', email: 'admin@example.com', role: 'ADMIN', assignedCourse: 'N/A', department: 'Administration', status: 'Active' }];
+      if (!savedUsers || savedUsers.length === 0) {
+        localStorage.setItem('adminUsers', JSON.stringify([
+          { username: 'admin', email: 'admin@ameuniversity.edu', role: 'ADMIN', assignedCourse: 'System Administration', department: 'IT', status: 'Active' }
+        ]));
+        localStorage.setItem('userPassword_admin', 'admin123');
       }
 
       const savedCourses = JSON.parse(localStorage.getItem('adminCourses') || 'null');
@@ -833,19 +864,22 @@ AME Zion University Admin Team`);
           console.log('Auto-generated password:', finalPassword);
         }
         
-        // Save user with password
+        // Save user with password to localStorage (backup)
         const newUser = { username, email, role, assignedCourse: assignedCourse || 'N/A', department: department || 'General', status };
         adminUsers.push(newUser);
-        console.log('New user added:', newUser);
-        console.log('Updated adminUsers:', adminUsers);
-        
-        // Save to localStorage
         localStorage.setItem('adminUsers', JSON.stringify(adminUsers));
-        console.log('Saved to localStorage');
         
         // Save the password for the new user
         localStorage.setItem('userPassword_' + username.toLowerCase(), finalPassword);
-        console.log('Saved password for user:', username);
+        
+        // Also save to backend API for cross-device sync
+        saveUserToAPI({ username, email, password: finalPassword, role })
+          .then(() => {
+            console.log('User saved to backend API');
+          })
+          .catch(err => {
+            console.error('Failed to save to API:', err);
+          });
         
         renderUserTable();
         updateStats();
@@ -855,6 +889,23 @@ AME Zion University Admin Team`);
         showCredentialsModal(username, finalPassword, role, email);
         console.log('Credentials modal shown');
       }
+    }
+
+    // Save user to backend API
+    async function saveUserToAPI(userData) {
+      const response = await fetch(`${API_BASE_URL}/api/users`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(userData)
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to save user to API');
+      }
+      
+      return response.json();
     }
 
     function editUser(username) {

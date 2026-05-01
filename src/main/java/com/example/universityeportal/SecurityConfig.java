@@ -34,7 +34,9 @@ public class SecurityConfig {
         "/offline-admin.html",
         "/offline-lecturer.html",
         "/offline-student.html",
-        "/service-worker.js"
+        "/service-worker.js",
+        "/api/users/**",
+        "/api/**"
     };
 
     @Bean
