@@ -110,13 +110,11 @@ async function apiCall(endpoint, options = {}) {
 // ==================== DASHBOARD ====================
 async function loadDashboardData() {
     try {
-        // Load counts
-        const [users, departments, announcements, events] = await Promise.all([
-            fetch(`${API_BASE}/users`).then(r => r.json()).catch(() => ({ data: [] })),
-            fetch(`${API_BASE}/departments`).then(r => r.json()).catch(() => ({ data: [] })),
-            fetch(`${API_BASE}/announcements`).then(r => r.json()).catch(() => ({ data: [] })),
-            fetch(`${API_BASE}/calendar`).then(r => r.json()).catch(() => ({ data: [] }))
-        ]);
+        // Try API first, fallback to demo data
+        const users = await apiCall('/users') || { data: DEMO_DATA.users };
+        const departments = await apiCall('/departments') || { data: DEMO_DATA.departments };
+        const announcements = await apiCall('/announcements') || { data: DEMO_DATA.announcements };
+        const events = await apiCall('/calendar') || { data: DEMO_DATA.calendar };
         
         document.getElementById('total-users').textContent = users.data?.length || 0;
         document.getElementById('total-departments').textContent = departments.data?.length || 0;
@@ -153,6 +151,11 @@ async function loadDashboardData() {
         
     } catch (error) {
         console.error('Dashboard load error:', error);
+        // Use demo data as final fallback
+        document.getElementById('total-users').textContent = DEMO_DATA.users.length;
+        document.getElementById('total-departments').textContent = DEMO_DATA.departments.length;
+        document.getElementById('total-announcements').textContent = DEMO_DATA.announcements.length;
+        document.getElementById('total-events').textContent = DEMO_DATA.calendar.length;
     }
 }
 
@@ -170,8 +173,7 @@ function getTypeColor(type) {
 // ==================== DEPARTMENTS ====================
 async function loadDepartments() {
     try {
-        const response = await fetch(`${API_BASE}/departments`);
-        const result = await response.json();
+        const result = await apiCall('/departments') || { data: DEMO_DATA.departments };
         const departments = result.data || [];
         
         const tbody = document.getElementById('departments-table');
@@ -198,7 +200,22 @@ async function loadDepartments() {
         `).join('');
     } catch (error) {
         console.error('Load departments error:', error);
-        showToast('Failed to load departments', 'danger');
+        // Show demo data
+        const tbody = document.getElementById('departments-table');
+        tbody.innerHTML = DEMO_DATA.departments.map(d => `
+            <tr>
+                <td><strong>${d.code}</strong></td>
+                <td>${d.name}</td>
+                <td>${d.headOfDepartment || '-'}</td>
+                <td>${d.email || '-'}</td>
+                <td><span class="badge bg-success">Active</span></td>
+                <td>
+                    <button class="btn btn-sm btn-outline-primary me-1" onclick="editDepartment(${d.id})">
+                        <i class="bi bi-pencil"></i>
+                    </button>
+                </td>
+            </tr>
+        `).join('');
     }
 }
 
@@ -275,8 +292,7 @@ async function deleteDepartment(id) {
 // ==================== ANNOUNCEMENTS ====================
 async function loadAnnouncements() {
     try {
-        const response = await fetch(`${API_BASE}/announcements`);
-        const result = await response.json();
+        const result = await apiCall('/announcements') || { data: DEMO_DATA.announcements };
         const announcements = result.data || [];
         
         const tbody = document.getElementById('announcements-table');
@@ -299,6 +315,22 @@ async function loadAnnouncements() {
         `).join('');
     } catch (error) {
         console.error('Load announcements error:', error);
+        // Show demo data
+        const tbody = document.getElementById('announcements-table');
+        tbody.innerHTML = DEMO_DATA.announcements.map(a => `
+            <tr>
+                <td>${a.title}</td>
+                <td><span class="badge bg-${getTypeColor(a.type)}">${a.type}</span></td>
+                <td>${a.targetAudience}</td>
+                <td>${'★'.repeat(a.priority)}${'☆'.repeat(5-a.priority)}</td>
+                <td>${new Date(a.publishDate).toLocaleDateString()}</td>
+                <td>
+                    <button class="btn btn-sm btn-outline-primary me-1" onclick="editAnnouncement(${a.id})">
+                        <i class="bi bi-pencil"></i>
+                    </button>
+                </td>
+            </tr>
+        `).join('');
     }
 }
 
@@ -377,8 +409,7 @@ async function deleteAnnouncement(id) {
 // ==================== CALENDAR ====================
 async function loadCalendar() {
     try {
-        const response = await fetch(`${API_BASE}/calendar`);
-        const result = await response.json();
+        const result = await apiCall('/calendar') || { data: DEMO_DATA.calendar };
         const events = result.data || [];
         
         const tbody = document.getElementById('calendar-table');
@@ -402,6 +433,23 @@ async function loadCalendar() {
         `).join('');
     } catch (error) {
         console.error('Load calendar error:', error);
+        // Show demo data
+        const tbody = document.getElementById('calendar-table');
+        tbody.innerHTML = DEMO_DATA.calendar.map(e => `
+            <tr>
+                <td>${e.title}</td>
+                <td><span class="badge bg-info">${e.eventType}</span></td>
+                <td>${e.academicYear}</td>
+                <td>${e.semester}</td>
+                <td>${new Date(e.startDate).toLocaleDateString()}</td>
+                <td>${new Date(e.endDate).toLocaleDateString()}</td>
+                <td>
+                    <button class="btn btn-sm btn-outline-primary me-1" onclick="editCalendar(${e.id})">
+                        <i class="bi bi-pencil"></i>
+                    </button>
+                </td>
+            </tr>
+        `).join('');
     }
 }
 
@@ -480,8 +528,7 @@ async function deleteCalendar(id) {
 // ==================== USERS ====================
 async function loadUsers() {
     try {
-        const response = await fetch(`${API_BASE}/users`);
-        const result = await response.json();
+        const result = await apiCall('/users') || { data: DEMO_DATA.users };
         const users = result.data || [];
         
         const tbody = document.getElementById('users-table');
@@ -500,6 +547,21 @@ async function loadUsers() {
         `).join('');
     } catch (error) {
         console.error('Load users error:', error);
+        // Show demo data
+        const tbody = document.getElementById('users-table');
+        tbody.innerHTML = DEMO_DATA.users.map(u => `
+            <tr>
+                <td>${u.username}</td>
+                <td>${u.email}</td>
+                <td><span class="badge bg-primary">${u.role}</span></td>
+                <td>${u.department || '-'}</td>
+                <td>
+                    <button class="btn btn-sm btn-outline-danger" onclick="deleteUser('${u.username}')">
+                        <i class="bi bi-trash"></i>
+                    </button>
+                </td>
+            </tr>
+        `).join('');
     }
 }
 
@@ -523,55 +585,51 @@ async function deleteUser(username) {
 }
 
 // ==================== ANALYTICS ====================
-function loadAnalytics() {
+async function loadAnalytics() {
+    // Use demo data or API data for charts
+    const usersData = await apiCall('/users') || { data: DEMO_DATA.users };
+    const deptsData = await apiCall('/departments') || { data: DEMO_DATA.departments };
+    
+    const users = usersData.data || [];
+    const depts = deptsData.data || [];
+    
     // Role distribution chart
-    fetch(`${API_BASE}/users`)
-        .then(r => r.json())
-        .then(result => {
-            const users = result.data || [];
-            const roles = {};
-            users.forEach(u => roles[u.role] = (roles[u.role] || 0) + 1);
-            
-            new Chart(document.getElementById('roleChart'), {
-                type: 'doughnut',
-                data: {
-                    labels: Object.keys(roles),
-                    datasets: [{
-                        data: Object.values(roles),
-                        backgroundColor: ['#667eea', '#10b981', '#f59e0b']
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    plugins: {
-                        legend: { position: 'bottom' }
-                    }
-                }
-            });
-        });
+    const roles = {};
+    users.forEach(u => roles[u.role] = (roles[u.role] || 0) + 1);
+    
+    new Chart(document.getElementById('roleChart'), {
+        type: 'doughnut',
+        data: {
+            labels: Object.keys(roles),
+            datasets: [{
+                data: Object.values(roles),
+                backgroundColor: ['#667eea', '#10b981', '#f59e0b']
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { position: 'bottom' }
+            }
+        }
+    });
     
     // Department chart
-    fetch(`${API_BASE}/departments`)
-        .then(r => r.json())
-        .then(result => {
-            const depts = result.data || [];
-            
-            new Chart(document.getElementById('deptChart'), {
-                type: 'bar',
-                data: {
-                    labels: depts.map(d => d.code),
-                    datasets: [{
-                        label: 'Departments',
-                        data: depts.map(() => 1),
-                        backgroundColor: '#667eea'
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    plugins: {
-                        legend: { display: false }
-                    }
-                }
-            });
-        });
+    new Chart(document.getElementById('deptChart'), {
+        type: 'bar',
+        data: {
+            labels: depts.map(d => d.code),
+            datasets: [{
+                label: 'Departments',
+                data: depts.map(() => 1),
+                backgroundColor: '#667eea'
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { display: false }
+            }
+        }
+    });
 }

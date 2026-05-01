@@ -9,6 +9,7 @@ import com.example.universityeportal.repository.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,10 +25,12 @@ public class UserService {
     private static final Logger logger = LoggerFactory.getLogger(UserService.class);
     
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
     
     @Autowired
-    public UserService(UserRepository userRepository) {
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
     }
     
     public List<UserDto> getAllUsers() {
@@ -63,6 +66,9 @@ public class UserService {
         }
         
         User user = convertToEntity(userDto);
+        if (userDto.getPassword() != null && !userDto.getPassword().isBlank()) {
+            user.setPassword(passwordEncoder.encode(userDto.getPassword()));
+        }
         User savedUser = userRepository.save(user);
         
         logger.info("User created successfully: {}", savedUser.getUsername());
@@ -80,7 +86,7 @@ public class UserService {
             existingUser.setRole(com.example.universityeportal.entity.Role.valueOf(userDto.getRole()));
         }
         if (userDto.getPassword() != null && !userDto.getPassword().isEmpty()) {
-            existingUser.setPassword(userDto.getPassword());
+            existingUser.setPassword(passwordEncoder.encode(userDto.getPassword()));
         }
         
         User updatedUser = userRepository.save(existingUser);
@@ -107,7 +113,7 @@ public class UserService {
                     return new InvalidCredentialsException();
                 });
         
-        if (!user.getPassword().equals(password)) {
+        if (!passwordEncoder.matches(password, user.getPassword())) {
             logger.warn("Login failed - invalid password for user: {}", username);
             throw new InvalidCredentialsException();
         }
