@@ -3,4 +3,4 @@ builder = "DOCKERFILE"
 
 [[mounts]]
 source = "data"
-destination = "/data"
+destination = "/app/data"
