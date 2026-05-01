@@ -1,6 +1,5 @@
 [build]
 builder = "DOCKERFILE"
 
-[[mounts]]
-source = "data"
-destination = "/app/data"
+[deploy]
+startCommand = "java -Xmx512m -Xms256m -jar app.jar"

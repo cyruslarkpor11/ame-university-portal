@@ -11,13 +11,16 @@ WORKDIR /app
 COPY --from=build /app/target/university-eportal-0.0.1-SNAPSHOT.jar app.jar
 RUN mkdir -p /app/Images
 
-# Create data directory for H2 database
-RUN mkdir -p /app/data && chmod 777 /app/data
+# Install wget for healthcheck
+RUN apk add --no-cache wget
 
 # Railway assigns PORT dynamically
 ENV PORT=8080
-ENV JAVA_OPTS="-Xmx512m -Xms256m"
 EXPOSE 8080
 
-# Use shell form to allow PORT env var expansion
-CMD java ${JAVA_OPTS} -jar app.jar --server.port=${PORT}
+# Health check
+HEALTHCHECK --interval=30s --timeout=3s --start-period=40s --retries=3 \
+  CMD wget -q --spider http://localhost:${PORT}/actuator/health || exit 1
+
+# Start command
+CMD ["sh", "-c", "java -Xmx512m -Xms256m -jar app.jar --server.port=${PORT}"]
