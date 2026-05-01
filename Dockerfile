@@ -18,9 +18,5 @@ RUN apk add --no-cache wget
 ENV PORT=8080
 EXPOSE 8080
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=3s --start-period=40s --retries=3 \
-  CMD wget -q --spider http://localhost:${PORT}/actuator/health || exit 1
-
-# Start command
-CMD ["sh", "-c", "java -Xmx512m -Xms256m -jar app.jar --server.port=${PORT}"]
+# Start command - Use PORT from environment, fallback to 8080
+CMD ["sh", "-c", "java -Xmx512m -Xms256m -jar app.jar"]
