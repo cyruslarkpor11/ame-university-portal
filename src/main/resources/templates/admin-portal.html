@@ -882,6 +882,8 @@
                 saveUserToAPI({ username, email, password: finalPassword, role })
                     .then(() => {
                         console.log('User saved to backend API');
+                        // Reload from API to ensure dashboard shows the new user immediately
+                        loadUsersFromAPI();
                     })
                     .catch(err => {
                         console.error('Failed to save to API:', err);
