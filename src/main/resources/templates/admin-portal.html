@@ -661,9 +661,6 @@
             }
         }
         
-        // Auto-sync every 3 seconds
-        setInterval(loadUsersFromAPI, 3000);
-        
         // Sync when page becomes visible
         document.addEventListener('visibilitychange', function() {
             if (!document.hidden) {
@@ -878,17 +875,16 @@
                 localStorage.setItem('userPassword_' + username.toLowerCase(), finalPassword);
                 console.log('Saved password for user:', username);
                 
-                // Also save to backend API for cross-device sync
+                // Also save to backend API for cross-device sync (background)
                 saveUserToAPI({ username, email, password: finalPassword, role })
                     .then(() => {
                         console.log('User saved to backend API');
-                        // Reload from API to ensure dashboard shows the new user immediately
-                        loadUsersFromAPI();
                     })
                     .catch(err => {
                         console.error('Failed to save to API:', err);
                     });
                 
+                // Render immediately from local array to show new user instantly
                 renderUserTable();
                 updateUserStats();
                 closeUserModal();

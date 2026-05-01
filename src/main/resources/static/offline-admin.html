@@ -872,17 +872,16 @@ AME Zion University Admin Team`);
         // Save the password for the new user
         localStorage.setItem('userPassword_' + username.toLowerCase(), finalPassword);
         
-        // Also save to backend API for cross-device sync
+        // Also save to backend API for cross-device sync (background)
         saveUserToAPI({ username, email, password: finalPassword, role })
           .then(() => {
             console.log('User saved to backend API');
-            // Reload from API to ensure dashboard shows the new user immediately
-            loadUsersFromAPI();
           })
           .catch(err => {
             console.error('Failed to save to API:', err);
           });
         
+        // Render immediately from local array to show new user instantly
         renderUserTable();
         updateStats();
         closeUserModal();
@@ -1145,17 +1144,7 @@ AME Zion University Admin Team`);
 
     initData();
 
-    // Real-time sync from backend API - check every 3 seconds for cross-device updates
-    function syncFromAPI() {
-      // Always reload users from API to get latest from any device
-      loadUsersFromAPI();
-      console.log('Synced from API at', new Date().toLocaleTimeString());
-    }
-
-    // Start API sync polling every 3 seconds
-    setInterval(syncFromAPI, 3000);
-    
-    // Also sync when page becomes visible (user switches back to tab)
+    // Sync when page becomes visible (user switches back to tab)
     document.addEventListener('visibilitychange', function() {
       if (!document.hidden) {
         console.log('Page visible - syncing from API');
