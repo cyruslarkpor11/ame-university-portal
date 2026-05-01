@@ -266,7 +266,7 @@
 
         // Handle offline login and default password check
         if (loginForm) {
-            loginForm.addEventListener('submit', function(event) {
+            loginForm.addEventListener('submit', async function(event) {
                 const username = document.getElementById('username').value.trim().toLowerCase();
                 const password = document.getElementById('password').value;
                 const validation = validateUserCredentials(username, password);
@@ -293,8 +293,24 @@
                       : '/offline-student.html';
                     window.location.href = targetPage;
                 } else {
-                    // Online mode - let Spring Security handle login
-                    // No first-time password change required
+                    // Online mode - first check API for newly created users
+                    event.preventDefault();
+                    const apiValidation = await validateCredentialsViaAPI(username, password);
+                    
+                    if (apiValidation.valid) {
+                        // User exists in backend database - login via API
+                        localStorage.setItem('offlineUser', JSON.stringify({ username: username, role: apiValidation.role }));
+                        const targetPage = apiValidation.role === 'ADMIN'
+                          ? '/portal/admin'
+                          : apiValidation.role === 'LECTURER'
+                          ? '/portal/lecturer'
+                          : '/portal/student';
+                        window.location.href = targetPage;
+                        return;
+                    }
+                    
+                    // If API validation fails, let Spring Security handle it (for default users)
+                    loginForm.submit();
                 }
             });
         }

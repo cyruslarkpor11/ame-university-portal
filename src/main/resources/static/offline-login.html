@@ -352,7 +352,7 @@
       return password === defaultPass;
     }
 
-    function login() {
+    async function login() {
       const username = document.getElementById('username').value.trim();
       const password = document.getElementById('password').value;
       
@@ -369,9 +369,21 @@
       // Debug
       console.log('Login attempt:', username, password);
       
-      // Validate credentials
+      // First check API for newly created users
+      try {
+        const apiValidation = await validateCredentialsViaAPI(username, password);
+        if (apiValidation.valid) {
+          console.log('API validation successful');
+          performLogin(username, apiValidation.role);
+          return;
+        }
+      } catch (error) {
+        console.log('API validation failed, falling back to local:', error);
+      }
+      
+      // Fallback to local validation
       const validation = validateCredentials(username, password);
-      console.log('Validation result:', validation);
+      console.log('Local validation result:', validation);
       
       if (!validation.valid) {
         showError(validation.error);
