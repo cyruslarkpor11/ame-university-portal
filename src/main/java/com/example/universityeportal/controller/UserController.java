@@ -1,113 +1,83 @@
 package com.example.universityeportal.controller;
 
-import com.example.universityeportal.entity.User;
-import com.example.universityeportal.repository.UserRepository;
+import com.example.universityeportal.dto.ApiResponse;
+import com.example.universityeportal.dto.LoginRequestDto;
+import com.example.universityeportal.dto.LoginResponseDto;
+import com.example.universityeportal.dto.UserDto;
+import com.example.universityeportal.service.UserService;
+import jakarta.validation.Valid;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/users")
 @CrossOrigin(origins = "*")
 public class UserController {
-
+    
+    private static final Logger logger = LoggerFactory.getLogger(UserController.class);
+    
+    private final UserService userService;
+    
     @Autowired
-    private UserRepository userRepository;
-
-    // Get all users
+    public UserController(UserService userService) {
+        this.userService = userService;
+    }
+    
     @GetMapping
-    public List<User> getAllUsers() {
-        return userRepository.findAll();
+    public ResponseEntity<ApiResponse<List<UserDto>>> getAllUsers() {
+        logger.info("GET /api/users - Fetching all users");
+        List<UserDto> users = userService.getAllUsers();
+        return ResponseEntity.ok(ApiResponse.success("Users retrieved successfully", users));
     }
-
-    // Get user by username
+    
     @GetMapping("/{username}")
-    public ResponseEntity<User> getUserByUsername(@PathVariable String username) {
-        Optional<User> user = userRepository.findByUsername(username);
-        return user.map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<ApiResponse<UserDto>> getUserByUsername(@PathVariable String username) {
+        logger.info("GET /api/users/{} - Fetching user", username);
+        UserDto user = userService.getUserByUsername(username);
+        return ResponseEntity.ok(ApiResponse.success("User retrieved successfully", user));
     }
-
-    // Create new user
+    
     @PostMapping
-    public ResponseEntity<User> createUser(@RequestBody User user) {
-        if (userRepository.findByUsername(user.getUsername()).isPresent()) {
-            return ResponseEntity.badRequest().build();
-        }
-        User savedUser = userRepository.save(user);
-        return ResponseEntity.ok(savedUser);
+    public ResponseEntity<ApiResponse<UserDto>> createUser(@Valid @RequestBody UserDto userDto) {
+        logger.info("POST /api/users - Creating user: {}", userDto.getUsername());
+        UserDto createdUser = userService.createUser(userDto);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(ApiResponse.success("User created successfully", createdUser));
     }
-
-    // Update user
+    
     @PutMapping("/{username}")
-    public ResponseEntity<User> updateUser(@PathVariable String username, @RequestBody User userDetails) {
-        Optional<User> userOpt = userRepository.findByUsername(username);
-        if (userOpt.isEmpty()) {
-            return ResponseEntity.notFound().build();
-        }
-        
-        User user = userOpt.get();
-        user.setEmail(userDetails.getEmail());
-        user.setRole(userDetails.getRole());
-        if (userDetails.getPassword() != null && !userDetails.getPassword().isEmpty()) {
-            user.setPassword(userDetails.getPassword());
-        }
-        
-        User updatedUser = userRepository.save(user);
-        return ResponseEntity.ok(updatedUser);
+    public ResponseEntity<ApiResponse<UserDto>> updateUser(
+            @PathVariable String username,
+            @Valid @RequestBody UserDto userDto) {
+        logger.info("PUT /api/users/{} - Updating user", username);
+        UserDto updatedUser = userService.updateUser(username, userDto);
+        return ResponseEntity.ok(ApiResponse.success("User updated successfully", updatedUser));
     }
-
-    // Delete user
+    
     @DeleteMapping("/{username}")
-    public ResponseEntity<Void> deleteUser(@PathVariable String username) {
-        return userRepository.findByUsername(username)
-            .map(user -> {
-                userRepository.delete(user);
-                return ResponseEntity.ok().<Void>build();
-            })
-            .orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<ApiResponse<Void>> deleteUser(@PathVariable String username) {
+        logger.info("DELETE /api/users/{} - Deleting user", username);
+        userService.deleteUser(username);
+        return ResponseEntity.ok(ApiResponse.success("User deleted successfully", null));
     }
-
-    // Validate login
+    
     @PostMapping("/login")
-    public ResponseEntity<?> validateLogin(@RequestBody LoginRequest request) {
-        Optional<User> userOpt = userRepository.findByUsername(request.getUsername());
-        if (userOpt.isEmpty()) {
-            return ResponseEntity.badRequest().body("User not found");
-        }
+    public ResponseEntity<ApiResponse<LoginResponseDto>> login(@Valid @RequestBody LoginRequestDto loginRequest) {
+        logger.info("POST /api/users/login - Login attempt for user: {}", loginRequest.getUsername());
+        UserDto user = userService.validateLogin(loginRequest.getUsername(), loginRequest.getPassword());
         
-        User user = userOpt.get();
-        if (user.getPassword().equals(request.getPassword())) {
-            return ResponseEntity.ok(new LoginResponse(user.getUsername(), user.getRole().name()));
-        }
+        LoginResponseDto response = new LoginResponseDto(
+                user.getUsername(),
+                user.getRole(),
+                "Login successful"
+        );
         
-        return ResponseEntity.badRequest().body("Invalid password");
+        return ResponseEntity.ok(ApiResponse.success("Login successful", response));
     }
-}
-
-class LoginRequest {
-    private String username;
-    private String password;
-    
-    public String getUsername() { return username; }
-    public void setUsername(String username) { this.username = username; }
-    public String getPassword() { return password; }
-    public void setPassword(String password) { this.password = password; }
-}
-
-class LoginResponse {
-    private String username;
-    private String role;
-    
-    public LoginResponse(String username, String role) {
-        this.username = username;
-        this.role = role;
-    }
-    
-    public String getUsername() { return username; }
-    public void setUsername(String username) { this.username = username; }
-    public String getRole() { return role; }
-    public void setRole(String role) { this.role = role; }
 }
