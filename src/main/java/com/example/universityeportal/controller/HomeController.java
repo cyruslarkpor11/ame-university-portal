@@ -26,7 +26,8 @@ public class HomeController {
     @GetMapping("/")
     public String home(Authentication authentication, Model model) {
         if (authentication == null || !authentication.isAuthenticated()) {
-            return "redirect:/login";
+            // Show landing page first (online portal prioritized)
+            return "redirect:/index.html";
         }
 
         String username = authentication.getName();
