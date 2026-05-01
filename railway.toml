@@ -1,0 +1,6 @@
+[build]
+builder = "DOCKERFILE"
+
+[[mounts]]
+source = "data"
+destination = "/data"
