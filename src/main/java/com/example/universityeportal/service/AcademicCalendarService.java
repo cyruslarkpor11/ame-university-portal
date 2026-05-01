@@ -14,6 +14,7 @@ import java.util.Optional;
 
 @Service
 @Transactional
+@SuppressWarnings("null")
 public class AcademicCalendarService {
     
     private static final Logger logger = LoggerFactory.getLogger(AcademicCalendarService.class);

@@ -18,6 +18,7 @@ import java.util.stream.Collectors;
 
 @Service
 @Transactional
+@SuppressWarnings("null")
 public class UserService {
     
     private static final Logger logger = LoggerFactory.getLogger(UserService.class);

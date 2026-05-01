@@ -15,6 +15,7 @@ import java.util.Optional;
 
 @Service
 @Transactional
+@SuppressWarnings("null")
 public class DepartmentService {
     
     private static final Logger logger = LoggerFactory.getLogger(DepartmentService.class);
