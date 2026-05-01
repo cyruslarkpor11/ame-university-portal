@@ -62,12 +62,12 @@ public class UserController {
     // Delete user
     @DeleteMapping("/{username}")
     public ResponseEntity<Void> deleteUser(@PathVariable String username) {
-        Optional<User> userOpt = userRepository.findByUsername(username);
-        if (userOpt.isPresent()) {
-            userRepository.delete(userOpt.get());
-            return ResponseEntity.ok().build();
-        }
-        return ResponseEntity.notFound().build();
+        return userRepository.findByUsername(username)
+            .map(user -> {
+                userRepository.delete(user);
+                return ResponseEntity.ok().<Void>build();
+            })
+            .orElse(ResponseEntity.notFound().build());
     }
 
     // Validate login
