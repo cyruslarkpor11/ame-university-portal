@@ -19,6 +19,10 @@ public class Course {
     @JoinColumn(name = "lecturer_id")
     private User lecturer;
 
+    @ManyToOne
+    @JoinColumn(name = "department_id")
+    private Department department;
+
     // Constructors, getters, setters
 
     public Course() {}
@@ -40,4 +44,7 @@ public class Course {
 
     public User getLecturer() { return lecturer; }
     public void setLecturer(User lecturer) { this.lecturer = lecturer; }
+
+    public Department getDepartment() { return department; }
+    public void setDepartment(Department department) { this.department = department; }
 }

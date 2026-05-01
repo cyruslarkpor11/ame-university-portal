@@ -24,6 +24,10 @@ public class User {
     @Enumerated(EnumType.STRING)
     private Role role;
 
+    @ManyToOne
+    @JoinColumn(name = "department_id")
+    private Department department;
+
     // Constructors, getters, setters
 
     public User() {}
@@ -49,4 +53,7 @@ public class User {
 
     public Role getRole() { return role; }
     public void setRole(Role role) { this.role = role; }
+
+    public Department getDepartment() { return department; }
+    public void setDepartment(Department department) { this.department = department; }
 }
