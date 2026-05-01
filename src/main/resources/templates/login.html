@@ -199,12 +199,6 @@
             }
         }
 
-        // Check if user has changed their password from default
-        function hasChangedPassword(username) {
-            return localStorage.getItem('passwordChanged_' + username) === 'true' ||
-                   localStorage.getItem('userPassword_' + username) !== null;
-        }
-
         // Function to validate credentials including admin-created users
         function validateUserCredentials(username, password) {
             const usernameLower = username.toLowerCase();
@@ -265,21 +259,9 @@
                         return;
                     }
                     
-                    const user = validation.user;
                     const userRole = validation.role;
                     
-                    // Check if using default password - need to change
-                    const defaultPass = offlineUsers[username] ? offlineUsers[username].password : null;
-                    if (defaultPass && password === defaultPass && !hasChangedPassword(username)) {
-                        // Save temp data and redirect to change password
-                        localStorage.setItem('tempUsername', username);
-                        localStorage.setItem('tempRole', userRole);
-                        localStorage.setItem('tempPassword', password);
-                        window.location.href = '/change-password?username=' + encodeURIComponent(username);
-                        return;
-                    }
-                    
-                    // Login successful
+                    // Login successful - no password change required
                     localStorage.setItem('offlineUser', JSON.stringify({ username: username, role: userRole }));
                     const targetPage = userRole === 'ADMIN'
                       ? '/offline-admin.html'
@@ -288,26 +270,8 @@
                       : '/offline-student.html';
                     window.location.href = targetPage;
                 } else {
-                    // Online mode - let Spring Security handle it, but check for password change requirement
-                    if (validation.valid) {
-                        const passwordChanged = localStorage.getItem('passwordChanged_' + username) === 'true';
-                        const hasCustomPassword = localStorage.getItem('userPassword_' + username) !== null;
-                        const isDefaultUser = offlineUsers[username] !== undefined;
-                        const defaultPass = isDefaultUser ? offlineUsers[username].password : null;
-                        
-                        // Force password change for:
-                        // 1. Default users using default password
-                        // 2. Admin-created users who haven't changed their password yet
-                        if ((isDefaultUser && defaultPass && password === defaultPass && !passwordChanged) || 
-                            (!isDefaultUser && hasCustomPassword && !passwordChanged)) {
-                            event.preventDefault();
-                            localStorage.setItem('tempUsername', username);
-                            localStorage.setItem('tempRole', validation.role);
-                            localStorage.setItem('tempPassword', password);
-                            window.location.href = '/change-password?username=' + encodeURIComponent(username);
-                        }
-                    }
-                    // Otherwise, let the form submit normally to Spring Security
+                    // Online mode - let Spring Security handle login
+                    // No first-time password change required
                 }
             });
         }
