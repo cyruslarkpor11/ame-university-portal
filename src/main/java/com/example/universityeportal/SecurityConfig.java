@@ -24,6 +24,7 @@ public class SecurityConfig {
         "/actuator/**",
         LOGIN_PATH,
         "/forgot-password",
+        "/forgot-password.html",
         "/change-password",
         "/",
         "/Images/**",
@@ -35,7 +36,14 @@ public class SecurityConfig {
         "/offline-lecturer.html",
         "/offline-student.html",
         "/service-worker.js",
-        "/api/users/login"
+        "/admin-dashboard.html",
+        "/admin-dashboard.js",
+        "/api/users/login",
+        "/api/users",
+        "/api/departments/**",
+        "/api/announcements/**",
+        "/api/calendar/**",
+        "/request-access.html"
     };
 
     private final UserRepository userRepository;
@@ -68,7 +76,6 @@ public class SecurityConfig {
                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
                 .requestMatchers("/api/lecturer/**").hasAnyRole("LECTURER", "ADMIN")
                 .requestMatchers("/api/student/**").hasAnyRole("STUDENT", "ADMIN")
-                .requestMatchers("/api/users/**").authenticated()
                 .anyRequest().authenticated()
             )
             .formLogin(form -> form
