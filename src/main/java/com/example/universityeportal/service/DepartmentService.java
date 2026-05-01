@@ -1,6 +1,5 @@
 package com.example.universityeportal.service;
 
-import com.example.universityeportal.dto.ApiResponse;
 import com.example.universityeportal.entity.Department;
 import com.example.universityeportal.exception.DuplicateUserException;
 import com.example.universityeportal.repository.DepartmentRepository;
