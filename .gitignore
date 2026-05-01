@@ -47,3 +47,8 @@ yarn-error.log*
 # Application specific
 application-local.properties
 secrets.properties
+
+# Database files
+data/
+*.db
+*.mv.db
