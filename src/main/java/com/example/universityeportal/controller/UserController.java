@@ -1,7 +1,6 @@
 package com.example.universityeportal.controller;
 
 import com.example.universityeportal.entity.User;
-import com.example.universityeportal.entity.Role;
 import com.example.universityeportal.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -63,12 +62,12 @@ public class UserController {
     // Delete user
     @DeleteMapping("/{username}")
     public ResponseEntity<Void> deleteUser(@PathVariable String username) {
-        Optional<User> user = userRepository.findByUsername(username);
-        if (user.isEmpty()) {
-            return ResponseEntity.notFound().build();
+        Optional<User> userOpt = userRepository.findByUsername(username);
+        if (userOpt.isPresent()) {
+            userRepository.delete(userOpt.get());
+            return ResponseEntity.ok().build();
         }
-        userRepository.delete(user.get());
-        return ResponseEntity.ok().build();
+        return ResponseEntity.notFound().build();
     }
 
     // Validate login
