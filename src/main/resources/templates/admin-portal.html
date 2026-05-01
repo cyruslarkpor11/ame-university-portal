@@ -615,17 +615,66 @@
 
         let adminUsers = [];
         let editingUser = null;
+        const API_BASE_URL = window.location.origin.includes('localhost') ? 'http://localhost:8080' : window.location.origin;
+
+        // Load users from backend API for cross-device sync
+        async function loadUsersFromAPI() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/users`);
+                if (response.ok) {
+                    const users = await response.json();
+                    // Map backend User to frontend format
+                    adminUsers = users.map(u => ({
+                        username: u.username,
+                        email: u.email,
+                        role: u.role,
+                        assignedCourse: 'N/A',
+                        department: 'General',
+                        status: 'Active'
+                    }));
+                    renderUserTable();
+                    updateUserStats();
+                    console.log('Synced users from API at', new Date().toLocaleTimeString());
+                }
+            } catch (error) {
+                console.error('Error loading users from API:', error);
+                // Fallback to localStorage
+                const savedUsers = JSON.parse(localStorage.getItem('adminUsers') || 'null');
+                if (savedUsers && savedUsers.length > 0) {
+                    adminUsers = savedUsers;
+                    renderUserTable();
+                    updateUserStats();
+                }
+            }
+        }
 
         function initAdminUsers() {
+            // Always load from API first for cross-device sync
+            loadUsersFromAPI();
+            
+            // Fallback if API fails
             const savedUsers = JSON.parse(localStorage.getItem('adminUsers') || 'null');
-            adminUsers = savedUsers || [
-                { username: 'admin', email: 'admin@example.com', role: 'ADMIN', assignedCourse: 'N/A', department: 'Administration', status: 'Active' },
-                { username: 'lecturer', email: 'lecturer@example.com', role: 'LECTURER', assignedCourse: 'Introduction to Programming', department: 'Computer Science', status: 'Active' },
-                { username: 'student', email: 'student@example.com', role: 'STUDENT', assignedCourse: 'Data Structures', department: 'Computer Science', status: 'Active' }
-            ];
-            renderUserTable();
-            updateUserStats();
+            if (!savedUsers || savedUsers.length === 0) {
+                localStorage.setItem('adminUsers', JSON.stringify([
+                    { username: 'admin', email: 'admin@example.com', role: 'ADMIN', assignedCourse: 'N/A', department: 'Administration', status: 'Active' }
+                ]));
+            }
         }
+        
+        // Auto-sync every 3 seconds
+        setInterval(loadUsersFromAPI, 3000);
+        
+        // Sync when page becomes visible
+        document.addEventListener('visibilitychange', function() {
+            if (!document.hidden) {
+                loadUsersFromAPI();
+            }
+        });
+        
+        // Sync on window focus
+        window.addEventListener('focus', function() {
+            loadUsersFromAPI();
+        });
 
         function renderUserTable() {
             const tbody = document.querySelector('#users table tbody');
@@ -829,6 +878,15 @@
                 localStorage.setItem('userPassword_' + username.toLowerCase(), finalPassword);
                 console.log('Saved password for user:', username);
                 
+                // Also save to backend API for cross-device sync
+                saveUserToAPI({ username, email, password: finalPassword, role })
+                    .then(() => {
+                        console.log('User saved to backend API');
+                    })
+                    .catch(err => {
+                        console.error('Failed to save to API:', err);
+                    });
+                
                 renderUserTable();
                 updateUserStats();
                 closeUserModal();
@@ -836,6 +894,23 @@
                 // Show credentials modal
                 showCredentialsModal(username, finalPassword, role);
             }
+        }
+        
+        // Save user to backend API
+        async function saveUserToAPI(userData) {
+            const response = await fetch(`${API_BASE_URL}/api/users`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(userData)
+            });
+            
+            if (!response.ok) {
+                throw new Error('Failed to save user to API');
+            }
+            
+            return response.json();
         }
 
         function editUser(username) {

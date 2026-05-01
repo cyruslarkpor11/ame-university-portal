@@ -1143,46 +1143,28 @@ AME Zion University Admin Team`);
 
     initData();
 
-    // Real-time sync from online portal - check every 2 seconds
-    let lastUsers = '';
-    let lastCourses = '';
-    let lastSettings = '';
-
-    function syncFromOnlinePortal() {
-      // Sync users
-      const currentUsers = localStorage.getItem('adminUsers') || '[]';
-      if (currentUsers !== lastUsers) {
-        lastUsers = currentUsers;
-        adminUsers = JSON.parse(currentUsers);
-        renderUserTable();
-        updateStats();
-      }
-
-      // Sync courses
-      const currentCourses = localStorage.getItem('adminCourses') || '[]';
-      if (currentCourses !== lastCourses) {
-        lastCourses = currentCourses;
-        courses = JSON.parse(currentCourses);
-        renderCourseTable();
-        updateStats();
-      }
-
-      // Sync settings
-      const currentSettings = localStorage.getItem('systemSettings');
-      if (currentSettings && currentSettings !== lastSettings) {
-        lastSettings = currentSettings;
-        loadSettings();
-      }
+    // Real-time sync from backend API - check every 3 seconds for cross-device updates
+    function syncFromAPI() {
+      // Always reload users from API to get latest from any device
+      loadUsersFromAPI();
+      console.log('Synced from API at', new Date().toLocaleTimeString());
     }
 
-    // Start sync polling
-    setInterval(syncFromOnlinePortal, 2000);
-
-    // Also sync on visibility change
-    document.addEventListener('visibilitychange', () => {
+    // Start API sync polling every 3 seconds
+    setInterval(syncFromAPI, 3000);
+    
+    // Also sync when page becomes visible (user switches back to tab)
+    document.addEventListener('visibilitychange', function() {
       if (!document.hidden) {
-        syncFromOnlinePortal();
+        console.log('Page visible - syncing from API');
+        loadUsersFromAPI();
       }
+    });
+    
+    // Sync when user clicks back into the window
+    window.addEventListener('focus', function() {
+      console.log('Window focused - syncing from API');
+      loadUsersFromAPI();
     });
 
     // Auto-logout after 5 minutes of inactivity
