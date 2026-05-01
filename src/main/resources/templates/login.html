@@ -136,14 +136,11 @@
             <div id="offline-banner" class="offline-banner" style="display:none;">
                 You are currently offline.
             </div>
-            <div id="offline-error" class="error-message" style="display:none;">
-                Invalid username or password. Please try again.
-            </div>
-            <div id="online-error" th:if="${param.error}" class="error-message" style="display:none;">
+            <div th:if="${param.error}" class="error-message">
                 Invalid username or password. Please try again.
             </div>
 
-            <form th:action="@{/login}" method="POST">
+            <form th:action="@{/login}" method="POST" id="loginForm">
                 <div class="form-group">
                     <label for="username">Username</label>
                     <input type="text" id="username" name="username" required autofocus placeholder="Enter your username">
@@ -154,7 +151,7 @@
                     <input type="password" id="password" name="password" required placeholder="Enter your password">
                 </div>
 
-                <button id="loginBtn" type="submit" class="login-btn">Login</button>
+                <button type="submit" class="login-btn">Login</button>
             </form>
             
             <div style="margin-top: 25px; text-align: center; padding-top: 15px; border-top: 1px solid #eee;">
@@ -165,159 +162,13 @@
         </div>
     </div>
     <script>
-        const offlineBanner = document.getElementById('offline-banner');
-        const offlineError = document.getElementById('offline-error');
-        const onlineError = document.getElementById('online-error');
-        const loginBtn = document.getElementById('loginBtn');
-        const loginForm = document.querySelector('form');
-
-        // Offline credentials (must match offline-login.html)
-        const offlineUsers = {
-            admin: { password: 'admin123', role: 'ADMIN' },
-            lecturer: { password: 'lecturer123', role: 'LECTURER' },
-            student: { password: 'student123', role: 'STUDENT' }
-        };
-
-        function updateOnlineStatus() {
-            const isOnline = navigator.onLine;
-            if (!isOnline) {
-                offlineBanner.style.display = 'block';
-                offlineError.style.display = 'none';
-                if (onlineError) onlineError.style.display = 'none';
-                loginBtn.disabled = false;
-                loginBtn.style.opacity = '1';
-                loginBtn.textContent = 'Login (offline)';
-                loginBtn.title = 'Use offline credentials to log in while disconnected';
-            } else {
-                offlineBanner.style.display = 'none';
-                offlineError.style.display = 'none';
-                if (onlineError) onlineError.style.display = 'block';
-                loginBtn.disabled = false;
-                loginBtn.style.opacity = '1';
-                loginBtn.textContent = 'Login';
-                loginBtn.title = '';
-            }
-        }
-
-        // Function to validate credentials including admin-created users
-        function validateUserCredentials(username, password) {
-            const usernameLower = username.toLowerCase();
-            
-            // Check hardcoded default users
-            const defaultUser = offlineUsers[usernameLower];
-            const customPass = localStorage.getItem('userPassword_' + usernameLower);
-            
-            if (defaultUser) {
-                // User exists in defaults
-                if (customPass) {
-                    // Has custom password - validate against it
-                    if (customPass === password) {
-                        return { valid: true, role: defaultUser.role, user: defaultUser };
-                    }
-                } else {
-                    // No custom password - check default
-                    if (defaultUser.password === password) {
-                        return { valid: true, role: defaultUser.role, user: defaultUser };
-                    }
-                }
-                return { valid: false, error: 'Invalid password' };
-            }
-            
-            // Check admin-created users from localStorage
-            const adminUsers = JSON.parse(localStorage.getItem('adminUsers') || '[]');
-            const adminCreatedUser = adminUsers.find(u => u.username.toLowerCase() === usernameLower);
-            
-            if (adminCreatedUser) {
-                // User was created by admin
-                if (customPass && customPass === password) {
-                    // Password matches stored custom password
-                    return { valid: true, role: adminCreatedUser.role, user: adminCreatedUser };
-                }
-                // No custom password set or doesn't match
-                return { valid: false, error: 'Invalid password' };
-            }
-            
-            // User not found
-            return { valid: false, error: 'Invalid username' };
-        }
-
-        // Async function to validate credentials via API (for cross-device support)
-        async function validateCredentialsViaAPI(username, password) {
-            try {
-                const response = await fetch('/api/users/login', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ username, password })
-                });
-                
-                if (response.ok) {
-                    const data = await response.json();
-                    return { valid: true, role: data.role, user: { username: data.username, role: data.role } };
-                }
-                
-                return { valid: false, error: 'Invalid credentials' };
-            } catch (error) {
-                console.error('API validation failed:', error);
-                return { valid: false, error: 'Network error' };
-            }
-        }
-
-        // Handle offline login and default password check
-        if (loginForm) {
-            loginForm.addEventListener('submit', async function(event) {
-                const username = document.getElementById('username').value.trim().toLowerCase();
-                const password = document.getElementById('password').value;
-                const validation = validateUserCredentials(username, password);
-
-                if (!navigator.onLine) {
-                    // Offline mode - handle locally
-                    event.preventDefault();
-                    
-                    if (!validation.valid) {
-                        offlineError.style.display = 'block';
-                        offlineBanner.style.display = 'block';
-                        if (onlineError) onlineError.style.display = 'none';
-                        return;
-                    }
-                    
-                    const userRole = validation.role;
-                    
-                    // Login successful - no password change required
-                    localStorage.setItem('offlineUser', JSON.stringify({ username: username, role: userRole }));
-                    const targetPage = userRole === 'ADMIN'
-                      ? '/offline-admin.html'
-                      : userRole === 'LECTURER'
-                      ? '/offline-lecturer.html'
-                      : '/offline-student.html';
-                    window.location.href = targetPage;
-                } else {
-                    // Online mode - first check API for newly created users
-                    event.preventDefault();
-                    const apiValidation = await validateCredentialsViaAPI(username, password);
-                    
-                    if (apiValidation.valid) {
-                        // User exists in backend database - login via API
-                        localStorage.setItem('offlineUser', JSON.stringify({ username: username, role: apiValidation.role }));
-                        const targetPage = apiValidation.role === 'ADMIN'
-                          ? '/portal/admin'
-                          : apiValidation.role === 'LECTURER'
-                          ? '/portal/lecturer'
-                          : '/portal/student';
-                        window.location.href = targetPage;
-                        return;
-                    }
-                    
-                    // If API validation fails, let Spring Security handle it (for default users)
-                    loginForm.submit();
-                }
-            });
-        }
-
-        window.addEventListener('online', updateOnlineStatus);
-        window.addEventListener('offline', updateOnlineStatus);
-        updateOnlineStatus();
+        // Show offline banner when disconnected
+        window.addEventListener('offline', function() {
+            document.getElementById('offline-banner').style.display = 'block';
+        });
+        window.addEventListener('online', function() {
+            document.getElementById('offline-banner').style.display = 'none';
+        });
 
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', function() {
