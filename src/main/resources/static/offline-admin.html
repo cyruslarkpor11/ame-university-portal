@@ -1153,47 +1153,49 @@ AME Zion University Admin Team`);
     });
     
     // Sync when user clicks back into the window
-    window.addEventListener('focus', function() {
-      console.log('Window focused - syncing from API');
-      loadUsersFromAPI();
-    });
-
-    // Auto-logout after 5 minutes of inactivity
-    (function setupAutoLogout() {
-      let inactivityTimer;
-      let warningTimer;
-      const INACTIVITY_TIMEOUT = 5 * 60 * 1000; // 5 minutes in milliseconds
-      const WARNING_TIME = 30 * 1000; // Show warning 30 seconds before logout
-
-      function logout() {
-        localStorage.removeItem('offlineUser');
-        alert('You have been logged out due to inactivity.');
-        window.location.href = '/offline-login.html';
-      }
-
-      function showWarning() {
-        const timeLeft = (INACTIVITY_TIMEOUT - WARNING_TIME) / 1000;
-        console.log('Session expires in ' + timeLeft + ' seconds');
-      }
-
-      function resetTimer() {
-        clearTimeout(inactivityTimer);
-        clearTimeout(warningTimer);
         
-        warningTimer = setTimeout(showWarning, INACTIVITY_TIMEOUT - WARNING_TIME);
-        inactivityTimer = setTimeout(logout, INACTIVITY_TIMEOUT);
-      }
+        // Sync when user clicks back into the window
+        window.addEventListener('focus', function() {
+          console.log('Window focused - syncing from API');
+          loadUsersFromAPI();
+        });
 
-      // Track user activity
-      const events = ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart', 'click'];
-      events.forEach(event => {
-        document.addEventListener(event, resetTimer, true);
-      });
+        // Auto-logout disabled - users stay logged in indefinitely
+        // (function setupAutoLogout() {
+        //   let inactivityTimer;
+        //   let warningTimer;
+        //   const INACTIVITY_TIMEOUT = 5 * 60 * 1000; // 5 minutes in milliseconds
+        //   const WARNING_TIME = 30 * 1000; // Show warning 30 seconds before logout
 
-      // Start the timer
-      resetTimer();
-      console.log('Auto-logout enabled: 5 minutes of inactivity');
-    })();
-  </script>
-</body>
-</html>
+        //   function logout() {
+        //     localStorage.removeItem('offlineUser');
+        //     alert('You have been logged out due to inactivity.');
+        //     window.location.href = '/offline-login.html';
+        //   }
+
+        //   function showWarning() {
+        //     const timeLeft = (INACTIVITY_TIMEOUT - WARNING_TIME) / 1000;
+        //     console.log('Session expires in ' + timeLeft + ' seconds');
+        //   }
+
+        //   function resetTimer() {
+        //     clearTimeout(inactivityTimer);
+        //     clearTimeout(warningTimer);
+        //     
+        //     warningTimer = setTimeout(showWarning, INACTIVITY_TIMEOUT - WARNING_TIME);
+        //     inactivityTimer = setTimeout(logout, INACTIVITY_TIMEOUT);
+        //   }
+
+        //   // Track user activity
+        //   const activityEvents = ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart', 'click'];
+        //   activityEvents.forEach(event => {
+        //     document.addEventListener(event, resetTimer);
+        //   });
+
+        //   // Start the timer
+        //   resetTimer();
+        //   console.log('Auto-logout enabled: 5 minutes of inactivity');
+        // })();
+      </script>
+    </body>
+  </html>

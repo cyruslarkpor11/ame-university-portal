@@ -837,42 +837,7 @@
       }
     });
 
-    // Auto-logout after 5 minutes of inactivity
-    (function setupAutoLogout() {
-      let inactivityTimer;
-      let warningTimer;
-      const INACTIVITY_TIMEOUT = 5 * 60 * 1000; // 5 minutes in milliseconds
-      const WARNING_TIME = 30 * 1000; // Show warning 30 seconds before logout
-
-      function logout() {
-        localStorage.removeItem('offlineUser');
-        alert('You have been logged out due to inactivity.');
-        window.location.href = '/offline-login.html';
-      }
-
-      function showWarning() {
-        const timeLeft = (INACTIVITY_TIMEOUT - WARNING_TIME) / 1000;
-        console.log('Session expires in ' + timeLeft + ' seconds');
-      }
-
-      function resetTimer() {
-        clearTimeout(inactivityTimer);
-        clearTimeout(warningTimer);
-        
-        warningTimer = setTimeout(showWarning, INACTIVITY_TIMEOUT - WARNING_TIME);
-        inactivityTimer = setTimeout(logout, INACTIVITY_TIMEOUT);
-      }
-
-      // Track user activity
-      const events = ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart', 'click'];
-      events.forEach(event => {
-        document.addEventListener(event, resetTimer, true);
-      });
-
-      // Start the timer
-      resetTimer();
-      console.log('Auto-logout enabled: 5 minutes of inactivity');
-    })();
+    // Auto-logout disabled - users stay logged in indefinitely
   </script>
 </body>
 </html>
