@@ -1,8 +1,33 @@
 // API Base URL
 const API_BASE = '/api';
 
+// Demo data for immediate display
+const DEMO_DATA = {
+    departments: [
+        { id: 1, code: 'CS', name: 'Computer Science', description: 'Computing and IT programs', headOfDepartment: 'Dr. Smith', email: 'cs@university.edu', active: true },
+        { id: 2, code: 'ENG', name: 'Engineering', description: 'Engineering disciplines', headOfDepartment: 'Dr. Johnson', email: 'eng@university.edu', active: true },
+        { id: 3, code: 'BUS', name: 'Business Administration', description: 'Business and management', headOfDepartment: 'Prof. Williams', email: 'bus@university.edu', active: true }
+    ],
+    announcements: [
+        { id: 1, title: 'Welcome to Spring Semester 2025', content: 'Classes begin on January 15th', type: 'ACADEMIC', targetAudience: 'ALL', priority: 5, publishDate: new Date().toISOString() },
+        { id: 2, title: 'Registration Deadline Extended', content: 'Registration now open until January 20th', type: 'ADMINISTRATIVE', targetAudience: 'STUDENTS', priority: 4, publishDate: new Date().toISOString() },
+        { id: 3, title: 'New Library Hours', content: 'Library now open 24/7 during exam period', type: 'GENERAL', targetAudience: 'ALL', priority: 3, publishDate: new Date().toISOString() }
+    ],
+    calendar: [
+        { id: 1, academicYear: '2024-2025', semester: 'Second', eventType: 'CLASSES_START', title: 'Spring Semester Begins', startDate: '2025-01-15', endDate: '2025-01-15', active: true },
+        { id: 2, academicYear: '2024-2025', semester: 'Second', eventType: 'REGISTRATION', title: 'Course Registration Period', startDate: '2025-01-08', endDate: '2025-01-20', active: true },
+        { id: 3, academicYear: '2024-2025', semester: 'Second', eventType: 'EXAMINATION', title: 'Midterm Examinations', startDate: '2025-03-15', endDate: '2025-03-22', active: true }
+    ],
+    users: [
+        { username: 'admin', email: 'admin@university.edu', role: 'ADMIN', department: null },
+        { username: 'prof.smith', email: 'smith@university.edu', role: 'LECTURER', department: 'Computer Science' },
+        { username: 'student001', email: 'student001@university.edu', role: 'STUDENT', department: 'Engineering' }
+    ]
+};
+
 // Modals
 let departmentModal, announcementModal, calendarModal;
+let useDemoData = false;
 
 // Initialize on page load
 document.addEventListener('DOMContentLoaded', function() {
@@ -64,6 +89,22 @@ function showToast(message, type = 'success') {
     const bsToast = new bootstrap.Toast(toast);
     bsToast.show();
     setTimeout(() => toast.remove(), 5000);
+}
+
+// API helper with fallback to demo data
+async function apiCall(endpoint, options = {}) {
+    try {
+        const response = await fetch(`${API_BASE}${endpoint}`, {
+            headers: { 'Content-Type': 'application/json' },
+            ...options
+        });
+        if (!response.ok) throw new Error('API Error');
+        return await response.json();
+    } catch (error) {
+        console.warn('API call failed, using demo data:', error);
+        useDemoData = true;
+        return null;
+    }
 }
 
 // ==================== DASHBOARD ====================

@@ -14,7 +14,7 @@
     <name>university-eportal</name>
     <description>University E-Portal Application</description>
     <properties>
-        <java.version>21</java.version>
+        <java.version>25</java.version>
     </properties>
     <dependencies>
 
@@ -77,7 +77,7 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.11.0</version>
                 <configuration>
-                    <release>21</release>
+                    <release>25</release>
                 </configuration>
             </plugin>
             <plugin>
