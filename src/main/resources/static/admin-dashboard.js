@@ -633,3 +633,178 @@ async function loadAnalytics() {
         }
     });
 }
+
+// Admin Management Functions
+function openAddAdminModal() {
+    showToast('Add Admin - Opening form...');
+    // Create modal dynamically
+    const modalHtml = `
+        <div class="modal fade" id="addAdminModal" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title"><i class="bi bi-shield-lock"></i> Add New Admin</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="addAdminForm">
+                            <div class="mb-3">
+                                <label class="form-label">Admin Name</label>
+                                <input type="text" class="form-control" id="adminName" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Email</label>
+                                <input type="email" class="form-control" id="adminEmail" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Role</label>
+                                <select class="form-select" id="adminRole">
+                                    <option value="Super Admin">Super Admin</option>
+                                    <option value="Academic Admin">Academic Admin</option>
+                                    <option value="Finance Admin">Finance Admin</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Department</label>
+                                <select class="form-select" id="adminDepartment">
+                                    <option value="All">All Departments</option>
+                                    <option value="Computer Science">Computer Science</option>
+                                    <option value="Finance">Finance</option>
+                                    <option value="Academic">Academic Affairs</option>
+                                </select>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-primary" onclick="saveAdmin()">Add Admin</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    // Remove existing modal if any
+    const existingModal = document.getElementById('addAdminModal');
+    if (existingModal) {
+        existingModal.remove();
+    }
+    
+    // Add modal to body
+    document.body.insertAdjacentHTML('beforeend', modalHtml);
+    
+    // Show modal
+    const modal = new bootstrap.Modal(document.getElementById('addAdminModal'));
+    modal.show();
+}
+
+function saveAdmin() {
+    const name = document.getElementById('adminName').value;
+    const email = document.getElementById('adminEmail').value;
+    const role = document.getElementById('adminRole').value;
+    const department = document.getElementById('adminDepartment').value;
+    
+    if (!name || !email) {
+        showToast('Please fill in all required fields', 'danger');
+        return;
+    }
+    
+    // Generate new admin ID
+    const adminId = 'ADM-00' + (Math.floor(Math.random() * 900) + 100);
+    
+    // Add to table (demo)
+    const tbody = document.querySelector('#admin-portal-section tbody');
+    const newRow = `
+        <tr>
+            <td>${adminId}</td>
+            <td>${name}</td>
+            <td>${role}</td>
+            <td>${department}</td>
+            <td><span class="badge bg-success">Active</span></td>
+            <td>Just now</td>
+            <td>
+                <button class="btn btn-sm btn-outline-primary" onclick="editAdmin('${adminId}')">Manage</button>
+                <button class="btn btn-sm btn-outline-danger" onclick="deleteAdmin('${adminId}')">Delete</button>
+            </td>
+        </tr>
+    `;
+    tbody.insertAdjacentHTML('beforeend', newRow);
+    
+    // Close modal
+    bootstrap.Modal.getInstance(document.getElementById('addAdminModal')).hide();
+    showToast('Admin added successfully!', 'success');
+}
+
+function editAdmin(adminId) {
+    showToast(`Editing admin ${adminId} - Opening form...`);
+    
+    const modalHtml = `
+        <div class="modal fade" id="editAdminModal" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title"><i class="bi bi-pencil"></i> Edit Admin ${adminId}</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form>
+                            <div class="mb-3">
+                                <label class="form-label">Status</label>
+                                <select class="form-select" id="editStatus">
+                                    <option value="Active">Active</option>
+                                    <option value="Inactive">Inactive</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Permissions</label>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" checked>
+                                    <label class="form-check-label">User Management</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" checked>
+                                    <label class="form-check-label">Course Management</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox">
+                                    <label class="form-check-label">Finance Access</label>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-primary" onclick="saveEditAdmin('${adminId}')">Save Changes</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    const existingModal = document.getElementById('editAdminModal');
+    if (existingModal) {
+        existingModal.remove();
+    }
+    
+    document.body.insertAdjacentHTML('beforeend', modalHtml);
+    const modal = new bootstrap.Modal(document.getElementById('editAdminModal'));
+    modal.show();
+}
+
+function saveEditAdmin(adminId) {
+    bootstrap.Modal.getInstance(document.getElementById('editAdminModal')).hide();
+    showToast(`Admin ${adminId} updated successfully!`, 'success');
+}
+
+function deleteAdmin(adminId) {
+    if (confirm(`Are you sure you want to delete admin ${adminId}?`)) {
+        showToast(`Admin ${adminId} deleted successfully!`, 'success');
+        // Remove row from table
+        const rows = document.querySelectorAll('#admin-portal-section tbody tr');
+        rows.forEach(row => {
+            if (row.cells[0].textContent === adminId) {
+                row.remove();
+            }
+        });
+    }
+}

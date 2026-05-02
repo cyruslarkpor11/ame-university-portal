@@ -134,7 +134,7 @@
                 <i class="bi bi-globe-americas fs-1 text-warning"></i>
             </div>
             <h5 class="mb-1 fw-bold">AME Zion University</h5>
-            <div class="campus-badge mb-2">🌍 International Campus</div>
+            <div class="campus-badge mb-2">� Admin Dashboard</div>
             <small class="text-white-50">Nimba Extension</small>
             <div class="mt-2">
                 <span class="badge bg-success">🟜──Online</span>
@@ -425,7 +425,7 @@
         <section id="admin-portal-section" class="content-section d-none">
             <div class="d-flex justify-content-between mb-3">
                 <h4><i class="bi bi-shield-lock"></i> Admin Portal Management</h4>
-                <button class="btn btn-primary" onclick="showToast('Admin Action - Coming Soon')">
+                <button class="btn btn-primary" onclick="openAddAdminModal()">
                     <i class="bi bi-plus-lg"></i> Add Admin
                 </button>
             </div>
@@ -504,7 +504,7 @@
                             <td>All</td>
                             <td><span class="badge bg-success">Active</span></td>
                             <td>2 mins ago</td>
-                            <td><button class="btn btn-sm btn-outline-primary">Manage</button></td>
+                            <td><button class="btn btn-sm btn-outline-primary" onclick="editAdmin('ADM-001')">Manage</button> <button class="btn btn-sm btn-outline-danger" onclick="deleteAdmin('ADM-001')">Delete</button></td>
                         </tr>
                         <tr>
                             <td>ADM-002</td>
@@ -513,7 +513,7 @@
                             <td>Computer Science</td>
                             <td><span class="badge bg-success">Active</span></td>
                             <td>1 hour ago</td>
-                            <td><button class="btn btn-sm btn-outline-primary">Manage</button></td>
+                            <td><button class="btn btn-sm btn-outline-primary" onclick="editAdmin('ADM-001')">Manage</button> <button class="btn btn-sm btn-outline-danger" onclick="deleteAdmin('ADM-001')">Delete</button></td>
                         </tr>
                         <tr>
                             <td>ADM-003</td>
@@ -522,7 +522,7 @@
                             <td>Finance</td>
                             <td><span class="badge bg-secondary">Offline</span></td>
                             <td>Yesterday</td>
-                            <td><button class="btn btn-sm btn-outline-primary">Manage</button></td>
+                            <td><button class="btn btn-sm btn-outline-primary" onclick="editAdmin('ADM-001')">Manage</button> <button class="btn btn-sm btn-outline-danger" onclick="deleteAdmin('ADM-001')">Delete</button></td>
                         </tr>
                     </tbody>
                 </table>
