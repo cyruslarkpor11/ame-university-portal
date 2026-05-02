@@ -975,39 +975,68 @@ function editStudent(studentId) {
     
     const modalHtml = `
         <div class="modal fade" id="editStudentModal" tabindex="-1">
-            <div class="modal-dialog">
+            <div class="modal-dialog modal-lg">
                 <div class="modal-content">
                     <div class="modal-header bg-success text-white">
-                        <h5 class="modal-title"><i class="bi bi-pencil"></i> Edit Student ${studentId}</h5>
+                        <h5 class="modal-title"><i class="bi bi-pencil"></i> Edit Student: ${studentId}</h5>
                         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                     </div>
                     <div class="modal-body">
-                        <form>
-                            <div class="mb-3">
-                                <label class="form-label">Status</label>
-                                <select class="form-select" id="editStudentStatus">
-                                    <option value="Active">Active</option>
-                                    <option value="Probation">Probation</option>
-                                    <option value="Inactive">Inactive</option>
-                                </select>
+                        <form id="editStudentForm">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label fw-bold">Student ID</label>
+                                    <input type="text" class="form-control" id="editStudentId" value="${studentId}" readonly>
+                                    <small class="text-muted">ID cannot be changed</small>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label fw-bold">Name</label>
+                                    <input type="text" class="form-control" id="editStudentName" value="Student Name" required>
+                                </div>
                             </div>
-                            <div class="mb-3">
-                                <label class="form-label">GPA</label>
-                                <input type="number" class="form-control" id="editStudentGPA" min="0" max="4.0" step="0.01" value="3.50">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label fw-bold">Program</label>
+                                    <select class="form-select" id="editStudentProgram">
+                                        <option value="Computer Science">Computer Science</option>
+                                        <option value="Business Admin">Business Admin</option>
+                                        <option value="Engineering">Engineering</option>
+                                        <option value="Medicine">Medicine</option>
+                                        <option value="Law">Law</option>
+                                        <option value="Education">Education</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label fw-bold">Year</label>
+                                    <select class="form-select" id="editStudentYear">
+                                        <option value="1st Year">1st Year</option>
+                                        <option value="2nd Year">2nd Year</option>
+                                        <option value="3rd Year">3rd Year</option>
+                                        <option value="4th Year">4th Year</option>
+                                    </select>
+                                </div>
                             </div>
-                            <div class="mb-3">
-                                <label class="form-label">Program</label>
-                                <select class="form-select" id="editStudentProgram">
-                                    <option value="Computer Science">Computer Science</option>
-                                    <option value="Business Admin">Business Admin</option>
-                                    <option value="Engineering">Engineering</option>
-                                </select>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label fw-bold">GPA</label>
+                                    <input type="number" class="form-control" id="editStudentGPA" min="0" max="4.0" step="0.01" value="3.50">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label fw-bold">Status</label>
+                                    <select class="form-select" id="editStudentStatus">
+                                        <option value="Active">Active</option>
+                                        <option value="Probation">Probation</option>
+                                        <option value="Inactive">Inactive</option>
+                                    </select>
+                                </div>
                             </div>
                         </form>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                        <button type="button" class="btn btn-success" onclick="saveEditStudent('${studentId}')">Save Changes</button>
+                        <button type="button" class="btn btn-success" onclick="saveEditStudent('${studentId}')">
+                            <i class="bi bi-check-lg"></i> Save Changes
+                        </button>
                     </div>
                 </div>
             </div>
@@ -1025,6 +1054,33 @@ function editStudent(studentId) {
 }
 
 function saveEditStudent(studentId) {
+    const name = document.getElementById('editStudentName').value;
+    const program = document.getElementById('editStudentProgram').value;
+    const year = document.getElementById('editStudentYear').value;
+    const gpa = document.getElementById('editStudentGPA').value;
+    const status = document.getElementById('editStudentStatus').value;
+    
+    if (!name) {
+        showToast('Please enter student name', 'danger');
+        return;
+    }
+    
+    // Find and update the row in the table
+    const rows = document.querySelectorAll('#student-portal-section tbody tr');
+    rows.forEach(row => {
+        if (row.cells[0].textContent === studentId) {
+            row.cells[1].textContent = name;
+            row.cells[2].textContent = program;
+            row.cells[3].textContent = year;
+            row.cells[4].textContent = gpa;
+            
+            // Update status badge
+            const badgeClass = status === 'Active' ? 'bg-success' : 
+                              status === 'Probation' ? 'bg-warning' : 'bg-secondary';
+            row.cells[5].innerHTML = `<span class="badge ${badgeClass}">${status}</span>`;
+        }
+    });
+    
     bootstrap.Modal.getInstance(document.getElementById('editStudentModal')).hide();
     showToast(`Student ${studentId} updated successfully!`, 'success');
 }
