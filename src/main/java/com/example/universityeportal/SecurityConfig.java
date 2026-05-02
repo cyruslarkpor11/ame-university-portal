@@ -27,8 +27,12 @@ public class SecurityConfig {
         "/forgot-password.html",
         "/change-password",
         "/",
+        "/index.html",
         "/Images/**",
         "/images/**",
+        "/css/**",
+        "/js/**",
+        "/static/**",
         "/manifest.json",
         "/offline.html",
         "/offline-login.html",
@@ -38,11 +42,14 @@ public class SecurityConfig {
         "/service-worker.js",
         "/admin-dashboard.html",
         "/admin-dashboard.js",
+        "/lecturer-dashboard.html",
+        "/student-dashboard.html",
         "/api/users/login",
-        "/api/users",
+        "/api/users/**",
         "/api/departments/**",
         "/api/announcements/**",
         "/api/calendar/**",
+        "/api/enrollments/**",
         "/request-access.html"
     };
 
