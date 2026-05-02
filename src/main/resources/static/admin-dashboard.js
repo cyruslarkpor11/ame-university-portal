@@ -808,3 +808,236 @@ function deleteAdmin(adminId) {
         });
     }
 }
+
+// Student Management Functions
+function openEnrollStudentModal() {
+    showToast('Enroll Student - Opening form...');
+    const modalHtml = `
+        <div class="modal fade" id="enrollStudentModal" tabindex="-1">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header bg-primary text-white">
+                        <h5 class="modal-title"><i class="bi bi-person-plus"></i> Enroll New Student</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="enrollStudentForm">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Student Name</label>
+                                    <input type="text" class="form-control" id="studentName" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Email</label>
+                                    <input type="email" class="form-control" id="studentEmail" required>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Program</label>
+                                    <select class="form-select" id="studentProgram">
+                                        <option value="Computer Science">Computer Science</option>
+                                        <option value="Business Admin">Business Admin</option>
+                                        <option value="Engineering">Engineering</option>
+                                        <option value="Medicine">Medicine</option>
+                                        <option value="Law">Law</option>
+                                        <option value="Education">Education</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Year</label>
+                                    <select class="form-select" id="studentYear">
+                                        <option value="1st Year">1st Year</option>
+                                        <option value="2nd Year">2nd Year</option>
+                                        <option value="3rd Year">3rd Year</option>
+                                        <option value="4th Year">4th Year</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">GPA</label>
+                                    <input type="number" class="form-control" id="studentGPA" min="0" max="4.0" step="0.01" value="3.00">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Status</label>
+                                    <select class="form-select" id="studentStatus">
+                                        <option value="Active">Active</option>
+                                        <option value="Probation">Probation</option>
+                                        <option value="Inactive">Inactive</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-primary" onclick="saveStudent()">Enroll Student</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    const existingModal = document.getElementById('enrollStudentModal');
+    if (existingModal) {
+        existingModal.remove();
+    }
+    
+    document.body.insertAdjacentHTML('beforeend', modalHtml);
+    const modal = new bootstrap.Modal(document.getElementById('enrollStudentModal'));
+    modal.show();
+}
+
+function saveStudent() {
+    const name = document.getElementById('studentName').value;
+    const email = document.getElementById('studentEmail').value;
+    const program = document.getElementById('studentProgram').value;
+    const year = document.getElementById('studentYear').value;
+    const gpa = document.getElementById('studentGPA').value;
+    const status = document.getElementById('studentStatus').value;
+    
+    if (!name || !email) {
+        showToast('Please fill in all required fields', 'danger');
+        return;
+    }
+    
+    // Generate new student ID
+    const studentId = 'STD-2024-' + (Math.floor(Math.random() * 900) + 100);
+    
+    // Add to table
+    const tbody = document.querySelector('#student-portal-section tbody');
+    const newRow = `
+        <tr>
+            <td>${studentId}</td>
+            <td>${name}</td>
+            <td>${program}</td>
+            <td>${year}</td>
+            <td>${gpa}</td>
+            <td><span class="badge bg-${status === 'Active' ? 'success' : status === 'Probation' ? 'warning' : 'secondary'}">${status}</span></td>
+            <td>
+                <button class="btn btn-sm btn-outline-primary" onclick="viewStudent('${studentId}')">View</button>
+                <button class="btn btn-sm btn-outline-success" onclick="editStudent('${studentId}')">Edit</button>
+                <button class="btn btn-sm btn-outline-danger" onclick="deleteStudent('${studentId}')">Delete</button>
+            </td>
+        </tr>
+    `;
+    tbody.insertAdjacentHTML('beforeend', newRow);
+    
+    bootstrap.Modal.getInstance(document.getElementById('enrollStudentModal')).hide();
+    showToast('Student enrolled successfully!', 'success');
+}
+
+function viewStudent(studentId) {
+    showToast(`Viewing student ${studentId} details...`);
+    // In a real app, this would open a detailed view
+    const modalHtml = `
+        <div class="modal fade" id="viewStudentModal" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header bg-info text-white">
+                        <h5 class="modal-title"><i class="bi bi-person"></i> Student Profile: ${studentId}</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="text-center mb-3">
+                            <i class="bi bi-person-circle" style="font-size: 64px; color: #0dcaf0;"></i>
+                        </div>
+                        <table class="table table-borderless">
+                            <tr><td><strong>Student ID:</strong></td><td>${studentId}</td></tr>
+                            <tr><td><strong>Name:</strong></td><td>John Doe</td></tr>
+                            <tr><td><strong>Program:</strong></td><td>Computer Science</td></tr>
+                            <tr><td><strong>Year:</strong></td><td>3rd Year</td></tr>
+                            <tr><td><strong>GPA:</strong></td><td>3.75</td></tr>
+                            <tr><td><strong>Status:</strong></td><td><span class="badge bg-success">Active</span></td></tr>
+                        </table>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    const existingModal = document.getElementById('viewStudentModal');
+    if (existingModal) {
+        existingModal.remove();
+    }
+    
+    document.body.insertAdjacentHTML('beforeend', modalHtml);
+    const modal = new bootstrap.Modal(document.getElementById('viewStudentModal'));
+    modal.show();
+}
+
+function editStudent(studentId) {
+    showToast(`Editing student ${studentId}...`);
+    
+    const modalHtml = `
+        <div class="modal fade" id="editStudentModal" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header bg-success text-white">
+                        <h5 class="modal-title"><i class="bi bi-pencil"></i> Edit Student ${studentId}</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form>
+                            <div class="mb-3">
+                                <label class="form-label">Status</label>
+                                <select class="form-select" id="editStudentStatus">
+                                    <option value="Active">Active</option>
+                                    <option value="Probation">Probation</option>
+                                    <option value="Inactive">Inactive</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">GPA</label>
+                                <input type="number" class="form-control" id="editStudentGPA" min="0" max="4.0" step="0.01" value="3.50">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Program</label>
+                                <select class="form-select" id="editStudentProgram">
+                                    <option value="Computer Science">Computer Science</option>
+                                    <option value="Business Admin">Business Admin</option>
+                                    <option value="Engineering">Engineering</option>
+                                </select>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-success" onclick="saveEditStudent('${studentId}')">Save Changes</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    const existingModal = document.getElementById('editStudentModal');
+    if (existingModal) {
+        existingModal.remove();
+    }
+    
+    document.body.insertAdjacentHTML('beforeend', modalHtml);
+    const modal = new bootstrap.Modal(document.getElementById('editStudentModal'));
+    modal.show();
+}
+
+function saveEditStudent(studentId) {
+    bootstrap.Modal.getInstance(document.getElementById('editStudentModal')).hide();
+    showToast(`Student ${studentId} updated successfully!`, 'success');
+}
+
+function deleteStudent(studentId) {
+    if (confirm(`Are you sure you want to delete student ${studentId}?`)) {
+        showToast(`Student ${studentId} deleted successfully!`, 'success');
+        // Remove row from table
+        const rows = document.querySelectorAll('#student-portal-section tbody tr');
+        rows.forEach(row => {
+            if (row.cells[0].textContent === studentId) {
+                row.remove();
+            }
+        });
+    }
+}

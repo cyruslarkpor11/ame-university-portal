@@ -533,7 +533,7 @@
         <section id="student-portal-section" class="content-section d-none">
             <div class="d-flex justify-content-between mb-3">
                 <h4><i class="bi bi-mortarboard"></i> Student Portal Management</h4>
-                <button class="btn btn-primary" onclick="showToast('Enroll Student - Coming Soon')">
+                <button class="btn btn-primary" onclick="openEnrollStudentModal()">
                     <i class="bi bi-plus-lg"></i> Enroll Student
                 </button>
             </div>
@@ -612,7 +612,7 @@
                             <td>3rd Year</td>
                             <td>3.85</td>
                             <td><span class="badge bg-success">Active</span></td>
-                            <td><button class="btn btn-sm btn-outline-primary">View</button></td>
+                            <td><button class="btn btn-sm btn-outline-primary" onclick="viewStudent('STD-2024-001')">View</button> <button class="btn btn-sm btn-outline-success" onclick="editStudent('STD-2024-001')">Edit</button> <button class="btn btn-sm btn-outline-danger" onclick="deleteStudent('STD-2024-001')">Delete</button></td>
                         </tr>
                         <tr>
                             <td>STD-2024-002</td>
@@ -621,7 +621,7 @@
                             <td>2nd Year</td>
                             <td>3.45</td>
                             <td><span class="badge bg-success">Active</span></td>
-                            <td><button class="btn btn-sm btn-outline-primary">View</button></td>
+                            <td><button class="btn btn-sm btn-outline-primary" onclick="viewStudent('STD-2024-001')">View</button> <button class="btn btn-sm btn-outline-success" onclick="editStudent('STD-2024-001')">Edit</button> <button class="btn btn-sm btn-outline-danger" onclick="deleteStudent('STD-2024-001')">Delete</button></td>
                         </tr>
                         <tr>
                             <td>STD-2024-003</td>
@@ -630,7 +630,7 @@
                             <td>4th Year</td>
                             <td>3.92</td>
                             <td><span class="badge bg-warning">Probation</span></td>
-                            <td><button class="btn btn-sm btn-outline-primary">View</button></td>
+                            <td><button class="btn btn-sm btn-outline-primary" onclick="viewStudent('STD-2024-001')">View</button> <button class="btn btn-sm btn-outline-success" onclick="editStudent('STD-2024-001')">Edit</button> <button class="btn btn-sm btn-outline-danger" onclick="deleteStudent('STD-2024-001')">Delete</button></td>
                         </tr>
                     </tbody>
                 </table>
@@ -720,7 +720,7 @@
                             <td>4</td>
                             <td>Full-time</td>
                             <td><span class="badge bg-success">Active</span></td>
-                            <td><button class="btn btn-sm btn-outline-primary">View</button></td>
+                            <td><button class="btn btn-sm btn-outline-primary" onclick="viewStudent('STD-2024-001')">View</button> <button class="btn btn-sm btn-outline-success" onclick="editStudent('STD-2024-001')">Edit</button> <button class="btn btn-sm btn-outline-danger" onclick="deleteStudent('STD-2024-001')">Delete</button></td>
                         </tr>
                         <tr>
                             <td>LEC-002</td>
@@ -729,7 +729,7 @@
                             <td>3</td>
                             <td>Full-time</td>
                             <td><span class="badge bg-success">Active</span></td>
-                            <td><button class="btn btn-sm btn-outline-primary">View</button></td>
+                            <td><button class="btn btn-sm btn-outline-primary" onclick="viewStudent('STD-2024-001')">View</button> <button class="btn btn-sm btn-outline-success" onclick="editStudent('STD-2024-001')">Edit</button> <button class="btn btn-sm btn-outline-danger" onclick="deleteStudent('STD-2024-001')">Delete</button></td>
                         </tr>
                         <tr>
                             <td>LEC-003</td>
@@ -738,7 +738,7 @@
                             <td>2</td>
                             <td>Part-time</td>
                             <td><span class="badge bg-secondary">On Leave</span></td>
-                            <td><button class="btn btn-sm btn-outline-primary">View</button></td>
+                            <td><button class="btn btn-sm btn-outline-primary" onclick="viewStudent('STD-2024-001')">View</button> <button class="btn btn-sm btn-outline-success" onclick="editStudent('STD-2024-001')">Edit</button> <button class="btn btn-sm btn-outline-danger" onclick="deleteStudent('STD-2024-001')">Delete</button></td>
                         </tr>
                     </tbody>
                 </table>
