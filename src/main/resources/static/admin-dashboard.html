@@ -2,17 +2,23 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard - AME Zion University E-Portal</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#1e3a8a">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>🌍 International University E-Portal | Admin Dashboard</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
     <style>
         :root {
-            --primary-color: #667eea;
-            --secondary-color: #764ba2;
+            --primary-color: #1e3a8a;
+            --secondary-color: #3b82f6;
+            --accent-color: #f59e0b;
             --success-color: #10b981;
             --warning-color: #f59e0b;
             --danger-color: #ef4444;
+            --dark-color: #1f2937;
+            --light-color: #f3f4f6;
         }
         
         body {
@@ -22,11 +28,27 @@
         
         .sidebar {
             min-height: 100vh;
-            background: linear-gradient(180deg, var(--primary-color), var(--secondary-color));
+            background: linear-gradient(180deg, #1e3a8a 0%, #1e40af 50%, #3b82f6 100%);
             color: white;
             position: fixed;
             width: 260px;
             z-index: 1000;
+            box-shadow: 4px 0 15px rgba(0,0,0,0.1);
+        }
+        
+        .sidebar-header {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+        }
+        
+        .campus-badge {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
         }
         
         .sidebar .nav-link {
@@ -107,16 +129,29 @@
 <body>
     <!-- Sidebar -->
     <div class="sidebar">
-        <div class="p-4 text-center">
-            <h4 class="mb-0"><i class="bi bi-building"></i> AME Zion University</h4>
-            <small>Admin Portal</small>
+        <div class="sidebar-header p-4 text-center">
+            <div class="mb-2">
+                <i class="bi bi-globe-americas fs-1 text-warning"></i>
+            </div>
+            <h5 class="mb-1 fw-bold">AME Zion University</h5>
+            <div class="campus-badge mb-2">🌍 International Campus</div>
+            <small class="text-white-50">Nimba Extension</small>
+            <div class="mt-2">
+                <span class="badge bg-success">🟜──Online</span>
+            </div>
         </div>
         <nav class="nav flex-column">
             <a class="nav-link active" href="#" data-section="dashboard">
                 <i class="bi bi-speedometer2 me-2"></i> Dashboard
             </a>
+            <a class="nav-link" href="#" data-section="international">
+                <i class="bi bi-globe me-2"></i> International Students
+            </a>
             <a class="nav-link" href="#" data-section="departments">
                 <i class="bi bi-building me-2"></i> Departments
+            </a>
+            <a class="nav-link" href="#" data-section="courses">
+                <i class="bi bi-book me-2"></i> Courses & Programs
             </a>
             <a class="nav-link" href="#" data-section="announcements">
                 <i class="bi bi-megaphone me-2"></i> Announcements
@@ -128,22 +163,52 @@
                 <i class="bi bi-people me-2"></i> User Management
             </a>
             <a class="nav-link" href="#" data-section="analytics">
-                <i class="bi bi-graph-up me-2"></i> Analytics
+                <i class="bi bi-graph-up me-2"></i> Analytics & Reports
             </a>
-            <a class="nav-link" href="/logout">
+            <a class="nav-link" href="#" data-section="settings">
+                <i class="bi bi-gear me-2"></i> Settings
+            </a>
+            <a class="nav-link text-danger" href="/logout">
                 <i class="bi bi-box-arrow-right me-2"></i> Logout
             </a>
         </nav>
     </div>
 
+    <!-- Online Version Banner -->
+    <div class="alert alert-info m-0 rounded-0 text-center" style="background: linear-gradient(135deg, #1e3a8a, #3b82f6); color: white; border: none;">
+        <i class="bi bi-wifi"></i> <strong>🌐 Online Version</strong> - African Methodist Episcopal Zion University E-Portal | 
+        <span class="badge bg-warning text-dark">Live System</span> | 
+        <small>Nimba Extension Campus</small>
+    </div>
+
     <!-- Main Content -->
     <div class="main-content">
         <!-- Header -->
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h2 id="page-title">Dashboard</h2>
+        <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap">
             <div class="d-flex align-items-center gap-3">
-                <span id="current-date" class="text-muted"></span>
-                <span class="badge bg-success">Admin</span>
+                <h2 id="page-title" class="mb-0">Dashboard</h2>
+                <span class="badge bg-primary">🎓 Admin Portal</span>
+            </div>
+            <div class="d-flex align-items-center gap-3 flex-wrap mt-2 mt-md-0">
+                <div class="d-flex align-items-center gap-2 bg-white rounded-pill px-3 py-2 shadow-sm">
+                    <i class="bi bi-calendar-event text-primary"></i>
+                    <span id="current-date" class="text-muted small"></span>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                    <span class="badge bg-success">🟜── System Online</span>
+                    <span class="badge bg-info">🌍 EN/US</span>
+                </div>
+                <div class="dropdown">
+                    <button class="btn btn-light dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                        <i class="bi bi-person-circle"></i> Admin
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><a class="dropdown-item" href="#"><i class="bi bi-person"></i> Profile</a></li>
+                        <li><a class="dropdown-item" href="#"><i class="bi bi-gear"></i> Settings</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item text-danger" href="/logout"><i class="bi bi-box-arrow-right"></i> Logout</a></li>
+                    </ul>
+                </div>
             </div>
         </div>
 
@@ -334,6 +399,287 @@
                     <div class="table-container p-4">
                         <h6 class="mb-3">Department Statistics</h6>
                         <canvas id="deptChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- International Students Section -->
+        <section id="international-section" class="content-section d-none">
+            <div class="d-flex justify-content-between mb-3">
+                <h4>🌍 International Students Management</h4>
+                <button class="btn btn-primary" onclick="showToast('Add International Student - Coming Soon')">
+                    <i class="bi bi-plus-lg"></i> Add Student
+                </button>
+            </div>
+            <div class="row g-4 mb-4">
+                <div class="col-md-3">
+                    <div class="stats-card">
+                        <div class="d-flex align-items-center">
+                            <div class="stats-icon bg-info bg-opacity-10 text-info me-3">
+                                <i class="bi bi-globe"></i>
+                            </div>
+                            <div>
+                                <h4 class="mb-0" id="intl-students">156</h4>
+                                <small class="text-muted">International Students</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stats-card">
+                        <div class="d-flex align-items-center">
+                            <div class="stats-icon bg-warning bg-opacity-10 text-warning me-3">
+                                <i class="bi bi-flag"></i>
+                            </div>
+                            <div>
+                                <h4 class="mb-0">23</h4>
+                                <small class="text-muted">Countries</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stats-card">
+                        <div class="d-flex align-items-center">
+                            <div class="stats-icon bg-success bg-opacity-10 text-success me-3">
+                                <i class="bi bi-file-earmark-text"></i>
+                            </div>
+                            <div>
+                                <h4 class="mb-0">89</h4>
+                                <small class="text-muted">Active Visas</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stats-card">
+                        <div class="d-flex align-items-center">
+                            <div class="stats-icon bg-primary bg-opacity-10 text-primary me-3">
+                                <i class="bi bi-translate"></i>
+                            </div>
+                            <div>
+                                <h4 class="mb-0">12</h4>
+                                <small class="text-muted">ESL Programs</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="table-container">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Student ID</th>
+                            <th>Name</th>
+                            <th>Country</th>
+                            <th>Program</th>
+                            <th>Visa Status</th>
+                            <th>Enrollment</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>INT-2024-001</td>
+                            <td>John Smith</td>
+                            <td>🇺🇸 USA</td>
+                            <td>Computer Science</td>
+                            <td><span class="badge bg-success">Valid</span></td>
+                            <td>Full-time</td>
+                            <td><button class="btn btn-sm btn-outline-primary">View</button></td>
+                        </tr>
+                        <tr>
+                            <td>INT-2024-002</td>
+                            <td>Marie Dubois</td>
+                            <td>🇫🇷 France</td>
+                            <td>Business Admin</td>
+                            <td><span class="badge bg-success">Valid</span></td>
+                            <td>Full-time</td>
+                            <td><button class="btn btn-sm btn-outline-primary">View</button></td>
+                        </tr>
+                        <tr>
+                            <td>INT-2024-003</td>
+                            <td>Chen Wei</td>
+                            <td>🇨🇳 China</td>
+                            <td>Engineering</td>
+                            <td><span class="badge bg-warning">Renewing</span></td>
+                            <td>Full-time</td>
+                            <td><button class="btn btn-sm btn-outline-primary">View</button></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Courses Section -->
+        <section id="courses-section" class="content-section d-none">
+            <div class="d-flex justify-content-between mb-3">
+                <h4>📚 Courses & Academic Programs</h4>
+                <button class="btn btn-primary" onclick="showToast('Add Course - Coming Soon')">
+                    <i class="bi bi-plus-lg"></i> Add Course
+                </button>
+            </div>
+            <div class="row g-4 mb-4">
+                <div class="col-md-3">
+                    <div class="stats-card">
+                        <div class="d-flex align-items-center">
+                            <div class="stats-icon bg-primary bg-opacity-10 text-primary me-3">
+                                <i class="bi bi-book"></i>
+                            </div>
+                            <div>
+                                <h4 class="mb-0">48</h4>
+                                <small class="text-muted">Active Courses</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stats-card">
+                        <div class="d-flex align-items-center">
+                            <div class="stats-icon bg-success bg-opacity-10 text-success me-3">
+                                <i class="bi bi-mortarboard"></i>
+                            </div>
+                            <div>
+                                <h4 class="mb-0">12</h4>
+                                <small class="text-muted">Degree Programs</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stats-card">
+                        <div class="d-flex align-items-center">
+                            <div class="stats-icon bg-info bg-opacity-10 text-info me-3">
+                                <i class="bi bi-laptop"></i>
+                            </div>
+                            <div>
+                                <h4 class="mb-0">8</h4>
+                                <small class="text-muted">Online Courses</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stats-card">
+                        <div class="d-flex align-items-center">
+                            <div class="stats-icon bg-warning bg-opacity-10 text-warning me-3">
+                                <i class="bi bi-people"></i>
+                            </div>
+                            <div>
+                                <h4 class="mb-0">1,245</h4>
+                                <small class="text-muted">Enrollments</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="table-container">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Course Code</th>
+                            <th>Course Name</th>
+                            <th>Department</th>
+                            <th>Credits</th>
+                            <th>Format</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>CS-101</td>
+                            <td>Introduction to Programming</td>
+                            <td>Computer Science</td>
+                            <td>3</td>
+                            <td><span class="badge bg-primary">Hybrid</span></td>
+                            <td><span class="badge bg-success">Active</span></td>
+                            <td><button class="btn btn-sm btn-outline-primary">Edit</button></td>
+                        </tr>
+                        <tr>
+                            <td>BUS-201</td>
+                            <td>Business Management</td>
+                            <td>Business</td>
+                            <td>4</td>
+                            <td><span class="badge bg-info">Online</span></td>
+                            <td><span class="badge bg-success">Active</span></td>
+                            <td><button class="btn btn-sm btn-outline-primary">Edit</button></td>
+                        </tr>
+                        <tr>
+                            <td>ENG-301</td>
+                            <td>Advanced English Composition</td>
+                            <td>English</td>
+                            <td>3</td>
+                            <td><span class="badge bg-secondary">On Campus</span></td>
+                            <td><span class="badge bg-success">Active</span></td>
+                            <td><button class="btn btn-sm btn-outline-primary">Edit</button></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Settings Section -->
+        <section id="settings-section" class="content-section d-none">
+            <h4 class="mb-4">⚙️ System Settings</h4>
+            <div class="row g-4">
+                <div class="col-md-6">
+                    <div class="table-container p-4">
+                        <h5 class="mb-3"><i class="bi bi-globe"></i> Internationalization</h5>
+                        <div class="mb-3">
+                            <label class="form-label">Default Language</label>
+                            <select class="form-select">
+                                <option selected>🇺🇸 English (US)</option>
+                                <option>🇫🇷 Français</option>
+                                <option>🇪🇸 Español</option>
+                                <option>🇨🇳 中文</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Time Zone</label>
+                            <select class="form-select">
+                                <option selected>UTC (GMT+0)</option>
+                                <option>EST (GMT-5)</option>
+                                <option>CST (GMT-6)</option>
+                                <option>PST (GMT-8)</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Date Format</label>
+                            <select class="form-select">
+                                <option selected>MM/DD/YYYY</option>
+                                <option>DD/MM/YYYY</option>
+                                <option>YYYY-MM-DD</option>
+                            </select>
+                        </div>
+                        <button class="btn btn-primary" onclick="showToast('Settings Saved')">Save Changes</button>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="table-container p-4">
+                        <h5 class="mb-3"><i class="bi bi-shield-check"></i> Security</h5>
+                        <div class="form-check form-switch mb-3">
+                            <input class="form-check-input" type="checkbox" checked>
+                            <label class="form-check-label">Two-Factor Authentication</label>
+                        </div>
+                        <div class="form-check form-switch mb-3">
+                            <input class="form-check-input" type="checkbox" checked>
+                            <label class="form-check-label">Session Timeout (30 min)</label>
+                        </div>
+                        <div class="form-check form-switch mb-3">
+                            <input class="form-check-input" type="checkbox">
+                            <label class="form-check-label">IP Restriction</label>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Password Policy</label>
+                            <select class="form-select">
+                                <option selected>Strong (8+ chars, mixed)</option>
+                                <option>Medium (6+ chars)</option>
+                                <option>Basic (4+ chars)</option>
+                            </select>
+                        </div>
+                        <button class="btn btn-primary" onclick="showToast('Security Settings Saved')">Save Security</button>
                     </div>
                 </div>
             </div>
