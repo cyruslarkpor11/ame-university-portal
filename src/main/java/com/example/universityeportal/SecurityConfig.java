@@ -40,14 +40,7 @@ public class SecurityConfig {
         "/offline-lecturer.html",
         "/offline-student.html",
         "/service-worker.js",
-        "/admin-dashboard.html",
-        "/admin-dashboard.js",
-        "/lecturer-dashboard.html",
-        "/lecturer-dashboard.js",
-        "/student-dashboard.html",
-        "/student-dashboard.js",
         "/api/users/login",
-        "/api/users/**",
         "/api/departments/**",
         "/api/announcements/**",
         "/api/calendar/**",
@@ -82,9 +75,9 @@ public class SecurityConfig {
         http
             .authorizeHttpRequests(authz -> authz
                 .requestMatchers(PUBLIC_MATCHERS).permitAll()
-                .requestMatchers("/api/admin/**").hasRole("ADMIN")
-                .requestMatchers("/api/lecturer/**").hasAnyRole("LECTURER", "ADMIN")
-                .requestMatchers("/api/student/**").hasAnyRole("STUDENT", "ADMIN")
+                .requestMatchers("/admin-dashboard.html", "/admin-dashboard.js", "/api/admin/**").hasRole("ADMIN")
+                .requestMatchers("/lecturer-dashboard.html", "/lecturer-dashboard.js", "/api/lecturer/**").hasAnyRole("LECTURER", "ADMIN")
+                .requestMatchers("/student-dashboard.html", "/student-dashboard.js", "/api/student/**").hasAnyRole("STUDENT", "ADMIN")
                 .anyRequest().authenticated()
             )
             .formLogin(form -> form
