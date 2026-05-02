@@ -33,15 +33,20 @@ public class HomeController {
         String username = authentication.getName();
         model.addAttribute("username", username);
 
-        authentication.getAuthorities().forEach(auth -> {
-            if (auth.getAuthority().equals("ROLE_ADMIN")) {
+        // Redirect based on role
+        for (var auth : authentication.getAuthorities()) {
+            String authority = auth.getAuthority();
+            if (authority.equals("ROLE_ADMIN")) {
                 model.addAttribute("role", "ADMIN");
-            } else if (auth.getAuthority().equals("ROLE_LECTURER")) {
+                return "redirect:/admin-dashboard.html";
+            } else if (authority.equals("ROLE_LECTURER")) {
                 model.addAttribute("role", "LECTURER");
-            } else if (auth.getAuthority().equals("ROLE_STUDENT")) {
+                return "redirect:/lecturer-dashboard.html";
+            } else if (authority.equals("ROLE_STUDENT")) {
                 model.addAttribute("role", "STUDENT");
+                return "redirect:/student-dashboard.html";
             }
-        });
+        }
 
         return "home";
     }
