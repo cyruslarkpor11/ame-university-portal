@@ -8,7 +8,7 @@ echo.
 tasklist | findstr "java.exe" >nul 2>&1
 if %errorlevel% == 0 (
     echo [INFO] Spring Boot is already running!
-    echo [INFO] Access the portal at: http://localhost:8080
+    echo [INFO] Access the portal at: http://localhost:8081
     echo.
     goto :menu
 ) else (
@@ -24,7 +24,7 @@ if %errorlevel% == 0 (
 echo ==========================================
 echo   PORTAL URLS:
 echo ==========================================
-echo   Online:  http://localhost:8080/login
+echo   Online:  http://localhost:8081/login
 echo   Offline: https://phobia-vagrancy-kerosene.ngrok-free.dev/offline-login.html
 echo.
 echo   Default Login:
@@ -36,7 +36,7 @@ echo Press any key to open the portal in browser...
 pause >nul
 
 :: Open browser
-start http://localhost:8080/login
+start http://localhost:8081/login
 
 echo.
 echo [INFO] Browser opened!
