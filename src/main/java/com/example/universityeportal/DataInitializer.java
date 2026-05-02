@@ -26,9 +26,18 @@ public class DataInitializer implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-        createOrUpdateUser("student", "student", "student@example.com", Role.STUDENT);
-        createOrUpdateUser("lecturer", "lecturer", "lecturer@example.com", Role.LECTURER);
-        createOrUpdateUser("admin", "admin", "admin@example.com", Role.ADMIN);
+        // Create default users with correct passwords
+        createOrUpdateUser("student", "student123", "student@example.com", Role.STUDENT);
+        createOrUpdateUser("lecturer", "lecturer123", "lecturer@example.com", Role.LECTURER);
+        createOrUpdateUser("admin", "admin123", "admin@example.com", Role.ADMIN);
+        
+        System.out.println("========================================");
+        System.out.println("  DEFAULT USERS CREATED:");
+        System.out.println("========================================");
+        System.out.println("  Admin:     admin / admin123");
+        System.out.println("  Lecturer:  lecturer / lecturer123");
+        System.out.println("  Student:   student / student123");
+        System.out.println("========================================");
 
         if (courseRepository.count() == 0) {
             Course course1 = new Course();
