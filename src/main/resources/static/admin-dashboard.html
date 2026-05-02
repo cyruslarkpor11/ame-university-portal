@@ -142,11 +142,21 @@
         </div>
         <nav class="nav flex-column">
             <a class="nav-link active" href="#" data-section="dashboard">
-                <i class="bi bi-speedometer2 me-2"></i> Dashboard
+                <i class="bi bi-speedometer2 me-2"></i> 🟜──Online Dashboard
             </a>
-            <a class="nav-link" href="#" data-section="international">
-                <i class="bi bi-globe me-2"></i> International Students
+            <hr class="text-white-50 my-2">
+            <small class="text-white-50 px-3">PORTALS</small>
+            <a class="nav-link" href="#" data-section="admin-portal">
+                <i class="bi bi-shield-lock me-2"></i> Admin Portal
             </a>
+            <a class="nav-link" href="#" data-section="student-portal">
+                <i class="bi bi-mortarboard me-2"></i> Student Portal
+            </a>
+            <a class="nav-link" href="#" data-section="lecturer-portal">
+                <i class="bi bi-person-workspace me-2"></i> Lecturer Portal
+            </a>
+            <hr class="text-white-50 my-2">
+            <small class="text-white-50 px-3">ACADEMIC</small>
             <a class="nav-link" href="#" data-section="departments">
                 <i class="bi bi-building me-2"></i> Departments
             </a>
@@ -159,6 +169,13 @@
             <a class="nav-link" href="#" data-section="calendar">
                 <i class="bi bi-calendar-event me-2"></i> Academic Calendar
             </a>
+            <hr class="text-white-50 my-2">
+            <small class="text-white-50 px-3">COMMUNICATION</small>
+            <a class="nav-link" href="#" data-section="chat-room">
+                <i class="bi bi-chat-dots me-2"></i> Chat Room
+            </a>
+            <hr class="text-white-50 my-2">
+            <small class="text-white-50 px-3">MANAGEMENT</small>
             <a class="nav-link" href="#" data-section="users">
                 <i class="bi bi-people me-2"></i> User Management
             </a>
@@ -404,37 +421,24 @@
             </div>
         </section>
 
-        <!-- International Students Section -->
-        <section id="international-section" class="content-section d-none">
+        <!-- Admin Portal Section -->
+        <section id="admin-portal-section" class="content-section d-none">
             <div class="d-flex justify-content-between mb-3">
-                <h4>🌍 International Students Management</h4>
-                <button class="btn btn-primary" onclick="showToast('Add International Student - Coming Soon')">
-                    <i class="bi bi-plus-lg"></i> Add Student
+                <h4><i class="bi bi-shield-lock"></i> Admin Portal Management</h4>
+                <button class="btn btn-primary" onclick="showToast('Admin Action - Coming Soon')">
+                    <i class="bi bi-plus-lg"></i> Add Admin
                 </button>
             </div>
             <div class="row g-4 mb-4">
                 <div class="col-md-3">
                     <div class="stats-card">
                         <div class="d-flex align-items-center">
-                            <div class="stats-icon bg-info bg-opacity-10 text-info me-3">
-                                <i class="bi bi-globe"></i>
+                            <div class="stats-icon bg-primary bg-opacity-10 text-primary me-3">
+                                <i class="bi bi-shield-lock"></i>
                             </div>
                             <div>
-                                <h4 class="mb-0" id="intl-students">156</h4>
-                                <small class="text-muted">International Students</small>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="stats-card">
-                        <div class="d-flex align-items-center">
-                            <div class="stats-icon bg-warning bg-opacity-10 text-warning me-3">
-                                <i class="bi bi-flag"></i>
-                            </div>
-                            <div>
-                                <h4 class="mb-0">23</h4>
-                                <small class="text-muted">Countries</small>
+                                <h4 class="mb-0">5</h4>
+                                <small class="text-muted">Total Admins</small>
                             </div>
                         </div>
                     </div>
@@ -443,11 +447,11 @@
                     <div class="stats-card">
                         <div class="d-flex align-items-center">
                             <div class="stats-icon bg-success bg-opacity-10 text-success me-3">
-                                <i class="bi bi-file-earmark-text"></i>
+                                <i class="bi bi-check-circle"></i>
                             </div>
                             <div>
-                                <h4 class="mb-0">89</h4>
-                                <small class="text-muted">Active Visas</small>
+                                <h4 class="mb-0">4</h4>
+                                <small class="text-muted">Active Admins</small>
                             </div>
                         </div>
                     </div>
@@ -455,12 +459,133 @@
                 <div class="col-md-3">
                     <div class="stats-card">
                         <div class="d-flex align-items-center">
-                            <div class="stats-icon bg-primary bg-opacity-10 text-primary me-3">
-                                <i class="bi bi-translate"></i>
+                            <div class="stats-icon bg-info bg-opacity-10 text-info me-3">
+                                <i class="bi bi-clock-history"></i>
                             </div>
                             <div>
                                 <h4 class="mb-0">12</h4>
-                                <small class="text-muted">ESL Programs</small>
+                                <small class="text-muted">Logins Today</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stats-card">
+                        <div class="d-flex align-items-center">
+                            <div class="stats-icon bg-warning bg-opacity-10 text-warning me-3">
+                                <i class="bi bi-key"></i>
+                            </div>
+                            <div>
+                                <h4 class="mb-0">3</h4>
+                                <small class="text-muted">Permissions</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="table-container">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Admin ID</th>
+                            <th>Name</th>
+                            <th>Role</th>
+                            <th>Department</th>
+                            <th>Status</th>
+                            <th>Last Login</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>ADM-001</td>
+                            <td>Dr. James Wilson</td>
+                            <td>Super Admin</td>
+                            <td>All</td>
+                            <td><span class="badge bg-success">Active</span></td>
+                            <td>2 mins ago</td>
+                            <td><button class="btn btn-sm btn-outline-primary">Manage</button></td>
+                        </tr>
+                        <tr>
+                            <td>ADM-002</td>
+                            <td>Prof. Sarah Johnson</td>
+                            <td>Academic Admin</td>
+                            <td>Computer Science</td>
+                            <td><span class="badge bg-success">Active</span></td>
+                            <td>1 hour ago</td>
+                            <td><button class="btn btn-sm btn-outline-primary">Manage</button></td>
+                        </tr>
+                        <tr>
+                            <td>ADM-003</td>
+                            <td>Mr. Michael Brown</td>
+                            <td>Finance Admin</td>
+                            <td>Finance</td>
+                            <td><span class="badge bg-secondary">Offline</span></td>
+                            <td>Yesterday</td>
+                            <td><button class="btn btn-sm btn-outline-primary">Manage</button></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Student Portal Section -->
+        <section id="student-portal-section" class="content-section d-none">
+            <div class="d-flex justify-content-between mb-3">
+                <h4><i class="bi bi-mortarboard"></i> Student Portal Management</h4>
+                <button class="btn btn-primary" onclick="showToast('Enroll Student - Coming Soon')">
+                    <i class="bi bi-plus-lg"></i> Enroll Student
+                </button>
+            </div>
+            <div class="row g-4 mb-4">
+                <div class="col-md-3">
+                    <div class="stats-card">
+                        <div class="d-flex align-items-center">
+                            <div class="stats-icon bg-primary bg-opacity-10 text-primary me-3">
+                                <i class="bi bi-people"></i>
+                            </div>
+                            <div>
+                                <h4 class="mb-0">2,456</h4>
+                                <small class="text-muted">Total Students</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stats-card">
+                        <div class="d-flex align-items-center">
+                            <div class="stats-icon bg-success bg-opacity-10 text-success me-3">
+                                <i class="bi bi-person-check"></i>
+                            </div>
+                            <div>
+                                <h4 class="mb-0">1,892</h4>
+                                <small class="text-muted">Active Students</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stats-card">
+                        <div class="d-flex align-items-center">
+                            <div class="stats-icon bg-info bg-opacity-10 text-info me-3">
+                                <i class="bi bi-globe"></i>
+                            </div>
+                            <div>
+                                <h4 class="mb-0">564</h4>
+                                <small class="text-muted">International</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stats-card">
+                        <div class="d-flex align-items-center">
+                            <div class="stats-icon bg-warning bg-opacity-10 text-warning me-3">
+                                <i class="bi bi-calendar-check"></i>
+                            </div>
+                            <div>
+                                <h4 class="mb-0">89</h4>
+                                <small class="text-muted">New This Month</small>
                             </div>
                         </div>
                     </div>
@@ -472,43 +597,259 @@
                         <tr>
                             <th>Student ID</th>
                             <th>Name</th>
-                            <th>Country</th>
                             <th>Program</th>
-                            <th>Visa Status</th>
-                            <th>Enrollment</th>
+                            <th>Year</th>
+                            <th>GPA</th>
+                            <th>Status</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr>
-                            <td>INT-2024-001</td>
-                            <td>John Smith</td>
-                            <td>🇺🇸 USA</td>
+                            <td>STD-2024-001</td>
+                            <td>Alice Johnson</td>
                             <td>Computer Science</td>
-                            <td><span class="badge bg-success">Valid</span></td>
-                            <td>Full-time</td>
+                            <td>3rd Year</td>
+                            <td>3.85</td>
+                            <td><span class="badge bg-success">Active</span></td>
                             <td><button class="btn btn-sm btn-outline-primary">View</button></td>
                         </tr>
                         <tr>
-                            <td>INT-2024-002</td>
-                            <td>Marie Dubois</td>
-                            <td>🇫🇷 France</td>
+                            <td>STD-2024-002</td>
+                            <td>Bob Williams</td>
                             <td>Business Admin</td>
-                            <td><span class="badge bg-success">Valid</span></td>
-                            <td>Full-time</td>
+                            <td>2nd Year</td>
+                            <td>3.45</td>
+                            <td><span class="badge bg-success">Active</span></td>
                             <td><button class="btn btn-sm btn-outline-primary">View</button></td>
                         </tr>
                         <tr>
-                            <td>INT-2024-003</td>
-                            <td>Chen Wei</td>
-                            <td>🇨🇳 China</td>
+                            <td>STD-2024-003</td>
+                            <td>Carol Davis</td>
                             <td>Engineering</td>
-                            <td><span class="badge bg-warning">Renewing</span></td>
-                            <td>Full-time</td>
+                            <td>4th Year</td>
+                            <td>3.92</td>
+                            <td><span class="badge bg-warning">Probation</span></td>
                             <td><button class="btn btn-sm btn-outline-primary">View</button></td>
                         </tr>
                     </tbody>
                 </table>
+            </div>
+        </section>
+
+        <!-- Lecturer Portal Section -->
+        <section id="lecturer-portal-section" class="content-section d-none">
+            <div class="d-flex justify-content-between mb-3">
+                <h4><i class="bi bi-person-workspace"></i> Lecturer Portal Management</h4>
+                <button class="btn btn-primary" onclick="showToast('Add Lecturer - Coming Soon')">
+                    <i class="bi bi-plus-lg"></i> Add Lecturer
+                </button>
+            </div>
+            <div class="row g-4 mb-4">
+                <div class="col-md-3">
+                    <div class="stats-card">
+                        <div class="d-flex align-items-center">
+                            <div class="stats-icon bg-primary bg-opacity-10 text-primary me-3">
+                                <i class="bi bi-person-workspace"></i>
+                            </div>
+                            <div>
+                                <h4 class="mb-0">127</h4>
+                                <small class="text-muted">Total Lecturers</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stats-card">
+                        <div class="d-flex align-items-center">
+                            <div class="stats-icon bg-success bg-opacity-10 text-success me-3">
+                                <i class="bi bi-check-circle"></i>
+                            </div>
+                            <div>
+                                <h4 class="mb-0">98</h4>
+                                <small class="text-muted">Full-time</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stats-card">
+                        <div class="d-flex align-items-center">
+                            <div class="stats-icon bg-info bg-opacity-10 text-info me-3">
+                                <i class="bi bi-clock"></i>
+                            </div>
+                            <div>
+                                <h4 class="mb-0">29</h4>
+                                <small class="text-muted">Part-time</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stats-card">
+                        <div class="d-flex align-items-center">
+                            <div class="stats-icon bg-warning bg-opacity-10 text-warning me-3">
+                                <i class="bi bi-book"></i>
+                            </div>
+                            <div>
+                                <h4 class="mb-0">342</h4>
+                                <small class="text-muted">Classes Taught</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="table-container">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Lecturer ID</th>
+                            <th>Name</th>
+                            <th>Department</th>
+                            <th>Courses</th>
+                            <th>Type</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>LEC-001</td>
+                            <td>Dr. Robert Smith</td>
+                            <td>Computer Science</td>
+                            <td>4</td>
+                            <td>Full-time</td>
+                            <td><span class="badge bg-success">Active</span></td>
+                            <td><button class="btn btn-sm btn-outline-primary">View</button></td>
+                        </tr>
+                        <tr>
+                            <td>LEC-002</td>
+                            <td>Prof. Emily Chen</td>
+                            <td>Mathematics</td>
+                            <td>3</td>
+                            <td>Full-time</td>
+                            <td><span class="badge bg-success">Active</span></td>
+                            <td><button class="btn btn-sm btn-outline-primary">View</button></td>
+                        </tr>
+                        <tr>
+                            <td>LEC-003</td>
+                            <td>Dr. Michael Brown</td>
+                            <td>Physics</td>
+                            <td>2</td>
+                            <td>Part-time</td>
+                            <td><span class="badge bg-secondary">On Leave</span></td>
+                            <td><button class="btn btn-sm btn-outline-primary">View</button></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Chat Room Section -->
+        <section id="chat-room-section" class="content-section d-none">
+            <div class="d-flex justify-content-between mb-3">
+                <h4><i class="bi bi-chat-dots"></i> Chat Room Management</h4>
+                <button class="btn btn-primary" onclick="showToast('Create Chat Room - Coming Soon')">
+                    <i class="bi bi-plus-lg"></i> New Room
+                </button>
+            </div>
+            <div class="row g-4 mb-4">
+                <div class="col-md-3">
+                    <div class="stats-card">
+                        <div class="d-flex align-items-center">
+                            <div class="stats-icon bg-primary bg-opacity-10 text-primary me-3">
+                                <i class="bi bi-chat-square"></i>
+                            </div>
+                            <div>
+                                <h4 class="mb-0">24</h4>
+                                <small class="text-muted">Active Rooms</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stats-card">
+                        <div class="d-flex align-items-center">
+                            <div class="stats-icon bg-success bg-opacity-10 text-success me-3">
+                                <i class="bi bi-person"></i>
+                            </div>
+                            <div>
+                                <h4 class="mb-0">156</h4>
+                                <small class="text-muted">Online Users</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stats-card">
+                        <div class="d-flex align-items-center">
+                            <div class="stats-icon bg-info bg-opacity-10 text-info me-3">
+                                <i class="bi bi-chat"></i>
+                            </div>
+                            <div>
+                                <h4 class="mb-0">1,245</h4>
+                                <small class="text-muted">Messages Today</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stats-card">
+                        <div class="d-flex align-items-center">
+                            <div class="stats-icon bg-warning bg-opacity-10 text-warning me-3">
+                                <i class="bi bi-archive"></i>
+                            </div>
+                            <div>
+                                <h4 class="mb-0">8</h4>
+                                <small class="text-muted">Archived</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <div class="card h-100">
+                        <div class="card-header bg-primary text-white">
+                            <i class="bi bi-globe"></i> General Discussion
+                        </div>
+                        <div class="card-body">
+                            <p class="text-muted small">Main university discussion room</p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="badge bg-success">45 online</span>
+                                <button class="btn btn-sm btn-outline-primary">Enter</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <div class="card h-100">
+                        <div class="card-header bg-info text-white">
+                            <i class="bi bi-mortarboard"></i> Academic Support
+                        </div>
+                        <div class="card-body">
+                            <p class="text-muted small">Student help and tutoring</p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="badge bg-success">23 online</span>
+                                <button class="btn btn-sm btn-outline-primary">Enter</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <div class="card h-100">
+                        <div class="card-header bg-success text-white">
+                            <i class="bi bi-briefcase"></i> Career Center
+                        </div>
+                        <div class="card-body">
+                            <p class="text-muted small">Job and internship discussions</p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="badge bg-success">12 online</span>
+                                <button class="btn btn-sm btn-outline-primary">Enter</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </section>
 
