@@ -34,6 +34,9 @@ public class StudentController {
 
     @PostMapping("/enroll/{courseId}")
     public String enroll(Authentication authentication, @PathVariable Long courseId) {
+        if (courseId == null) {
+            throw new IllegalArgumentException("Course ID cannot be null");
+        }
         User student = userRepository.findByUsername(authentication.getName())
                 .orElseThrow(() -> new IllegalArgumentException("Student account not found"));
         Course course = courseRepository.findById(courseId)
