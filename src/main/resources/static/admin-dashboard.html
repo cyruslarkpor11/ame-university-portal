@@ -857,7 +857,7 @@
         <section id="courses-section" class="content-section d-none">
             <div class="d-flex justify-content-between mb-3">
                 <h4>📚 Courses & Academic Programs</h4>
-                <button class="btn btn-primary" onclick="showToast('Add Course - Coming Soon')">
+                <button class="btn btn-primary" onclick="openAddCourseModal()">
                     <i class="bi bi-plus-lg"></i> Add Course
                 </button>
             </div>
@@ -936,7 +936,7 @@
                             <td>3</td>
                             <td><span class="badge bg-primary">Hybrid</span></td>
                             <td><span class="badge bg-success">Active</span></td>
-                            <td><button class="btn btn-sm btn-outline-primary">Edit</button></td>
+                            <td><button class="btn btn-sm btn-outline-primary" onclick="viewCourse('CS-101')">View</button> <button class="btn btn-sm btn-outline-success" onclick="editCourse('CS-101')">Edit</button> <button class="btn btn-sm btn-outline-danger" onclick="deleteCourse('CS-101')">Delete</button></td>
                         </tr>
                         <tr>
                             <td>BUS-201</td>
@@ -945,7 +945,7 @@
                             <td>4</td>
                             <td><span class="badge bg-info">Online</span></td>
                             <td><span class="badge bg-success">Active</span></td>
-                            <td><button class="btn btn-sm btn-outline-primary">Edit</button></td>
+                            <td><button class="btn btn-sm btn-outline-primary" onclick="viewCourse('CS-101')">View</button> <button class="btn btn-sm btn-outline-success" onclick="editCourse('CS-101')">Edit</button> <button class="btn btn-sm btn-outline-danger" onclick="deleteCourse('CS-101')">Delete</button></td>
                         </tr>
                         <tr>
                             <td>ENG-301</td>
@@ -954,7 +954,7 @@
                             <td>3</td>
                             <td><span class="badge bg-secondary">On Campus</span></td>
                             <td><span class="badge bg-success">Active</span></td>
-                            <td><button class="btn btn-sm btn-outline-primary">Edit</button></td>
+                            <td><button class="btn btn-sm btn-outline-primary" onclick="viewCourse('CS-101')">View</button> <button class="btn btn-sm btn-outline-success" onclick="editCourse('CS-101')">Edit</button> <button class="btn btn-sm btn-outline-danger" onclick="deleteCourse('CS-101')">Delete</button></td>
                         </tr>
                     </tbody>
                 </table>

@@ -1386,3 +1386,301 @@ function deleteLecturer(lecturerId) {
         });
     }
 }
+
+// Course Management Functions
+function openAddCourseModal() {
+    showToast('Add Course - Opening form...');
+    const modalHtml = `
+        <div class="modal fade" id="addCourseModal" tabindex="-1">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header bg-primary text-white">
+                        <h5 class="modal-title"><i class="bi bi-book-plus"></i> Add New Course</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="addCourseForm">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label fw-bold">Course Code</label>
+                                    <input type="text" class="form-control" id="courseCode" placeholder="e.g., CS-101" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label fw-bold">Course Name</label>
+                                    <input type="text" class="form-control" id="courseName" placeholder="e.g., Introduction to Programming" required>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label fw-bold">Department</label>
+                                    <select class="form-select" id="courseDepartment">
+                                        <option value="Computer Science">Computer Science</option>
+                                        <option value="Mathematics">Mathematics</option>
+                                        <option value="Physics">Physics</option>
+                                        <option value="Chemistry">Chemistry</option>
+                                        <option value="Biology">Biology</option>
+                                        <option value="Business">Business</option>
+                                        <option value="English">English</option>
+                                        <option value="Engineering">Engineering</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label fw-bold">Credits</label>
+                                    <input type="number" class="form-control" id="courseCredits" min="1" max="6" value="3">
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label fw-bold">Format</label>
+                                    <select class="form-select" id="courseFormat">
+                                        <option value="Hybrid">Hybrid</option>
+                                        <option value="Online">Online</option>
+                                        <option value="On Campus">On Campus</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label fw-bold">Status</label>
+                                    <select class="form-select" id="courseStatus">
+                                        <option value="Active">Active</option>
+                                        <option value="Inactive">Inactive</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-primary" onclick="saveCourse()">
+                            <i class="bi bi-check-lg"></i> Add Course
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    const existingModal = document.getElementById('addCourseModal');
+    if (existingModal) {
+        existingModal.remove();
+    }
+    
+    document.body.insertAdjacentHTML('beforeend', modalHtml);
+    const modal = new bootstrap.Modal(document.getElementById('addCourseModal'));
+    modal.show();
+}
+
+function saveCourse() {
+    const courseCode = document.getElementById('courseCode').value;
+    const courseName = document.getElementById('courseName').value;
+    const department = document.getElementById('courseDepartment').value;
+    const credits = document.getElementById('courseCredits').value;
+    const format = document.getElementById('courseFormat').value;
+    const status = document.getElementById('courseStatus').value;
+    
+    if (!courseCode || !courseName) {
+        showToast('Please fill in Course Code and Course Name', 'danger');
+        return;
+    }
+    
+    // Add to table
+    const tbody = document.querySelector('#courses-section tbody');
+    
+    // Determine badge class for format
+    let formatBadgeClass = 'bg-primary';
+    if (format === 'Online') formatBadgeClass = 'bg-info';
+    if (format === 'On Campus') formatBadgeClass = 'bg-secondary';
+    
+    const newRow = `
+        <tr>
+            <td>${courseCode}</td>
+            <td>${courseName}</td>
+            <td>${department}</td>
+            <td>${credits}</td>
+            <td><span class="badge ${formatBadgeClass}">${format}</span></td>
+            <td><span class="badge bg-${status === 'Active' ? 'success' : 'secondary'}">${status}</span></td>
+            <td>
+                <button class="btn btn-sm btn-outline-primary" onclick="viewCourse('${courseCode}')">View</button>
+                <button class="btn btn-sm btn-outline-success" onclick="editCourse('${courseCode}')">Edit</button>
+                <button class="btn btn-sm btn-outline-danger" onclick="deleteCourse('${courseCode}')">Delete</button>
+            </td>
+        </tr>
+    `;
+    tbody.insertAdjacentHTML('beforeend', newRow);
+    
+    bootstrap.Modal.getInstance(document.getElementById('addCourseModal')).hide();
+    showToast('Course added successfully!', 'success');
+}
+
+function viewCourse(courseCode) {
+    showToast(`Viewing course ${courseCode} details...`);
+    
+    const modalHtml = `
+        <div class="modal fade" id="viewCourseModal" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header bg-info text-white">
+                        <h5 class="modal-title"><i class="bi bi-book"></i> Course Details: ${courseCode}</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="text-center mb-3">
+                            <i class="bi bi-journal-text" style="font-size: 64px; color: #0dcaf0;"></i>
+                        </div>
+                        <table class="table table-borderless">
+                            <tr><td><strong>Course Code:</strong></td><td>${courseCode}</td></tr>
+                            <tr><td><strong>Course Name:</strong></td><td>Introduction to Programming</td></tr>
+                            <tr><td><strong>Department:</strong></td><td>Computer Science</td></tr>
+                            <tr><td><strong>Credits:</strong></td><td>3</td></tr>
+                            <tr><td><strong>Format:</strong></td><td><span class="badge bg-primary">Hybrid</span></td></tr>
+                            <tr><td><strong>Status:</strong></td><td><span class="badge bg-success">Active</span></td></tr>
+                        </table>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    const existingModal = document.getElementById('viewCourseModal');
+    if (existingModal) {
+        existingModal.remove();
+    }
+    
+    document.body.insertAdjacentHTML('beforeend', modalHtml);
+    const modal = new bootstrap.Modal(document.getElementById('viewCourseModal'));
+    modal.show();
+}
+
+function editCourse(courseCode) {
+    showToast(`Editing course ${courseCode}...`);
+    
+    const modalHtml = `
+        <div class="modal fade" id="editCourseModal" tabindex="-1">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header bg-success text-white">
+                        <h5 class="modal-title"><i class="bi bi-pencil"></i> Edit Course: ${courseCode}</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="editCourseForm">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label fw-bold">Course Code</label>
+                                    <input type="text" class="form-control" id="editCourseCode" value="${courseCode}" readonly>
+                                    <small class="text-muted">Course Code cannot be changed</small>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label fw-bold">Course Name</label>
+                                    <input type="text" class="form-control" id="editCourseName" value="Course Name" required>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label fw-bold">Department</label>
+                                    <select class="form-select" id="editCourseDepartment">
+                                        <option value="Computer Science">Computer Science</option>
+                                        <option value="Mathematics">Mathematics</option>
+                                        <option value="Physics">Physics</option>
+                                        <option value="Chemistry">Chemistry</option>
+                                        <option value="Biology">Biology</option>
+                                        <option value="Business">Business</option>
+                                        <option value="English">English</option>
+                                        <option value="Engineering">Engineering</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label fw-bold">Credits</label>
+                                    <input type="number" class="form-control" id="editCourseCredits" min="1" max="6" value="3">
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label fw-bold">Format</label>
+                                    <select class="form-select" id="editCourseFormat">
+                                        <option value="Hybrid">Hybrid</option>
+                                        <option value="Online">Online</option>
+                                        <option value="On Campus">On Campus</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label fw-bold">Status</label>
+                                    <select class="form-select" id="editCourseStatus">
+                                        <option value="Active">Active</option>
+                                        <option value="Inactive">Inactive</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-success" onclick="saveEditCourse('${courseCode}')">
+                            <i class="bi bi-check-lg"></i> Save Changes
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    const existingModal = document.getElementById('editCourseModal');
+    if (existingModal) {
+        existingModal.remove();
+    }
+    
+    document.body.insertAdjacentHTML('beforeend', modalHtml);
+    const modal = new bootstrap.Modal(document.getElementById('editCourseModal'));
+    modal.show();
+}
+
+function saveEditCourse(courseCode) {
+    const name = document.getElementById('editCourseName').value;
+    const department = document.getElementById('editCourseDepartment').value;
+    const credits = document.getElementById('editCourseCredits').value;
+    const format = document.getElementById('editCourseFormat').value;
+    const status = document.getElementById('editCourseStatus').value;
+    
+    if (!name) {
+        showToast('Please enter course name', 'danger');
+        return;
+    }
+    
+    // Find and update the row in the table
+    const rows = document.querySelectorAll('#courses-section tbody tr');
+    rows.forEach(row => {
+        if (row.cells[0].textContent === courseCode) {
+            row.cells[1].textContent = name;
+            row.cells[2].textContent = department;
+            row.cells[3].textContent = credits;
+            
+            // Update format badge
+            let formatBadgeClass = 'bg-primary';
+            if (format === 'Online') formatBadgeClass = 'bg-info';
+            if (format === 'On Campus') formatBadgeClass = 'bg-secondary';
+            row.cells[4].innerHTML = `<span class="badge ${formatBadgeClass}">${format}</span>`;
+            
+            // Update status badge
+            const statusBadgeClass = status === 'Active' ? 'bg-success' : 'bg-secondary';
+            row.cells[5].innerHTML = `<span class="badge ${statusBadgeClass}">${status}</span>`;
+        }
+    });
+    
+    bootstrap.Modal.getInstance(document.getElementById('editCourseModal')).hide();
+    showToast(`Course ${courseCode} updated successfully!`, 'success');
+}
+
+function deleteCourse(courseCode) {
+    if (confirm(`Are you sure you want to delete course ${courseCode}?`)) {
+        showToast(`Course ${courseCode} deleted successfully!`, 'success');
+        // Remove row from table
+        const rows = document.querySelectorAll('#courses-section tbody tr');
+        rows.forEach(row => {
+            if (row.cells[0].textContent === courseCode) {
+                row.remove();
+            }
+        });
+    }
+}
