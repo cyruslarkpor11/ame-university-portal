@@ -1097,3 +1097,292 @@ function deleteStudent(studentId) {
         });
     }
 }
+
+// Lecturer Management Functions
+function openAddLecturerModal() {
+    showToast('Add Lecturer - Opening form...');
+    const modalHtml = `
+        <div class="modal fade" id="addLecturerModal" tabindex="-1">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header bg-primary text-white">
+                        <h5 class="modal-title"><i class="bi bi-person-plus"></i> Add New Lecturer</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="addLecturerForm">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label fw-bold">Name</label>
+                                    <input type="text" class="form-control" id="lecturerName" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label fw-bold">Email</label>
+                                    <input type="email" class="form-control" id="lecturerEmail" required>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label fw-bold">Department</label>
+                                    <select class="form-select" id="lecturerDepartment">
+                                        <option value="Computer Science">Computer Science</option>
+                                        <option value="Mathematics">Mathematics</option>
+                                        <option value="Physics">Physics</option>
+                                        <option value="Chemistry">Chemistry</option>
+                                        <option value="Biology">Biology</option>
+                                        <option value="Business">Business</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label fw-bold">Courses</label>
+                                    <input type="number" class="form-control" id="lecturerCourses" min="1" max="10" value="3">
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label fw-bold">Type</label>
+                                    <select class="form-select" id="lecturerType">
+                                        <option value="Full-time">Full-time</option>
+                                        <option value="Part-time">Part-time</option>
+                                        <option value="Visiting">Visiting</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label fw-bold">Status</label>
+                                    <select class="form-select" id="lecturerStatus">
+                                        <option value="Active">Active</option>
+                                        <option value="On Leave">On Leave</option>
+                                        <option value="Inactive">Inactive</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-primary" onclick="saveLecturer()">
+                            <i class="bi bi-check-lg"></i> Add Lecturer
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    const existingModal = document.getElementById('addLecturerModal');
+    if (existingModal) {
+        existingModal.remove();
+    }
+    
+    document.body.insertAdjacentHTML('beforeend', modalHtml);
+    const modal = new bootstrap.Modal(document.getElementById('addLecturerModal'));
+    modal.show();
+}
+
+function saveLecturer() {
+    const name = document.getElementById('lecturerName').value;
+    const email = document.getElementById('lecturerEmail').value;
+    const department = document.getElementById('lecturerDepartment').value;
+    const courses = document.getElementById('lecturerCourses').value;
+    const type = document.getElementById('lecturerType').value;
+    const status = document.getElementById('lecturerStatus').value;
+    
+    if (!name || !email) {
+        showToast('Please fill in all required fields', 'danger');
+        return;
+    }
+    
+    // Generate new lecturer ID
+    const lecturerId = 'LEC-' + String(Math.floor(Math.random() * 900) + 100).padStart(3, '0');
+    
+    // Add to table
+    const tbody = document.querySelector('#lecturer-portal-section tbody');
+    const newRow = `
+        <tr>
+            <td>${lecturerId}</td>
+            <td>${name}</td>
+            <td>${department}</td>
+            <td>${courses}</td>
+            <td>${type}</td>
+            <td><span class="badge bg-${status === 'Active' ? 'success' : status === 'On Leave' ? 'warning' : 'secondary'}">${status}</span></td>
+            <td>
+                <button class="btn btn-sm btn-outline-primary" onclick="viewLecturer('${lecturerId}')">View</button>
+                <button class="btn btn-sm btn-outline-success" onclick="editLecturer('${lecturerId}')">Edit</button>
+                <button class="btn btn-sm btn-outline-danger" onclick="deleteLecturer('${lecturerId}')">Delete</button>
+            </td>
+        </tr>
+    `;
+    tbody.insertAdjacentHTML('beforeend', newRow);
+    
+    bootstrap.Modal.getInstance(document.getElementById('addLecturerModal')).hide();
+    showToast('Lecturer added successfully!', 'success');
+}
+
+function viewLecturer(lecturerId) {
+    showToast(`Viewing lecturer ${lecturerId} details...`);
+    
+    const modalHtml = `
+        <div class="modal fade" id="viewLecturerModal" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header bg-info text-white">
+                        <h5 class="modal-title"><i class="bi bi-person-workspace"></i> Lecturer Profile: ${lecturerId}</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="text-center mb-3">
+                            <i class="bi bi-person-circle" style="font-size: 64px; color: #0dcaf0;"></i>
+                        </div>
+                        <table class="table table-borderless">
+                            <tr><td><strong>Lecturer ID:</strong></td><td>${lecturerId}</td></tr>
+                            <tr><td><strong>Name:</strong></td><td>Dr. John Doe</td></tr>
+                            <tr><td><strong>Department:</strong></td><td>Computer Science</td></tr>
+                            <tr><td><strong>Courses:</strong></td><td>4</td></tr>
+                            <tr><td><strong>Type:</strong></td><td>Full-time</td></tr>
+                            <tr><td><strong>Status:</strong></td><td><span class="badge bg-success">Active</span></td></tr>
+                        </table>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    const existingModal = document.getElementById('viewLecturerModal');
+    if (existingModal) {
+        existingModal.remove();
+    }
+    
+    document.body.insertAdjacentHTML('beforeend', modalHtml);
+    const modal = new bootstrap.Modal(document.getElementById('viewLecturerModal'));
+    modal.show();
+}
+
+function editLecturer(lecturerId) {
+    showToast(`Editing lecturer ${lecturerId}...`);
+    
+    const modalHtml = `
+        <div class="modal fade" id="editLecturerModal" tabindex="-1">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header bg-success text-white">
+                        <h5 class="modal-title"><i class="bi bi-pencil"></i> Edit Lecturer: ${lecturerId}</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="editLecturerForm">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label fw-bold">Lecturer ID</label>
+                                    <input type="text" class="form-control" id="editLecturerId" value="${lecturerId}" readonly>
+                                    <small class="text-muted">ID cannot be changed</small>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label fw-bold">Name</label>
+                                    <input type="text" class="form-control" id="editLecturerName" value="Dr. Name" required>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label fw-bold">Department</label>
+                                    <select class="form-select" id="editLecturerDepartment">
+                                        <option value="Computer Science">Computer Science</option>
+                                        <option value="Mathematics">Mathematics</option>
+                                        <option value="Physics">Physics</option>
+                                        <option value="Chemistry">Chemistry</option>
+                                        <option value="Biology">Biology</option>
+                                        <option value="Business">Business</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label fw-bold">Courses</label>
+                                    <input type="number" class="form-control" id="editLecturerCourses" min="1" max="10" value="3">
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label fw-bold">Type</label>
+                                    <select class="form-select" id="editLecturerType">
+                                        <option value="Full-time">Full-time</option>
+                                        <option value="Part-time">Part-time</option>
+                                        <option value="Visiting">Visiting</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label fw-bold">Status</label>
+                                    <select class="form-select" id="editLecturerStatus">
+                                        <option value="Active">Active</option>
+                                        <option value="On Leave">On Leave</option>
+                                        <option value="Inactive">Inactive</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-success" onclick="saveEditLecturer('${lecturerId}')">
+                            <i class="bi bi-check-lg"></i> Save Changes
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    const existingModal = document.getElementById('editLecturerModal');
+    if (existingModal) {
+        existingModal.remove();
+    }
+    
+    document.body.insertAdjacentHTML('beforeend', modalHtml);
+    const modal = new bootstrap.Modal(document.getElementById('editLecturerModal'));
+    modal.show();
+}
+
+function saveEditLecturer(lecturerId) {
+    const name = document.getElementById('editLecturerName').value;
+    const department = document.getElementById('editLecturerDepartment').value;
+    const courses = document.getElementById('editLecturerCourses').value;
+    const type = document.getElementById('editLecturerType').value;
+    const status = document.getElementById('editLecturerStatus').value;
+    
+    if (!name) {
+        showToast('Please enter lecturer name', 'danger');
+        return;
+    }
+    
+    // Find and update the row in the table
+    const rows = document.querySelectorAll('#lecturer-portal-section tbody tr');
+    rows.forEach(row => {
+        if (row.cells[0].textContent === lecturerId) {
+            row.cells[1].textContent = name;
+            row.cells[2].textContent = department;
+            row.cells[3].textContent = courses;
+            row.cells[4].textContent = type;
+            
+            // Update status badge
+            const badgeClass = status === 'Active' ? 'bg-success' : 
+                              status === 'On Leave' ? 'bg-warning' : 'bg-secondary';
+            row.cells[5].innerHTML = `<span class="badge ${badgeClass}">${status}</span>`;
+        }
+    });
+    
+    bootstrap.Modal.getInstance(document.getElementById('editLecturerModal')).hide();
+    showToast(`Lecturer ${lecturerId} updated successfully!`, 'success');
+}
+
+function deleteLecturer(lecturerId) {
+    if (confirm(`Are you sure you want to delete lecturer ${lecturerId}?`)) {
+        showToast(`Lecturer ${lecturerId} deleted successfully!`, 'success');
+        // Remove row from table
+        const rows = document.querySelectorAll('#lecturer-portal-section tbody tr');
+        rows.forEach(row => {
+            if (row.cells[0].textContent === lecturerId) {
+                row.remove();
+            }
+        });
+    }
+}
