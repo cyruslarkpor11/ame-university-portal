@@ -640,44 +640,62 @@ function openAddAdminModal() {
     // Create modal dynamically
     const modalHtml = `
         <div class="modal fade" id="addAdminModal" tabindex="-1">
-            <div class="modal-dialog">
+            <div class="modal-dialog modal-lg">
                 <div class="modal-content">
-                    <div class="modal-header">
+                    <div class="modal-header bg-danger text-white">
                         <h5 class="modal-title"><i class="bi bi-shield-lock"></i> Add New Admin</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                     </div>
                     <div class="modal-body">
                         <form id="addAdminForm">
-                            <div class="mb-3">
-                                <label class="form-label">Admin Name</label>
-                                <input type="text" class="form-control" id="adminName" required>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label fw-bold">Username <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="adminUsername" placeholder="e.g., admin2" required>
+                                    <small class="text-muted">This will be used for login</small>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label fw-bold">Password <span class="text-danger">*</span></label>
+                                    <input type="password" class="form-control" id="adminPassword" placeholder="Set password" required>
+                                    <small class="text-muted">Will be encoded securely</small>
+                                </div>
                             </div>
-                            <div class="mb-3">
-                                <label class="form-label">Email</label>
-                                <input type="email" class="form-control" id="adminEmail" required>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label fw-bold">Full Name</label>
+                                    <input type="text" class="form-control" id="adminName" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label fw-bold">Email</label>
+                                    <input type="email" class="form-control" id="adminEmail" required>
+                                </div>
                             </div>
-                            <div class="mb-3">
-                                <label class="form-label">Role</label>
-                                <select class="form-select" id="adminRole">
-                                    <option value="Super Admin">Super Admin</option>
-                                    <option value="Academic Admin">Academic Admin</option>
-                                    <option value="Finance Admin">Finance Admin</option>
-                                </select>
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label">Department</label>
-                                <select class="form-select" id="adminDepartment">
-                                    <option value="All">All Departments</option>
-                                    <option value="Computer Science">Computer Science</option>
-                                    <option value="Finance">Finance</option>
-                                    <option value="Academic">Academic Affairs</option>
-                                </select>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label fw-bold">Role</label>
+                                    <select class="form-select" id="adminRole">
+                                        <option value="Super Admin">Super Admin</option>
+                                        <option value="Academic Admin">Academic Admin</option>
+                                        <option value="Finance Admin">Finance Admin</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label fw-bold">Department</label>
+                                    <select class="form-select" id="adminDepartment">
+                                        <option value="All">All Departments</option>
+                                        <option value="Computer Science">Computer Science</option>
+                                        <option value="Finance">Finance</option>
+                                        <option value="Academic">Academic Affairs</option>
+                                    </select>
+                                </div>
                             </div>
                         </form>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                        <button type="button" class="btn btn-primary" onclick="saveAdmin()">Add Admin</button>
+                        <button type="button" class="btn btn-danger" onclick="saveAdmin()">
+                            <i class="bi bi-check-lg"></i> Create Admin User
+                        </button>
                     </div>
                 </div>
             </div>
@@ -698,13 +716,15 @@ function openAddAdminModal() {
     modal.show();
 }
 
-function saveAdmin() {
+async function saveAdmin() {
+    const username = document.getElementById('adminUsername').value;
+    const password = document.getElementById('adminPassword').value;
     const name = document.getElementById('adminName').value;
     const email = document.getElementById('adminEmail').value;
     const role = document.getElementById('adminRole').value;
     const department = document.getElementById('adminDepartment').value;
     
-    if (!name || !email) {
+    if (!username || !password || !name || !email) {
         showToast('Please fill in all required fields', 'danger');
         return;
     }
@@ -712,27 +732,59 @@ function saveAdmin() {
     // Generate new admin ID
     const adminId = 'ADM-00' + (Math.floor(Math.random() * 900) + 100);
     
-    // Add to table (demo)
-    const tbody = document.querySelector('#admin-portal-section tbody');
-    const newRow = `
-        <tr>
-            <td>${adminId}</td>
-            <td>${name}</td>
-            <td>${role}</td>
-            <td>${department}</td>
-            <td><span class="badge bg-success">Active</span></td>
-            <td>Just now</td>
-            <td>
-                <button class="btn btn-sm btn-outline-primary" onclick="editAdmin('${adminId}')">Manage</button>
-                <button class="btn btn-sm btn-outline-danger" onclick="deleteAdmin('${adminId}')">Delete</button>
-            </td>
-        </tr>
-    `;
-    tbody.insertAdjacentHTML('beforeend', newRow);
+    // Create user data for API
+    const userData = {
+        username: username,
+        password: password,
+        email: email,
+        role: 'ADMIN',
+        department: department
+    };
     
-    // Close modal
-    bootstrap.Modal.getInstance(document.getElementById('addAdminModal')).hide();
-    showToast('Admin added successfully!', 'success');
+    try {
+        showToast('Creating admin user...', 'info');
+        
+        // Call API to create user
+        const response = await fetch('/api/users', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(userData)
+        });
+        
+        if (!response.ok) {
+            throw new Error('Failed to create admin user');
+        }
+        
+        const result = await response.json();
+        
+        // Add to table
+        const tbody = document.querySelector('#admin-portal-section tbody');
+        const newRow = `
+            <tr>
+                <td>${adminId}</td>
+                <td>${name}</td>
+                <td>${role}</td>
+                <td>${department}</td>
+                <td><span class="badge bg-success">Active</span></td>
+                <td>Just now</td>
+                <td>
+                    <button class="btn btn-sm btn-outline-primary" onclick="editAdmin('${adminId}')">Manage</button>
+                    <button class="btn btn-sm btn-outline-danger" onclick="deleteAdmin('${adminId}')">Delete</button>
+                </td>
+            </tr>
+        `;
+        tbody.insertAdjacentHTML('beforeend', newRow);
+        
+        // Close modal
+        bootstrap.Modal.getInstance(document.getElementById('addAdminModal')).hide();
+        showToast(`Admin created successfully! Username: ${username} | Password: ${password}`, 'success');
+        
+    } catch (error) {
+        showToast('Error creating admin: ' + error.message, 'danger');
+        console.error('Error:', error);
+    }
 }
 
 function editAdmin(adminId) {
@@ -824,11 +876,23 @@ function openEnrollStudentModal() {
                         <form id="enrollStudentForm">
                             <div class="row">
                                 <div class="col-md-6 mb-3">
-                                    <label class="form-label">Student Name</label>
+                                    <label class="form-label fw-bold">Username <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="studentUsername" placeholder="e.g., student2" required>
+                                    <small class="text-muted">This will be used for login</small>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label fw-bold">Password <span class="text-danger">*</span></label>
+                                    <input type="password" class="form-control" id="studentPassword" placeholder="Set password" required>
+                                    <small class="text-muted">Will be encoded securely</small>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label fw-bold">Full Name</label>
                                     <input type="text" class="form-control" id="studentName" required>
                                 </div>
                                 <div class="col-md-6 mb-3">
-                                    <label class="form-label">Email</label>
+                                    <label class="form-label fw-bold">Email</label>
                                     <input type="email" class="form-control" id="studentEmail" required>
                                 </div>
                             </div>
@@ -889,7 +953,9 @@ function openEnrollStudentModal() {
     modal.show();
 }
 
-function saveStudent() {
+async function saveStudent() {
+    const username = document.getElementById('studentUsername').value;
+    const password = document.getElementById('studentPassword').value;
     const name = document.getElementById('studentName').value;
     const email = document.getElementById('studentEmail').value;
     const program = document.getElementById('studentProgram').value;
@@ -897,13 +963,40 @@ function saveStudent() {
     const gpa = document.getElementById('studentGPA').value;
     const status = document.getElementById('studentStatus').value;
     
-    if (!name || !email) {
+    if (!username || !password || !name || !email) {
         showToast('Please fill in all required fields', 'danger');
         return;
     }
     
-    // Generate new student ID
-    const studentId = 'STD-2024-' + (Math.floor(Math.random() * 900) + 100);
+    // Create user data for API
+    const userData = {
+        username: username,
+        password: password,
+        email: email,
+        role: 'STUDENT',
+        department: program
+    };
+    
+    try {
+        showToast('Creating student user...', 'info');
+        
+        // Call API to create user
+        const response = await fetch('/api/users', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(userData)
+        });
+        
+        if (!response.ok) {
+            throw new Error('Failed to create student user');
+        }
+        
+        const result = await response.json();
+        
+        // Generate new student ID
+        const studentId = 'STD-2024-' + (Math.floor(Math.random() * 900) + 100);
     
     // Add to table
     const tbody = document.querySelector('#student-portal-section tbody');
@@ -925,7 +1018,11 @@ function saveStudent() {
     tbody.insertAdjacentHTML('beforeend', newRow);
     
     bootstrap.Modal.getInstance(document.getElementById('enrollStudentModal')).hide();
-    showToast('Student enrolled successfully!', 'success');
+    showToast(`Student enrolled successfully! Username: ${username} | Password: ${password}`, 'success');
+    } catch (error) {
+        showToast('Error enrolling student: ' + error.message, 'danger');
+        console.error('Error:', error);
+    }
 }
 
 function viewStudent(studentId) {
@@ -1113,7 +1210,19 @@ function openAddLecturerModal() {
                         <form id="addLecturerForm">
                             <div class="row">
                                 <div class="col-md-6 mb-3">
-                                    <label class="form-label fw-bold">Name</label>
+                                    <label class="form-label fw-bold">Username <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="lecturerUsername" placeholder="e.g., lecturer2" required>
+                                    <small class="text-muted">This will be used for login</small>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label fw-bold">Password <span class="text-danger">*</span></label>
+                                    <input type="password" class="form-control" id="lecturerPassword" placeholder="Set password" required>
+                                    <small class="text-muted">Will be encoded securely</small>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label fw-bold">Full Name</label>
                                     <input type="text" class="form-control" id="lecturerName" required>
                                 </div>
                                 <div class="col-md-6 mb-3">
@@ -1179,7 +1288,9 @@ function openAddLecturerModal() {
     modal.show();
 }
 
-function saveLecturer() {
+async function saveLecturer() {
+    const username = document.getElementById('lecturerUsername').value;
+    const password = document.getElementById('lecturerPassword').value;
     const name = document.getElementById('lecturerName').value;
     const email = document.getElementById('lecturerEmail').value;
     const department = document.getElementById('lecturerDepartment').value;
@@ -1187,7 +1298,7 @@ function saveLecturer() {
     const type = document.getElementById('lecturerType').value;
     const status = document.getElementById('lecturerStatus').value;
     
-    if (!name || !email) {
+    if (!username || !password || !name || !email) {
         showToast('Please fill in all required fields', 'danger');
         return;
     }
@@ -1195,8 +1306,35 @@ function saveLecturer() {
     // Generate new lecturer ID
     const lecturerId = 'LEC-' + String(Math.floor(Math.random() * 900) + 100).padStart(3, '0');
     
-    // Add to table
-    const tbody = document.querySelector('#lecturer-portal-section tbody');
+    // Create user data for API
+    const userData = {
+        username: username,
+        password: password,
+        email: email,
+        role: 'LECTURER',
+        department: department
+    };
+    
+    try {
+        showToast('Creating lecturer user...', 'info');
+        
+        // Call API to create user
+        const response = await fetch('/api/users', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(userData)
+        });
+        
+        if (!response.ok) {
+            throw new Error('Failed to create lecturer user');
+        }
+        
+        const result = await response.json();
+        
+        // Add to table
+        const tbody = document.querySelector('#lecturer-portal-section tbody');
     const newRow = `
         <tr>
             <td>${lecturerId}</td>
@@ -1215,7 +1353,11 @@ function saveLecturer() {
     tbody.insertAdjacentHTML('beforeend', newRow);
     
     bootstrap.Modal.getInstance(document.getElementById('addLecturerModal')).hide();
-    showToast('Lecturer added successfully!', 'success');
+    showToast(`Lecturer created successfully! Username: ${username} | Password: ${password}`, 'success');
+    } catch (error) {
+        showToast('Error creating lecturer: ' + error.message, 'danger');
+        console.error('Error:', error);
+    }
 }
 
 function viewLecturer(lecturerId) {
